@@ -1,21 +1,38 @@
 # Virtual environment
 venv/
+.venv/
 
-# Python cache
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+
+# Django
+*.log
+db.sqlite3
+media/
+staticfiles/
+
+# Uploaded documents
+contracts/documents/
 
 # Environment variables
 .env
+.env.*
 
-# VS Code
+# IDE
 .vscode/
-
-# PyCharm
 .idea/
 
-# Logs
-*.log
+# OS
+.DS_Store
+Thumbs.db
 
-# SQLite database
-db.sqlite3
+# Test / coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Secrets
+*.pem
+*.key
