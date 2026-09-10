@@ -35,12 +35,9 @@ from .serializers import (
     AuditLogSerializer,
 )
 
-from .permissions import RoleBasedPermission
+from .permissions import RoleBasedPermission, IsAdministrator
 
 
-# ============================================================
-# AUDIT LOG HELPER
-# ============================================================
 
 def create_audit_log(
     request,
@@ -49,9 +46,6 @@ def create_audit_log(
     entity_id=None,
     details=None
 ):
-    """
-    Create an audit log entry for the current request.
-    """
 
     AuditLog.objects.create(
         user=request.user
@@ -65,9 +59,7 @@ def create_audit_log(
     )
 
 
-# ============================================================
-# REGISTRATION
-# ============================================================
+
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
@@ -107,9 +99,8 @@ def register(request):
     )
 
 
-# ============================================================
-# LOGIN
-# ============================================================
+
+
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
@@ -185,9 +176,6 @@ def login(request):
     )
 
 
-# ============================================================
-# LOGOUT
-# ============================================================
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
@@ -215,15 +203,11 @@ def logout(request):
     )
 
 
-# ============================================================
-# ROLE CRUD
-# ============================================================
-
 class RoleViewSet(viewsets.ModelViewSet):
 
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
-    permission_classes = [RoleBasedPermission]
+    permission_classes = [IsAdministrator]
 
     def perform_create(self, serializer):
 
@@ -271,15 +255,12 @@ class RoleViewSet(viewsets.ModelViewSet):
         instance.delete()
 
 
-# ============================================================
-# USER CRUD
-# ============================================================
 
 class UserViewSet(viewsets.ModelViewSet):
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [RoleBasedPermission]
+    permission_classes = [IsAdministrator]
 
     def perform_create(self, serializer):
 
@@ -326,10 +307,6 @@ class UserViewSet(viewsets.ModelViewSet):
 
         instance.delete()
 
-
-# ============================================================
-# CONTRACT CRUD
-# ============================================================
 
 class ContractViewSet(viewsets.ModelViewSet):
 
@@ -388,9 +365,8 @@ class ContractViewSet(viewsets.ModelViewSet):
         instance.delete()
 
 
-# ============================================================
-# DOCUMENT CRUD
-# ============================================================
+
+
 
 class DocumentViewSet(viewsets.ModelViewSet):
 
@@ -477,9 +453,6 @@ class DocumentViewSet(viewsets.ModelViewSet):
         )
 
 
-# ============================================================
-# CLAUSE CRUD
-# ============================================================
 
 class ClauseViewSet(viewsets.ModelViewSet):
 
@@ -535,9 +508,7 @@ class ClauseViewSet(viewsets.ModelViewSet):
         instance.delete()
 
 
-# ============================================================
-# MODIFICATION CRUD
-# ============================================================
+
 
 class ModificationViewSet(viewsets.ModelViewSet):
 
@@ -599,9 +570,8 @@ class ModificationViewSet(viewsets.ModelViewSet):
         instance.delete()
 
 
-# ============================================================
 # VERSION CRUD
-# ============================================================
+
 
 class VersionViewSet(viewsets.ModelViewSet):
 
@@ -663,9 +633,7 @@ class VersionViewSet(viewsets.ModelViewSet):
         instance.delete()
 
 
-# ============================================================
-# APPROVAL CRUD
-# ============================================================
+
 
 class ApprovalViewSet(viewsets.ModelViewSet):
 
@@ -778,9 +746,6 @@ class ApprovalViewSet(viewsets.ModelViewSet):
         instance.delete()
 
 
-# ============================================================
-# AUDIT LOG
-# ============================================================
 
 class AuditLogViewSet(viewsets.ReadOnlyModelViewSet):
 

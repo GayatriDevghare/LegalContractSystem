@@ -1,0 +1,158 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Role Management - Legal Contract System</title>
+
+    <link rel="stylesheet"
+          href="{% static 'contracts/css/style.css' %}">
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="page-header">
+
+        <div>
+            <h1>Role Management</h1>
+            <p>Manage roles and access levels in the system.</p>
+        </div>
+
+        <div class="header-actions">
+
+            <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+                Dashboard
+            </a>
+
+            <a href="{% url 'role_create' %}" class="btn btn-primary">
+                + Add Role
+            </a>
+
+        </div>
+
+    </div>
+
+
+    {% if messages %}
+
+        {% for message in messages %}
+
+            <div class="alert {{ message.tags }}">
+                {{ message }}
+            </div>
+
+        {% endfor %}
+
+    {% endif %}
+
+
+    <div class="card">
+
+        <div class="card-header">
+
+            <div>
+                <h2>Roles</h2>
+                <p>{{ roles|length }} role{{ roles|length|pluralize }} available</p>
+            </div>
+
+        </div>
+
+
+        {% if roles %}
+
+            <div class="table-responsive">
+
+                <table class="data-table">
+
+                    <thead>
+                        <tr>
+                            <th>Sr No.</th>
+                            <th>Role Name</th>
+                            <th>Description</th>
+                            <th>Users</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for role in roles %}
+
+                            <tr>
+
+                                <td>
+                                    {{ forloop.counter }}
+                                </td>
+
+                                <td>
+                                    <strong>
+                                        {{ role.name }}
+                                    </strong>
+                                </td>
+
+                                <td>
+                                    {{ role.description }}
+                                </td>
+
+                                <td>
+                                    {{ role.users.count }}
+                                </td>
+
+                                <td>
+
+                                    <div class="action-buttons">
+
+                                        <a href="{% url 'role_update' role.id %}"
+                                            class="btn btn-edit">
+                                            Edit
+                                        </a>
+
+                                        <a href="{% url 'role_delete' role.id %}"
+                                            class="btn btn-danger">
+                                            Delete
+                                        </a>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-state">
+
+                <h3>No Roles Found</h3>
+
+                <p>
+                    No roles have been created yet.
+                </p>
+
+                <a href="{% url 'role_create' %}"
+                   class="btn btn-primary">
+                    Create First Role
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+</body>
+</html>

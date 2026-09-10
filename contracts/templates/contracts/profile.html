@@ -1,0 +1,600 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>My Profile - Legal Contract System</title>
+
+    <link rel="stylesheet"
+          href="{% static 'contracts/css/style.css' %}">
+
+</head>
+
+<body>
+
+<div class="dashboard-layout">
+
+
+    <!-- ========================= -->
+    <!-- SIDEBAR -->
+    <!-- ========================= -->
+
+    <aside class="dashboard-sidebar">
+
+        <div class="sidebar-logo">
+            <h2>Legal Contract System</h2>
+        </div>
+
+
+        <!-- SIDEBAR PROFILE -->
+
+        <div class="sidebar-profile">
+
+            <div class="sidebar-profile-image">
+
+                {% if user.profile_photo %}
+
+                    <img src="{{ user.profile_photo.url }}"
+                         alt="Profile Photo">
+
+                {% else %}
+
+                    {{ user.username|first|upper }}
+
+                {% endif %}
+
+            </div>
+
+
+            <div class="sidebar-profile-name">
+                {{ user.username }}
+            </div>
+
+
+            {% if user.role %}
+
+                <div class="sidebar-profile-role">
+                    {{ user.role.name }}
+                </div>
+
+            {% endif %}
+
+
+            <a href="{% url 'profile' %}"
+               class="sidebar-profile-link">
+
+                My Profile
+
+            </a>
+
+        </div>
+
+
+        <!-- ========================= -->
+        <!-- NAVIGATION -->
+        <!-- ========================= -->
+
+        <nav class="dashboard-navigation">
+
+            <div class="dashboard-nav-title">
+                Main Menu
+            </div>
+
+
+            <!-- Dashboard -->
+
+            <a href="{% url 'dashboard' %}"
+               class="dashboard-nav-link">
+
+                <span class="dashboard-nav-icon">⌂</span>
+
+                Dashboard
+
+            </a>
+
+
+            <!-- Admin Navigation -->
+
+            {% if user.is_superuser or user.role and user.role.name|lower == "admin" %}
+
+                <a href="{% url 'user_list' %}"
+                   class="dashboard-nav-link">
+
+                    <span class="dashboard-nav-icon">👥</span>
+
+                    User Management
+
+                </a>
+
+
+                <a href="{% url 'role_list' %}"
+                   class="dashboard-nav-link">
+
+                    <span class="dashboard-nav-icon">🔐</span>
+
+                    Role Management
+
+                </a>
+
+            {% endif %}
+
+
+            <!-- Contracts -->
+
+            <a href="{% url 'contract_list' %}"
+               class="dashboard-nav-link">
+
+                <span class="dashboard-nav-icon">📄</span>
+
+                Contracts
+
+            </a>
+
+
+            <!-- Documents -->
+
+            <a href="{% url 'document_list' %}"
+               class="dashboard-nav-link">
+
+                <span class="dashboard-nav-icon">📁</span>
+
+                Documents
+
+            </a>
+
+
+            <!-- Clauses -->
+
+            <a href="{% url 'clause_list' %}"
+               class="dashboard-nav-link">
+
+                <span class="dashboard-nav-icon">📋</span>
+
+                Clauses
+
+            </a>
+
+
+            <!-- Profile -->
+
+            <a href="{% url 'profile' %}"
+               class="dashboard-nav-link active">
+
+                <span class="dashboard-nav-icon">👤</span>
+
+                My Profile
+
+            </a>
+
+        </nav>
+
+
+        <!-- ========================= -->
+        <!-- LOGOUT -->
+        <!-- ========================= -->
+
+        <div class="sidebar-bottom">
+
+            <form method="post"
+                  action="{% url 'web_logout' %}">
+
+                {% csrf_token %}
+
+                <button type="submit"
+                        class="sidebar-logout">
+
+                    <span>↪</span>
+
+                    Logout
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </aside>
+
+
+
+    <!-- ========================= -->
+    <!-- MAIN CONTENT -->
+    <!-- ========================= -->
+
+    <main class="dashboard-main">
+
+
+        <!-- ========================= -->
+        <!-- TOPBAR -->
+        <!-- ========================= -->
+
+        <div class="dashboard-topbar">
+
+            <div class="dashboard-topbar-left">
+
+                <div class="dashboard-topbar-title">
+                    My Profile
+                </div>
+
+            </div>
+
+
+            <div class="dashboard-topbar-right">
+
+                <div class="topbar-user">
+
+                    <div class="topbar-user-avatar">
+
+                        {% if user.profile_photo %}
+
+                            <img src="{{ user.profile_photo.url }}"
+                                 alt="Profile Photo">
+
+                        {% else %}
+
+                            {{ user.username|first|upper }}
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <span class="topbar-user-name">
+
+                        {{ user.username }}
+
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ========================= -->
+        <!-- PAGE HEADER -->
+        <!-- ========================= -->
+
+        <div class="page-header">
+
+            <div>
+
+                <h1 class="page-title">
+                    My Profile
+                </h1>
+
+                <p class="page-subtitle">
+                    View and manage your account information.
+                </p>
+
+            </div>
+
+
+            <a href="{% url 'dashboard' %}"
+               class="btn btn-secondary">
+
+                ← Back to Dashboard
+
+            </a>
+
+        </div>
+
+
+
+        <!-- ========================= -->
+        <!-- MESSAGES -->
+        <!-- ========================= -->
+
+        {% if messages %}
+
+            {% for message in messages %}
+
+                <div class="alert {{ message.tags }}">
+
+                    {{ message }}
+
+                </div>
+
+            {% endfor %}
+
+        {% endif %}
+
+
+
+        <!-- ========================= -->
+        <!-- PROFILE -->
+        <!-- ========================= -->
+
+        <div class="profile-container">
+
+            <div class="profile-card">
+
+
+                <!-- ========================= -->
+                <!-- PROFILE HEADER -->
+                <!-- ========================= -->
+
+                <div class="profile-header">
+
+
+                    <!-- PROFILE PHOTO -->
+
+                        <div class="profile-avatar">
+
+                            {% if user.profile_photo %}
+                                <img
+                                    src="{{ user.profile_photo.url }}"
+                                    alt="Profile Photo"
+                                    class="profile-image"
+                                >
+                            {% else %}
+                                {{ user.username|first|upper }}
+                            {% endif %}
+
+                        </div>
+
+
+                    <!-- PROFILE BASIC INFO -->
+
+                    <div class="profile-info">
+
+                        <h2>
+
+                            {{ user.get_full_name|default:user.username }}
+
+                        </h2>
+
+
+                        <p>
+
+                            {{ user.email|default:"No email provided" }}
+
+                        </p>
+
+
+                        {% if user.role %}
+
+                            <span class="badge badge-primary">
+
+                                {{ user.role.name }}
+
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- ========================= -->
+                <!-- PROFILE DETAILS -->
+                <!-- ========================= -->
+
+                <div class="profile-body">
+
+
+                    <!-- USERNAME -->
+
+                    <div class="profile-field">
+
+                        <div class="profile-field-label">
+                            Username
+                        </div>
+
+                        <div class="profile-field-value">
+
+                            {{ user.username }}
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- FIRST NAME -->
+
+                    <div class="profile-field">
+
+                        <div class="profile-field-label">
+                            First Name
+                        </div>
+
+                        <div class="profile-field-value">
+
+                            {{ user.first_name|default:"Not provided" }}
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- LAST NAME -->
+
+                    <div class="profile-field">
+
+                        <div class="profile-field-label">
+                            Last Name
+                        </div>
+
+                        <div class="profile-field-value">
+
+                            {{ user.last_name|default:"Not provided" }}
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- EMAIL -->
+
+                    <div class="profile-field">
+
+                        <div class="profile-field-label">
+                            Email
+                        </div>
+
+                        <div class="profile-field-value">
+
+                            {{ user.email|default:"Not provided" }}
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ROLE -->
+
+                    <div class="profile-field">
+
+                        <div class="profile-field-label">
+                            Role
+                        </div>
+
+                        <div class="profile-field-value">
+
+                            {% if user.role %}
+
+                                {{ user.role.name }}
+
+                            {% else %}
+
+                                No role assigned
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ACCOUNT STATUS -->
+
+                    <div class="profile-field">
+
+                        <div class="profile-field-label">
+                            Account Status
+                        </div>
+
+                        <div class="profile-field-value">
+
+                            {% if user.is_active %}
+
+                                <span class="badge badge-success">
+                                    Active
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge badge-danger">
+                                    Inactive
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- DATE JOINED -->
+
+                    <div class="profile-field">
+
+                        <div class="profile-field-label">
+                            Date Joined
+                        </div>
+
+                        <div class="profile-field-value">
+
+                            {{ user.date_joined|date:"d M Y" }}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- ========================= -->
+                <!-- PROFILE ACTIONS -->
+                <!-- ========================= -->
+
+                <div class="profile-actions">
+
+                    <!-- EDIT PROFILE -->
+
+                    <a href="{% url 'profile_edit' %}"
+                       class="btn btn-primary">
+
+                        ✏️ Edit Profile
+
+                    </a>
+
+
+                    <!-- CHANGE PHOTO -->
+
+                    <a href="{% url 'profile_edit' %}"
+                       class="btn btn-secondary">
+
+                        📷 Change Photo
+
+                    </a>
+
+
+                    <!-- REMOVE PHOTO -->
+
+                    {% if user.profile_photo %}
+
+                        <form method="post"
+                              action="{% url 'profile_remove_photo' %}"
+                              style="display: inline;">
+
+                            {% csrf_token %}
+
+                            <button type="submit"
+                                    class="btn btn-danger"
+                                    onclick="return confirm('Are you sure you want to remove your profile photo?');">
+
+                                🗑️ Remove Photo
+
+                            </button>
+
+                        </form>
+
+                    {% endif %}
+
+
+                    <!-- BACK TO DASHBOARD -->
+
+                    <a href="{% url 'dashboard' %}"
+                       class="btn btn-secondary">
+
+                        ← Back to Dashboard
+
+                    </a>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+</body>
+
+</html>

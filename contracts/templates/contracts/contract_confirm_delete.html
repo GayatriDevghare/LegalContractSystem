@@ -1,0 +1,43 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Delete Contract</title>
+    <link rel="stylesheet" href="{% static 'contracts/css/style.css' %}">
+</head>
+
+<body>
+
+    <h1>Delete Contract</h1>
+
+    <p>
+        Are you sure you want to permanently delete
+        <strong>{{ contract.title }}</strong>?
+    </p>
+
+    <form method="POST">
+
+    {% csrf_token %}
+
+    <button type="submit"
+            class="btn btn-danger">
+        Yes, Delete
+    </button>
+
+    <a href="{% url 'contract_clause_list' clause.contract.id %}"
+        class="btn btn-secondary">
+        Cancel
+    </a>
+
+    <a href="{% url 'dashboard' %}"
+        class="btn btn-secondary">
+        ← Back to Dashboard
+    </a>
+
+</form>
+
+</body>
+
+</html>

@@ -1,11 +1,11 @@
 from rest_framework.permissions import BasePermission
 
-
 class RoleBasedPermission(BasePermission):
+
 
     def has_permission(self, request, view):
 
-        # User must be logged in
+        # User must be authenticated
         if not request.user or not request.user.is_authenticated:
             return False
 
@@ -13,20 +13,38 @@ class RoleBasedPermission(BasePermission):
         if request.user.is_superuser:
             return True
 
-        # Get user's role
-        role = request.user.role
+        role = getattr(request.user, "role", None)
 
-        if role is None:
+        if not role:
             return False
 
-        role_name = role.name.lower()
+        role_name = role.name.strip().lower()
 
-        # Admin - full access
+        # ==========================================
+        # ADMIN
+        # ==========================================
+
         if role_name == "admin":
             return True
 
-        # Manager - CRUD except DELETE
-        if role_name == "manager":
+        # ==========================================
+        # CONTRACT MANAGER
+        # ==========================================
+
+        if role_name == "contract manager":
+            return request.method in [
+                "GET",
+                "POST",
+                "PUT",
+                "PATCH",
+                "DELETE",
+            ]
+
+        # ==========================================
+        # APPROVER
+        # ==========================================
+
+        if role_name == "approver":
             return request.method in [
                 "GET",
                 "POST",
@@ -34,12 +52,34 @@ class RoleBasedPermission(BasePermission):
                 "PATCH",
             ]
 
-        # Employee - read only
-        if role_name == "employee":
-            return request.method == "GET"
+        # ==========================================
+        # USER
+        # ==========================================
 
-        # Viewer - read only
-        if role_name == "viewer":
+        if role_name == "user":
             return request.method == "GET"
 
         return False
+
+
+class IsAdministrator(BasePermission):
+
+
+    def has_permission(self, request, view):
+
+        # User must be authenticated
+        if not request.user or not request.user.is_authenticated:
+            return False
+
+        # Django superuser
+        if request.user.is_superuser:
+            return True
+
+        role = getattr(request.user, "role", None)
+
+        if not role:
+            return False
+
+        # Only Admin
+        return role.name.strip().lower() == "admin"
+

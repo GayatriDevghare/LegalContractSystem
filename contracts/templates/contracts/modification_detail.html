@@ -1,0 +1,482 @@
+{% load static %}
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>Modification Request Details - Legal Contract System</title>
+
+<link rel="stylesheet"
+      href="{% static 'contracts/css/style.css' %}">
+
+
+</head>
+
+<body>
+
+<div class="container">
+
+
+<div class="page-header">
+
+    <div>
+
+        <h1>
+            Modification Request Details
+        </h1>
+
+        <p>
+            Review the modification before approving or rejecting it.
+        </p>
+
+    </div>
+
+    <a href="{% url 'modification_list' %}"
+       class="btn btn-secondary">
+
+        Back to Requests
+
+    </a>
+
+</div>
+
+
+{% if messages %}
+
+    <div class="toast-container">
+
+        {% for message in messages %}
+
+            <div class="toast-message">
+
+                <span class="toast-icon">
+                    ✓
+                </span>
+
+                <span class="toast-text">
+                    {{ message }}
+                </span>
+
+                <button type="button"
+                        class="toast-close"
+                        onclick="this.parentElement.remove()">
+
+                    ×
+
+                </button>
+
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+{% endif %}
+
+
+<!-- ========================================= -->
+<!-- REQUEST INFORMATION -->
+<!-- ========================================= -->
+
+<div class="card">
+
+    <h2>
+        Request Information
+    </h2>
+
+    <div class="detail-grid">
+
+        <div class="detail-item">
+
+            <strong>Contract</strong>
+
+            <span>
+
+                {% if modification.contract %}
+                    {{ modification.contract.title }}
+                {% else %}
+                    -
+                {% endif %}
+
+            </span>
+
+        </div>
+
+
+        <div class="detail-item">
+
+            <strong>Clause</strong>
+
+            <span>
+
+                {% if modification.clause %}
+
+                    {{ modification.clause.title }}
+
+                {% else %}
+
+                    Entire Contract
+
+                {% endif %}
+
+            </span>
+
+        </div>
+
+
+        <div class="detail-item">
+
+            <strong>Requested By</strong>
+
+            <span>
+
+                {% if modification.modified_by %}
+
+                    {{ modification.modified_by.username }}
+
+                {% else %}
+
+                    -
+
+                {% endif %}
+
+            </span>
+
+        </div>
+
+
+        <div class="detail-item">
+
+            <strong>Request Date</strong>
+
+            <span>
+
+                {{ modification.modified_at|date:"d M Y, h:i A" }}
+
+            </span>
+
+        </div>
+
+
+        <div class="detail-item">
+
+            <strong>Current Status</strong>
+
+            <span>
+
+                {% if modification.status == "PENDING" %}
+
+                    <span class="status-pending">
+                        Pending
+                    </span>
+
+                {% elif modification.status == "APPROVED" %}
+
+                    <span class="status-active">
+                        Approved
+                    </span>
+
+                {% else %}
+
+                    <span class="status-inactive">
+                        Rejected
+                    </span>
+
+                {% endif %}
+
+            </span>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ========================================= -->
+<!-- ORIGINAL VS PROPOSED -->
+<!-- ========================================= -->
+
+<div class="card">
+
+    <h2>
+        Modification Comparison
+    </h2>
+
+    <div class="comparison-grid">
+
+
+        <!-- ORIGINAL VALUE -->
+
+        <div class="comparison-box">
+
+            <h3>
+                Original Contract / Clause Value
+            </h3>
+
+            <div class="comparison-content">
+
+                {{ modification.old_content|linebreaks }}
+
+            </div>
+
+        </div>
+
+
+        <!-- PROPOSED VALUE -->
+
+        <div class="comparison-box">
+
+            <h3>
+                Proposed Modified Value
+            </h3>
+
+            <div class="comparison-content">
+
+                {{ modification.new_content|linebreaks }}
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+<!-- ========================================= -->
+<!-- REASON -->
+<!-- ========================================= -->
+
+<div class="card">
+
+    <h2>
+        Modification Reason
+    </h2>
+
+    <div class="reason-content">
+
+        {% if modification.reason %}
+
+            {{ modification.reason|linebreaks }}
+
+        {% else %}
+
+            <p>
+                No reason provided.
+            </p>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+
+<!-- ========================================= -->
+<!-- APPROVER SECTION -->
+<!-- ========================================= -->
+
+{% if modification.status == "PENDING" %}
+
+    {% if user.role and user.role.name|lower == "approver" %}
+
+
+        <div class="card">
+
+            <h2>
+                Approver Decision
+            </h2>
+
+
+            <!-- ============================== -->
+            <!-- APPROVE FORM -->
+            <!-- ============================== -->
+
+            <div class="approval-section">
+
+                <h3>
+                    Approve Request
+                </h3>
+
+                <form method="post"
+                      action="{% url 'modification_approve' modification.id %}">
+
+                    {% csrf_token %}
+
+                    <div class="form-group">
+
+                        <label for="approval_comment">
+
+                            Approval Comment
+
+                        </label>
+
+                        <textarea
+                            id="approval_comment"
+                            name="approval_comment"
+                            class="form-control"
+                            rows="4"
+                            placeholder="Enter your comment for approving this modification..."
+                        ></textarea>
+
+                    </div>
+
+
+                    <button type="submit"
+                            class="btn btn-success">
+
+                        Approve Request
+
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            <hr>
+
+
+            <!-- ============================== -->
+            <!-- REJECT FORM -->
+            <!-- ============================== -->
+
+            <div class="approval-section">
+
+                <h3>
+                    Reject Request
+                </h3>
+
+                <form method="post"
+                      action="{% url 'modification_reject' modification.id %}">
+
+                    {% csrf_token %}
+
+                    <div class="form-group">
+
+                        <label for="rejection_reason">
+
+                            Rejection Reason
+
+                        </label>
+
+                        <textarea
+                            id="rejection_reason"
+                            name="rejection_reason"
+                            class="form-control"
+                            rows="4"
+                            placeholder="Enter the reason for rejecting this modification..."
+                            required
+                        ></textarea>
+
+                    </div>
+
+
+                    <button type="submit"
+                            class="btn btn-danger">
+
+                        Reject Request
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    {% endif %}
+
+{% endif %}
+
+
+<!-- ========================================= -->
+<!-- APPROVAL COMMENT -->
+<!-- ========================================= -->
+
+<!-- APPROVER FEEDBACK -->
+
+{% if modification.status == "APPROVED" %}
+
+    {% if modification.approval_comment %}
+
+        <div class="detail-section">
+
+            <h3>
+                Approver Comment
+            </h3>
+
+            <div class="comment-box">
+
+                {{ modification.approval_comment }}
+
+            </div>
+
+        </div>
+
+    {% endif %}
+
+{% endif %}
+
+
+{% if modification.status == "REJECTED" %}
+
+    {% if modification.rejection_reason %}
+
+        <div class="detail-section">
+
+            <h3>
+                Rejection Reason
+            </h3>
+
+            <div class="comment-box">
+
+                {{ modification.rejection_reason }}
+
+            </div>
+
+        </div>
+
+    {% endif %}
+
+{% endif %}
+
+
+<script>
+
+    setTimeout(function () {
+
+        const messages =
+            document.querySelectorAll(".toast-message");
+
+        messages.forEach(function (message) {
+
+            message.style.opacity = "0";
+
+            message.style.transform =
+                "translateX(30px)";
+
+            setTimeout(function () {
+
+                message.remove();
+
+            }, 300);
+
+        });
+
+    }, 3000);
+
+</script>
+
+</body>
+
+</html>

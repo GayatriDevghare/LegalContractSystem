@@ -1,0 +1,88 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Delete Role - Legal Contract System</title>
+
+    <link rel="stylesheet"
+          href="{% static 'contracts/css/style.css' %}">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="page-header">
+
+        <div>
+
+            <h1>Delete Role</h1>
+
+            <p>Confirm role deletion.</p>
+
+        </div>
+
+        <a href="{% url 'role_list' %}"
+           class="btn btn-secondary">
+            Back to Roles
+        </a>
+
+    </div>
+
+
+    <div class="card delete-card">
+
+        <div class="delete-warning">
+
+            <h2>Are you sure?</h2>
+
+            <p>
+                You are about to permanently delete the role:
+            </p>
+
+            <h3>
+                "{{ role.name }}"
+            </h3>
+
+            <p>
+                This action cannot be undone.
+            </p>
+
+        </div>
+
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            <div class="form-actions">
+
+                <a href="{% url 'role_list' %}"
+                   class="btn btn-secondary">
+                    Cancel
+                </a>
+
+                <button type="submit"
+                        class="btn btn-danger">
+                    Yes, Delete Role
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+</body>
+</html>

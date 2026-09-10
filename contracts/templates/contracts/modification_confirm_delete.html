@@ -1,0 +1,66 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Delete Modification - Legal Contract System</title>
+
+    <link rel="stylesheet"
+          href="{% static 'contracts/css/style.css' %}">
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Delete Modification Request</h1>
+
+    <div class="card">
+
+        <h2>Are you sure?</h2>
+
+        <p>
+            You are about to delete this modification request.
+        </p>
+
+        <p>
+            <strong>Contract:</strong>
+            {{ modification.contract.title }}
+        </p>
+
+        {% if modification.clause %}
+        <p>
+            <strong>Clause:</strong>
+            {{ modification.clause.title }}
+        </p>
+        {% endif %}
+
+        <p>
+            <strong>Status:</strong>
+            {{ modification.status }}
+        </p>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <button type="submit" class="btn btn-danger">
+                Yes, Delete
+            </button>
+
+            <a href="{% url 'modification_list' %}"
+               class="btn">
+                Cancel
+            </a>
+
+        </form>
+
+    </div>
+
+</div>
+
+</body>
+</html>

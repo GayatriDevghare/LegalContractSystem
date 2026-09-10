@@ -1,0 +1,164 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Total Roles - Legal Contract System</title>
+
+    <link rel="stylesheet"
+        href="{% static 'contracts/css/style.css' %}">
+
+</head>
+
+
+<body>
+
+
+<div class="page-container">
+
+
+    <!-- HEADER -->
+
+    <div class="page-header">
+
+        <div>
+
+            <h1>
+                All Roles
+            </h1>
+
+            <p>
+                All roles available in the system
+            </p>
+
+        </div>
+
+
+        <a href="{% url 'dashboard' %}"
+           class="back-button">
+
+            ← Back to Dashboard
+
+        </a>
+
+    </div>
+
+
+
+    <!-- ROLES -->
+
+    <div class="table-card">
+
+
+        {% if roles %}
+
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Role
+                            </th>
+
+                            <th>
+                                Description
+                            </th>
+
+                            <th>
+                                Users
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+
+                        {% for role in roles %}
+
+                            <tr>
+
+                                <td>
+
+                                    <strong>
+                                        {{ role.name }}
+                                    </strong>
+
+                                </td>
+
+
+                                <td>
+
+                                    {{ role.description|default:"-" }}
+
+                                </td>
+
+
+                                <td>
+
+                                    <span class="role-badge">
+
+                                        {{ role.users.count }} Users
+
+                                    </span>
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+        {% else %}
+
+
+            <div class="empty-state">
+
+                <div>
+                    🔐
+                </div>
+
+                <h2>
+                    No Roles Found
+                </h2>
+
+                <p>
+                    No roles have been created yet.
+                </p>
+
+            </div>
+
+
+        {% endif %}
+
+
+    </div>
+
+
+</div>
+
+
+</body>
+
+</html>

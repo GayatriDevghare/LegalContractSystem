@@ -1,0 +1,146 @@
+{% load static %}
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Clauses - Legal Contract System</title>
+
+    <link rel="stylesheet" href="{% static 'contracts/css/style.css' %}" />
+  </head>
+
+  <body>
+    <div class="container">
+
+<div class="page-header">
+
+    <div>
+        <h1>
+            {% if contract %}
+                Clauses - {{ contract.title }}
+            {% else %}
+                Clause Management
+            {% endif %}
+        </h1>
+
+        {% if contract %}
+            <p>
+                Contract No: {{ contract.contract_number }}
+            </p>
+        {% endif %}
+    </div>
+
+    <div class="header-actions">
+
+        <!-- CREATE CLAUSE BUTTON -->
+        {% if contract %}
+            <a href="{% url 'clause_create' contract.id %}"
+               class="btn btn-primary">
+                + Create Clause
+            </a>
+        {% else %}
+            <a href="{% url 'clause_create_select' %}"
+               class="btn btn-primary">
+                + Create Clause
+            </a>
+        {% endif %}
+
+        <!-- BACK TO DASHBOARD -->
+        <a href="{% url 'dashboard' %}"
+           class="btn btn-secondary">
+            ← Back to Dashboard
+        </a>
+
+    </div>
+
+</div>
+
+
+      </div>
+
+      {% if clauses %}
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Order</th>
+              <th>Clause No.</th>
+              <th>Title</th>
+              <th>Content</th>
+
+              {% if not contract %}
+              <th>Contract</th>
+              {% endif %}
+
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {% for clause in clauses %}
+
+            <tr>
+              <td>{{ clause.order }}</td>
+
+              <td>{{ clause.clause_number }}</td>
+
+              <td>
+                <strong> {{ clause.title }} </strong>
+              </td>
+
+              <td>{{ clause.content|truncatewords:15 }}</td>
+
+              {% if not contract %}
+              <td>{{ clause.contract.title }}</td>
+              {% endif %}
+
+              <td>
+                <a
+                  href="{% url 'clause_detail' clause.id %}"
+                  class="btn btn-view"
+                >
+                  View
+                </a>
+
+                <a
+                  href="{% url 'clause_update' clause.id %}"
+                  class="btn btn-secondary"
+                >
+                  Edit
+                </a>
+
+                <a
+                  href="{% url 'clause_delete' clause.id %}"
+                  class="btn btn-danger"
+                >
+                  Delete
+                </a>
+              </td>
+            </tr>
+
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      {% else %}
+
+      <div class="empty-state">
+        <h3>No Clauses Found</h3>
+
+        <p>No clauses have been added to this contract yet.</p>
+
+        {% if contract %}
+        <a href="{% url 'clause_create' contract.id %}" class="btn btn-primary">
+          + Add First Clause
+        </a>
+        {% endif %}
+      </div>
+
+      {% endif %}
+    </div>
+  </body>
+</html>

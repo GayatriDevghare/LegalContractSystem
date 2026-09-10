@@ -1,0 +1,748 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Edit Profile - Legal Contract System</title>
+
+    <link rel="stylesheet"
+          href="{% static 'contracts/css/style.css' %}">
+
+    <style>
+
+        /* Profile Image */
+
+        .profile-avatar {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #e9ecef;
+            font-size: 40px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Sidebar Profile Image */
+
+        .sidebar-profile-image {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #e9ecef;
+            font-size: 28px;
+            font-weight: 600;
+            margin: 0 auto 10px;
+        }
+
+        .sidebar-profile-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Topbar Profile Image */
+
+        .topbar-user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #e9ecef;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .topbar-user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Form */
+
+        .profile-edit-section {
+            padding: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .form-group small {
+            display: block;
+            margin-top: 7px;
+            font-size: 13px;
+            opacity: 0.7;
+        }
+
+        .form-control {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* File input */
+
+        input[type="file"] {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            box-sizing: border-box;
+            background: #ffffff;
+        }
+
+        /* Current photo */
+
+        .current-photo {
+            margin-bottom: 20px;
+        }
+
+        .current-photo p {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .current-photo img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 50%;
+            display: block;
+        }
+
+        /* Form errors */
+
+        .form-error {
+            color: #dc3545;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+
+        /* Buttons */
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="dashboard-layout">
+
+
+    <!-- ================================================= -->
+    <!-- SIDEBAR -->
+    <!-- ================================================= -->
+
+    <aside class="dashboard-sidebar">
+
+
+        <div class="sidebar-logo">
+
+            <h2>
+                Legal Contract System
+            </h2>
+
+        </div>
+
+
+        <!-- SIDEBAR PROFILE -->
+
+        <div class="sidebar-profile">
+
+            <div class="sidebar-profile-image">
+
+                {% if user.profile_photo %}
+
+                    <img
+                        src="{{ user.profile_photo.url }}"
+                        alt="Profile Photo">
+
+                {% else %}
+
+                    {{ user.username|first|upper }}
+
+                {% endif %}
+
+            </div>
+
+
+            <div class="sidebar-profile-name">
+
+                {{ user.username }}
+
+            </div>
+
+
+            {% if user.role %}
+
+                <div class="sidebar-profile-role">
+
+                    {{ user.role.name }}
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- NAVIGATION -->
+        <!-- ================================================= -->
+
+        <nav class="dashboard-navigation">
+
+
+            <div class="dashboard-nav-title">
+
+                Main Menu
+
+            </div>
+
+
+            <!-- Dashboard -->
+
+            <a href="{% url 'dashboard' %}"
+               class="dashboard-nav-link">
+
+                <span class="dashboard-nav-icon">
+                    ⌂
+                </span>
+
+                Dashboard
+
+            </a>
+
+
+            <!-- Admin -->
+
+            {% if user.is_superuser or user.role and user.role.name|lower == "admin" %}
+
+
+                <a href="{% url 'user_list' %}"
+                   class="dashboard-nav-link">
+
+                    <span class="dashboard-nav-icon">
+                        👥
+                    </span>
+
+                    User Management
+
+                </a>
+
+
+                <a href="{% url 'role_list' %}"
+                   class="dashboard-nav-link">
+
+                    <span class="dashboard-nav-icon">
+                        🔐
+                    </span>
+
+                    Role Management
+
+                </a>
+
+
+            {% endif %}
+
+
+            <!-- Contracts -->
+
+            <a href="{% url 'contract_list' %}"
+               class="dashboard-nav-link">
+
+                <span class="dashboard-nav-icon">
+                    📄
+                </span>
+
+                Contracts
+
+            </a>
+
+
+            <!-- Documents -->
+
+            <a href="{% url 'document_list' %}"
+               class="dashboard-nav-link">
+
+                <span class="dashboard-nav-icon">
+                    📁
+                </span>
+
+                Documents
+
+            </a>
+
+
+            <!-- Clauses -->
+
+            <a href="{% url 'clause_list' %}"
+               class="dashboard-nav-link">
+
+                <span class="dashboard-nav-icon">
+                    📋
+                </span>
+
+                Clauses
+
+            </a>
+
+
+            <!-- Profile -->
+
+            <a href="{% url 'profile' %}"
+               class="dashboard-nav-link active">
+
+                <span class="dashboard-nav-icon">
+                    👤
+                </span>
+
+                My Profile
+
+            </a>
+
+
+        </nav>
+
+
+        <!-- ================================================= -->
+        <!-- LOGOUT -->
+        <!-- ================================================= -->
+
+        <div class="sidebar-bottom">
+
+            <form method="post"
+                  action="{% url 'web_logout' %}">
+
+                {% csrf_token %}
+
+                <button type="submit"
+                        class="sidebar-logout">
+
+                    <span>
+                        ↪
+                    </span>
+
+                    Logout
+
+                </button>
+
+            </form>
+
+        </div>
+
+
+    </aside>
+
+
+    <!-- ================================================= -->
+    <!-- MAIN CONTENT -->
+    <!-- ================================================= -->
+
+    <main class="dashboard-main">
+
+
+        <!-- ================================================= -->
+        <!-- TOPBAR -->
+        <!-- ================================================= -->
+
+        <div class="dashboard-topbar">
+
+
+            <div class="dashboard-topbar-left">
+
+                <div class="dashboard-topbar-title">
+
+                    Edit Profile
+
+                </div>
+
+            </div>
+
+
+            <div class="dashboard-topbar-right">
+
+                <div class="topbar-user">
+
+
+                    <div class="topbar-user-avatar">
+
+                        {% if user.profile_photo %}
+
+                            <img
+                                src="{{ user.profile_photo.url }}"
+                                alt="Profile Photo">
+
+                        {% else %}
+
+                            {{ user.username|first|upper }}
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <span class="topbar-user-name">
+
+                        {{ user.username }}
+
+                    </span>
+
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- PAGE HEADER -->
+        <!-- ================================================= -->
+
+        <div class="page-header">
+
+
+            <div>
+
+                <h1 class="page-title">
+
+                    Edit Profile
+
+                </h1>
+
+
+                <p class="page-subtitle">
+
+                    Update your personal information and profile photo.
+
+                </p>
+
+            </div>
+
+
+            <a href="{% url 'profile' %}"
+               class="btn btn-secondary">
+
+                ← Back to Profile
+
+            </a>
+
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- MESSAGES -->
+        <!-- ================================================= -->
+
+        {% if messages %}
+
+            {% for message in messages %}
+
+                <div class="alert {{ message.tags }}">
+
+                    {{ message }}
+
+                </div>
+
+            {% endfor %}
+
+        {% endif %}
+
+
+        <!-- ================================================= -->
+        <!-- PROFILE CARD -->
+        <!-- ================================================= -->
+
+        <div class="profile-container">
+
+
+            <div class="profile-card">
+
+
+                <!-- PROFILE HEADER -->
+
+                <div class="profile-header">
+
+
+                    <div class="profile-avatar">
+
+                        {% if user.profile_photo %}
+
+                            <img
+                                src="{{ user.profile_photo.url }}"
+                                alt="Current Profile Photo">
+
+                        {% else %}
+
+                            {{ user.username|first|upper }}
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="profile-info">
+
+                        <h2>
+
+                            Edit Your Information
+
+                        </h2>
+
+
+                        <p>
+
+                            Change your personal information below.
+
+                        </p>
+
+                    </div>
+
+
+                </div>
+
+
+                <!-- ================================================= -->
+                <!-- FORM -->
+                <!-- ================================================= -->
+
+                <div class="profile-edit-section">
+
+
+                    <form
+                        method="POST"
+                        action="{% url 'profile_edit' %}"
+                        enctype="multipart/form-data">
+
+
+                        {% csrf_token %}
+
+
+                        <!-- FIRST NAME -->
+
+                        <div class="form-group">
+
+                            <label for="{{ form.first_name.id_for_label }}">
+
+                                First Name
+
+                            </label>
+
+
+                            {{ form.first_name }}
+
+
+                            {% if form.first_name.errors %}
+
+                                <div class="form-error">
+
+                                    {{ form.first_name.errors }}
+
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <!-- LAST NAME -->
+
+                        <div class="form-group">
+
+                            <label for="{{ form.last_name.id_for_label }}">
+
+                                Last Name
+
+                            </label>
+
+
+                            {{ form.last_name }}
+
+
+                            {% if form.last_name.errors %}
+
+                                <div class="form-error">
+
+                                    {{ form.last_name.errors }}
+
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <!-- EMAIL -->
+
+                        <div class="form-group">
+
+                            <label for="{{ form.email.id_for_label }}">
+
+                                Email Address
+
+                            </label>
+
+
+                            {{ form.email }}
+
+
+                            {% if form.email.errors %}
+
+                                <div class="form-error">
+
+                                    {{ form.email.errors }}
+
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <!-- CURRENT PHOTO -->
+
+                        {% if user.profile_photo %}
+
+                            <div class="current-photo">
+
+                                <p>
+                                    Current Profile Photo
+                                </p>
+
+                                <img
+                                    src="{{ user.profile_photo.url }}"
+                                    alt="Current Profile Photo">
+
+                            </div>
+
+                        {% endif %}
+
+
+                        <!-- PROFILE PHOTO -->
+
+                        <div class="form-group">
+
+
+                            <label for="{{ form.profile_photo.id_for_label }}">
+
+                                Profile Photo
+
+                            </label>
+
+
+                            {{ form.profile_photo }}
+
+
+                            {% if form.profile_photo.errors %}
+
+                                <div class="form-error">
+
+                                    {{ form.profile_photo.errors }}
+
+                                </div>
+
+                            {% endif %}
+
+
+                            <small>
+
+                                Select a JPG, JPEG or PNG image.
+
+                            </small>
+
+
+                        </div>
+
+
+                        <!-- BUTTONS -->
+
+                        <div class="form-actions">
+
+
+                            <button
+                                type="submit"
+                                class="btn btn-primary">
+
+                                💾 Save Changes
+
+                            </button>
+
+
+                            <a
+                                href="{% url 'profile' %}"
+                                class="btn btn-secondary">
+
+                                ✕ Cancel
+
+                            </a>
+
+
+                        </div>
+
+
+                    </form>
+
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+    </main>
+
+
+</div>
+
+
+</body>
+
+</html>

@@ -16,10 +16,23 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from rest_framework.authtoken.views import obtain_auth_token
+from django.conf import settings
+from django.conf.urls.static import static
+
+from contracts.views import UserLoginView, UserLogoutView, dashboard
+
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/', include('contracts.api_urls')),
-    path('api-token-auth/', obtain_auth_token),
+    path("", UserLoginView.as_view(), name="web_login"),
+    path("dashboard/", dashboard, name="dashboard"),
+    path("logout/", UserLogoutView.as_view(), name="web_logout"),
+
+    path("admin/", admin.site.urls),
+
+    path("api/", include("contracts.api_urls")),
+    path("", include("contracts.urls")),
 ]
+urlpatterns += static(
+    settings.MEDIA_URL,
+    document_root=settings.MEDIA_ROOT
+)

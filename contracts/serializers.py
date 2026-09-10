@@ -13,9 +13,7 @@ from .models import (
 )
 
 
-# ============================================================
 # ROLE SERIALIZER
-# ============================================================
 
 class RoleSerializer(serializers.ModelSerializer):
 
@@ -24,9 +22,7 @@ class RoleSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-# ============================================================
 # USER SERIALIZER
-# ============================================================
 
 class UserSerializer(serializers.ModelSerializer):
 
@@ -86,9 +82,7 @@ class UserSerializer(serializers.ModelSerializer):
         return instance
 
 
-# ============================================================
 # REGISTER SERIALIZER
-# ============================================================
 
 class RegisterSerializer(serializers.ModelSerializer):
 
@@ -103,26 +97,30 @@ class RegisterSerializer(serializers.ModelSerializer):
             "username",
             "email",
             "password",
-            "role",
         ]
 
     def create(self, validated_data):
 
-        password = validated_data.pop(
-            "password"
-        )
+        password = validated_data.pop("password")
 
         user = User.objects.create_user(
             password=password,
             **validated_data
         )
 
+        # Publicly registered users get Viewer role
+        viewer_role = Role.objects.filter(
+            name__iexact="Viewer"
+        ).first()
+
+        if viewer_role:
+            user.role = viewer_role
+            user.save(update_fields=["role"])
+
         return user
 
 
-# ============================================================
 # LOGIN SERIALIZER
-# ============================================================
 
 class LoginSerializer(serializers.Serializer):
 
@@ -133,9 +131,7 @@ class LoginSerializer(serializers.Serializer):
     )
 
 
-# ============================================================
 # CONTRACT SERIALIZER
-# ============================================================
 
 class ContractSerializer(serializers.ModelSerializer):
 
@@ -150,9 +146,7 @@ class ContractSerializer(serializers.ModelSerializer):
         ]
 
 
-# ============================================================
 # DOCUMENT SERIALIZER
-# ============================================================
 
 class DocumentSerializer(serializers.ModelSerializer):
 
@@ -173,9 +167,7 @@ class DocumentSerializer(serializers.ModelSerializer):
         ]
 
 
-# ============================================================
 # CLAUSE SERIALIZER
-# ============================================================
 
 class ClauseSerializer(serializers.ModelSerializer):
 
@@ -189,9 +181,7 @@ class ClauseSerializer(serializers.ModelSerializer):
         ]
 
 
-# ============================================================
 # MODIFICATION SERIALIZER
-# ============================================================
 
 class ModificationSerializer(serializers.ModelSerializer):
 
@@ -205,9 +195,7 @@ class ModificationSerializer(serializers.ModelSerializer):
         ]
 
 
-# ============================================================
 # VERSION SERIALIZER
-# ============================================================
 
 class VersionSerializer(serializers.ModelSerializer):
 
@@ -221,9 +209,7 @@ class VersionSerializer(serializers.ModelSerializer):
         ]
 
 
-# ============================================================
 # APPROVAL SERIALIZER
-# ============================================================
 
 class ApprovalSerializer(serializers.ModelSerializer):
 
@@ -238,9 +224,7 @@ class ApprovalSerializer(serializers.ModelSerializer):
         ]
 
 
-# ============================================================
 # AUDIT LOG SERIALIZER
-# ============================================================
 
 class AuditLogSerializer(serializers.ModelSerializer):
 

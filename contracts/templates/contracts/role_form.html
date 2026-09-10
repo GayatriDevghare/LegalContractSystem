@@ -1,0 +1,148 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>{{ title }} - Legal Contract System</title>
+
+    <link rel="stylesheet"
+          href="{% static 'contracts/css/style.css' %}">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="page-header">
+
+        <div>
+
+            <h1>{{ title }}</h1>
+
+            <p>
+                {% if role %}
+                    Update the selected role.
+                {% else %}
+                    Create a new system role.
+                {% endif %}
+            </p>
+
+        </div>
+
+        <div>
+
+            <a href="{% url 'role_list' %}"
+               class="btn btn-secondary">
+                Back to Roles
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <div class="card form-card">
+
+        <div class="card-header">
+
+            <h2>Role Information</h2>
+
+        </div>
+
+
+        <form method="POST">
+
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+
+        <div class="alert error">
+            {{ form.non_field_errors }}
+        </div>
+
+    {% endif %}
+
+
+    <!-- Role Name -->
+
+    <div class="form-group">
+
+        <label for="{{ form.name.id_for_label }}">
+            Role Name
+        </label>
+
+        {{ form.name }}
+
+        {% if form.name.errors %}
+
+            <div class="form-error">
+                {% for error in form.name.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- Description -->
+
+    <div class="form-group">
+
+        <label for="{{ form.description.id_for_label }}">
+            Description
+        </label>
+
+        {{ form.description }}
+
+        {% if form.description.errors %}
+
+            <div class="form-error">
+                {% for error in form.description.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- Buttons -->
+
+    <div class="form-actions">
+
+        <a href="{% url 'role_list' %}"
+           class="btn btn-secondary">
+            Cancel
+        </a>
+
+        <button type="submit"
+                class="btn btn-primary">
+
+            {% if role %}
+                Update Role
+            {% else %}
+                Create Role
+            {% endif %}
+
+        </button>
+
+    </div>
+
+</form>
+    </div>
+
+</div>
+
+</body>
+</html>

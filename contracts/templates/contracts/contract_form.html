@@ -1,0 +1,522 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>{{ title }} - Legal Contract System</title>
+
+    <link rel="stylesheet"
+          href="{% static 'contracts/css/style.css' %}">
+
+    <style>
+
+        .contract-form-page {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px 50px;
+        }
+
+        .contract-form-header {
+            margin-bottom: 25px;
+        }
+
+        .contract-form-header h1 {
+            margin-bottom: 8px;
+        }
+
+        .contract-form-header p {
+            color: #767676;
+        }
+
+        .contract-form-card {
+            background: #ffffff;
+            border: 1px solid #e6e2e4;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.08);
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .form-section h2 {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e6e2e4;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-field {
+            margin-bottom: 18px;
+        }
+
+        .form-field.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-field label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: 700;
+            color: #333333;
+        }
+
+        .form-field input,
+        .form-field select,
+        .form-field textarea {
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px 14px;
+            border: 1px solid #d6d3d5;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #333333;
+            font-size: 14px;
+        }
+
+        .form-field input:focus,
+        .form-field select:focus,
+        .form-field textarea:focus {
+            outline: none;
+            border-color: #e60023;
+            box-shadow: 0 0 0 3px rgba(230, 0, 35, 0.08);
+        }
+
+        .form-field textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .error-message {
+            margin-top: 6px;
+            padding: 8px 10px;
+            background: #fff0f0;
+            border: 1px solid #ffcaca;
+            border-radius: 6px;
+            color: #b42318;
+            font-size: 13px;
+        }
+
+        .help-text {
+            display: block;
+            margin-top: 5px;
+            color: #777777;
+            font-size: 12px;
+        }
+
+        .document-box {
+            padding: 20px;
+            background: #fff7f8;
+            border: 1px solid #f5d1d6;
+            border-radius: 10px;
+        }
+
+        .document-box h3 {
+            margin-bottom: 15px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        @media (max-width: 700px) {
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-field.full-width {
+                grid-column: auto;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="contract-form-page">
+
+    <!-- BACK -->
+
+    <a href="{% url 'contract_list' %}"
+       class="back-btn">
+
+        ← Back to Contracts
+
+    </a>
+
+
+    <!-- HEADER -->
+
+    <div class="contract-form-header">
+
+        <h1>{{ title }}</h1>
+
+        <p>
+            Create and manage legal contract information.
+        </p>
+
+    </div>
+
+
+    <!-- FORM CARD -->
+
+    <div class="contract-form-card">
+
+        <form method="post"
+              enctype="multipart/form-data">
+
+            {% csrf_token %}
+
+
+            <!-- ================= FORM ERRORS ================= -->
+
+            {% if contract_form.non_field_errors %}
+
+                <div class="error-message">
+
+                    {% for error in contract_form.non_field_errors %}
+
+                        <p>{{ error }}</p>
+
+                    {% endfor %}
+
+                </div>
+
+            {% endif %}
+
+
+            <!-- ================= CONTRACT INFORMATION ================= -->
+
+            <div class="form-section">
+
+                <h2>Contract Information</h2>
+
+
+                <div class="form-grid">
+
+
+                    <!-- CONTRACT NUMBER -->
+
+                    <div class="form-field">
+
+                        <label for="{{ contract_form.contract_number.id_for_label }}">
+
+                            Contract Number
+
+                        </label>
+
+                        {{ contract_form.contract_number }}
+
+                        {% for error in contract_form.contract_number.errors %}
+
+                            <div class="error-message">
+                                {{ error }}
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+
+                    <!-- TITLE -->
+
+                    <div class="form-field">
+
+                        <label for="{{ contract_form.title.id_for_label }}">
+
+                            Contract Title
+
+                        </label>
+
+                        {{ contract_form.title }}
+
+                        {% for error in contract_form.title.errors %}
+
+                            <div class="error-message">
+                                {{ error }}
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+
+                    <!-- DESCRIPTION -->
+
+                    <div class="form-field full-width">
+
+                        <label for="{{ contract_form.description.id_for_label }}">
+
+                            Description
+
+                        </label>
+
+                        {{ contract_form.description }}
+
+                        {% for error in contract_form.description.errors %}
+
+                            <div class="error-message">
+                                {{ error }}
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+
+                    <!-- STATUS -->
+
+                    <div class="form-field">
+
+                        <label for="{{ contract_form.status.id_for_label }}">
+
+                            Status
+
+                        </label>
+
+                        {{ contract_form.status }}
+
+                        {% for error in contract_form.status.errors %}
+
+                            <div class="error-message">
+                                {{ error }}
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+
+                    <!-- START DATE -->
+
+                    <div class="form-field">
+
+                        <label for="{{ contract_form.start_date.id_for_label }}">
+
+                            Start Date
+
+                        </label>
+
+                        {{ contract_form.start_date }}
+
+                        {% for error in contract_form.start_date.errors %}
+
+                            <div class="error-message">
+                                {{ error }}
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+
+                    <!-- END DATE -->
+
+                    <div class="form-field">
+
+                        <label for="{{ contract_form.end_date.id_for_label }}">
+
+                            End Date
+
+                        </label>
+
+                        {{ contract_form.end_date }}
+
+                        {% for error in contract_form.end_date.errors %}
+
+                            <div class="error-message">
+                                {{ error }}
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ================= DOCUMENT ================= -->
+
+            <div class="form-section">
+
+                <h2>Contract Document</h2>
+
+                <div class="document-box">
+
+                    {% if existing_document %}
+
+                        <h3>Current Document</h3>
+
+                        <p>
+
+                            {{ existing_document.name }}
+
+                        </p>
+
+                        <p>
+
+                            Current file:
+
+                            <strong>
+                                {{ existing_document.file.name }}
+                            </strong>
+
+                        </p>
+
+                        <br>
+
+                        <p>
+                            Select a new document only if you want to
+                            replace the existing document.
+                        </p>
+
+                    {% else %}
+
+                        <h3>Upload Document</h3>
+
+                        <p>
+                            Upload the contract document.
+                        </p>
+
+                    {% endif %}
+
+
+                    <!-- DOCUMENT NAME -->
+
+                    <div class="form-field">
+
+                        <label for="{{ document_form.name.id_for_label }}">
+
+                            Document Name
+
+                        </label>
+
+                        {{ document_form.name }}
+
+                        {% for error in document_form.name.errors %}
+
+                            <div class="error-message">
+                                {{ error }}
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+
+                    <!-- DOCUMENT TYPE -->
+
+                    <div class="form-field">
+
+                        <label for="{{ document_form.document_type.id_for_label }}">
+
+                            Document Type
+
+                        </label>
+
+                        {{ document_form.document_type }}
+
+                        {% for error in document_form.document_type.errors %}
+
+                            <div class="error-message">
+                                {{ error }}
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+
+                    <!-- FILE -->
+
+                    <div class="form-field">
+
+                        <label for="{{ document_form.file.id_for_label }}">
+
+                            Select File
+
+                        </label>
+
+                        {{ document_form.file }}
+
+                        {% for error in document_form.file.errors %}
+
+                            <div class="error-message">
+                                {{ error }}
+                            </div>
+
+                        {% endfor %}
+
+                        <small class="help-text">
+                            Allowed files: PDF, DOC, DOCX, TXT.
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ================= BUTTONS ================= -->
+
+            <div class="form-actions">
+
+                <button type="submit"
+                        class="btn btn-primary">
+
+                    {% if contract %}
+                        Update Contract
+                    {% else %}
+                        Create Contract
+                    {% endif %}
+
+                </button>
+
+
+                <a href="{% url 'contract_list' %}"
+                   class="btn btn-secondary">
+
+                    Cancel
+
+                </a>
+
+            </div>
+
+
+        </form>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

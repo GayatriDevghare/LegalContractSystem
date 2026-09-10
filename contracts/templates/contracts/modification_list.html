@@ -1,0 +1,416 @@
+{% load static %}
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>Modification Requests - Legal Contract System</title>
+
+<link rel="stylesheet"
+      href="{% static 'contracts/css/style.css' %}">
+
+
+</head>
+
+<body>
+
+<div class="container">
+
+
+<div class="page-header">
+
+    <div>
+
+        <h1>
+            Modification Requests
+        </h1>
+
+        <p>
+            Review and manage contract modification requests.
+        </p>
+
+    </div>
+
+    <a href="{% url 'dashboard' %}"
+       class="btn btn-secondary">
+
+        Back to Dashboard
+
+    </a>
+
+</div>
+
+
+{% if messages %}
+
+    <div class="toast-container">
+
+        {% for message in messages %}
+
+            <div class="toast-message">
+
+                <span class="toast-icon">
+                    ✓
+                </span>
+
+                <span class="toast-text">
+                    {{ message }}
+                </span>
+
+                <button type="button"
+                        class="toast-close"
+                        onclick="this.parentElement.remove()">
+
+                    ×
+
+                </button>
+
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+{% endif %}
+
+
+<div class="table-container">
+
+    <table>
+
+        <thead>
+
+            <tr>
+
+                <th>ID</th>
+
+                <th>Contract</th>
+
+                <th>Clause</th>
+
+                <th>Original Value</th>
+
+                <th>Proposed Modification</th>
+
+                <th>Reason</th>
+
+                <th>Requested By</th>
+
+                <th>Status</th>
+
+                <th>Action</th>
+
+            </tr>
+
+        </thead>
+
+
+        <tbody>
+
+            {% for modification in modifications %}
+
+                <tr>
+
+                    <!-- ID -->
+
+                    <td>
+                        {{ modification.id }}
+                    </td>
+
+
+                    <!-- CONTRACT -->
+
+                    <td>
+
+                        {% if modification.contract %}
+
+                            {{ modification.contract.title }}
+
+                        {% else %}
+
+                            -
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- CLAUSE -->
+
+                    <td>
+
+                        {% if modification.clause %}
+
+                            {{ modification.clause.title }}
+
+                        {% else %}
+
+                            Entire Contract
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- ORIGINAL VALUE -->
+
+                    <td>
+
+                        {{ modification.old_content|truncatechars:80 }}
+
+                    </td>
+
+
+                    <!-- PROPOSED MODIFICATION -->
+
+                    <td>
+
+                        {{ modification.new_content|truncatechars:80 }}
+
+                    </td>
+
+
+                    <!-- USER REASON -->
+
+                    <td>
+
+                        {% if modification.reason %}
+
+                            {{ modification.reason|truncatechars:80 }}
+
+                        {% else %}
+
+                            -
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- REQUESTED BY -->
+
+                    <td>
+
+                        {% if modification.modified_by %}
+
+                            {{ modification.modified_by.username }}
+
+                        {% else %}
+
+                            -
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- STATUS + APPROVER FEEDBACK -->
+
+                    <td>
+
+                        {% if modification.status == "PENDING" %}
+
+                            <span class="status-pending">
+                                Pending
+                            </span>
+
+
+                        {% elif modification.status == "APPROVED" %}
+
+                            <span class="status-active">
+                                Approved
+                            </span>
+
+
+                            {% if modification.approval_comment %}
+
+                                <div class="activity-comment">
+
+                                    <strong>
+                                        Approver Comment:
+                                    </strong>
+
+                                    <p>
+                                        {{ modification.approval_comment }}
+                                    </p>
+
+                                </div>
+
+                            {% endif %}
+
+
+                        {% elif modification.status == "REJECTED" %}
+
+                            <span class="status-inactive">
+                                Rejected
+                            </span>
+
+
+                            {% if modification.rejection_reason %}
+
+                                <div class="activity-comment">
+
+                                    <strong>
+                                        Rejection Reason:
+                                    </strong>
+
+                                    <p>
+                                        {{ modification.rejection_reason }}
+                                    </p>
+
+                                </div>
+
+                            {% endif %}
+
+
+                        {% else %}
+
+                            <span>
+                                {{ modification.status }}
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- ACTION -->
+
+                    <td>
+
+
+                        <!-- PENDING -->
+
+                        {% if modification.status == "PENDING" %}
+
+
+                            <!-- SUPERUSER -->
+
+                            {% if user.is_superuser %}
+
+                                <span class="status-view-only">
+
+                                    View Only
+
+                                </span>
+
+
+                            <!-- ADMIN -->
+
+                            {% elif user.role and user.role.name|lower == "admin" %}
+
+                                <span class="status-view-only">
+
+                                    View Only
+
+                                </span>
+
+
+                            <!-- APPROVER -->
+
+                            {% elif user.role and user.role.name|lower == "approver" %}
+
+                                <a href="{% url 'modification_detail' modification.id %}"
+                                   class="btn btn-primary">
+
+                                    Review
+
+                                </a>
+
+
+                            <!-- USER / OTHER AUTHORIZED ROLE -->
+
+                            {% else %}
+
+                                <a href="{% url 'modification_detail' modification.id %}"
+                                   class="btn btn-primary">
+
+                                    View
+
+                                </a>
+
+                            {% endif %}
+
+
+                        <!-- APPROVED / REJECTED -->
+
+                        {% else %}
+
+                            <a href="{% url 'modification_detail' modification.id %}"
+                               class="btn btn-primary">
+
+                                View
+
+                            </a>
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+
+            {% empty %}
+
+                <tr>
+
+                    <td colspan="9">
+
+                        No modification requests found.
+
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+```
+
+</div>
+
+<script>
+
+    /*
+     * Automatically close success/error messages
+     * after 3 seconds.
+     */
+
+    setTimeout(function () {
+
+        const messages =
+            document.querySelectorAll(".toast-message");
+
+        messages.forEach(function (message) {
+
+            message.style.opacity = "0";
+
+            message.style.transform =
+                "translateX(30px)";
+
+            setTimeout(function () {
+
+                message.remove();
+
+            }, 300);
+
+        });
+
+    }, 3000);
+
+</script>
+
+</body>
+
+</html>

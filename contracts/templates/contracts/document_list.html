@@ -1,0 +1,242 @@
+{% load static %}
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Documents - Legal Contract System</title>
+
+    <link rel="stylesheet"
+          href="{% static 'contracts/css/style.css' %}">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Document Management</h1>
+
+    <p>
+        Welcome, <strong>{{ user.username }}</strong>
+    </p>
+
+    <p>
+        Role:
+
+        {% if user.role %}
+            <strong>{{ user.role.name }}</strong>
+
+        {% elif user.is_superuser %}
+            <strong>Admin</strong>
+
+        {% else %}
+            <strong>No Role Assigned</strong>
+        {% endif %}
+
+    </p>
+
+
+    {% if user.is_superuser or user.role and user.role.name|lower == "admin" or user.role and user.role.name|lower == "contract manager" %}
+
+    <div style="margin-bottom: 20px;">
+        <a href="{% url 'document_create' %}" class="btn btn-primary">
+            + Upload Document
+        </a>
+    </div>
+
+{% endif %}
+
+    <table>
+
+        <thead>
+
+            <tr>
+
+                <th>ID</th>
+
+                <th>Contract</th>
+
+                <th>Document Name</th>
+
+                <th>File Name</th>
+
+                <th>Document Type</th>
+
+                <th>Uploaded By</th>
+
+                <th>Uploaded At</th>
+
+                <th>Actions</th>
+
+            </tr>
+
+        </thead>
+
+
+        <tbody>
+
+            {% for document in documents %}
+
+            <tr>
+
+                <td>
+                    {{ document.id }}
+                </td>
+
+
+                <td>
+
+                    {% if document.contract %}
+
+                        {{ document.contract.title }}
+
+                    {% else %}
+
+                        -
+
+                    {% endif %}
+
+                </td>
+
+
+                <td>
+                    {{ document.name }}
+                </td>
+
+
+                <td>
+
+                    {% if document.file %}
+
+                        {{ document.file.name|cut:"contracts/documents/" }}
+
+                    {% else %}
+
+                        No file
+
+                    {% endif %}
+
+                </td>
+
+
+                <td>
+                    {{ document.document_type }}
+                </td>
+
+
+                <td>
+
+                    {% if document.uploaded_by %}
+
+                        {{ document.uploaded_by.username }}
+
+                    {% else %}
+
+                        -
+
+                    {% endif %}
+
+                </td>
+
+
+                <td>
+                    {{ document.uploaded_at|date:"d M Y, h:i A" }}
+                </td>
+
+
+                <!-- DOCUMENT ACTIONS -->
+
+                <!-- DOCUMENT ACTIONS -->
+
+<td>
+
+
+{% if document.file %}
+
+    <!-- VIEW -->
+
+    <a href="{% url 'document_view' document.id %}"
+       class="btn btn-secondary">
+
+        👁 View
+
+    </a>
+
+
+    <!-- EDIT -->
+
+    
+        <a href="{% url 'document_update' document.id %}"
+           class="btn btn-warning">
+
+            ✏️ Edit
+
+        </a>
+
+    
+
+
+    <!-- DOWNLOAD -->
+
+    <a href="{% url 'document_download' document.id %}"
+       class="btn btn-primary">
+
+        ⬇ Download
+
+    </a>
+
+{% else %}
+
+    <span>No file</span>
+
+{% endif %}
+
+
+</td>
+
+
+            </tr>
+
+            {% empty %}
+
+            <tr>
+
+                <td colspan="8"
+                    class="no-data">
+
+                    No documents found.
+
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+
+    <br>
+
+
+    <a class="back-btn"
+        href="{% url 'dashboard' %}">
+
+        ← Back to Dashboard
+
+    </a>
+
+</div>
+
+</body>
+
+</html>

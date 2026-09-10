@@ -1,0 +1,68 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+            content="width=device-width, initial-scale=1.0">
+
+    <title>Delete Clause - Legal Contract System</title>
+
+    <link rel="stylesheet"
+            href="{% static 'contracts/css/style.css' %}">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="form-container">
+
+        <h1>Delete Clause</h1>
+
+        <p>
+            Are you sure you want to delete this clause?
+        </p>
+
+        <div class="confirmation-box">
+
+            <p>
+                <strong>Clause:</strong>
+                {{ clause.clause_number }}
+            </p>
+
+            <p>
+                <strong>Title:</strong>
+                {{ clause.title }}
+            </p>
+
+        </div>
+
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            <button type="submit"
+                    class="btn btn-danger">
+                Yes, Delete
+            </button>
+
+            <a href="{% url 'contract_clause_list' clause.contract.id %}"
+                class="btn btn-secondary">
+                Cancel
+            </a>
+
+        </form>
+
+    </div>
+
+</div>
+
+</body>
+</html>

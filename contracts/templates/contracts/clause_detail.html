@@ -1,0 +1,79 @@
+
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{{ clause.title }} - Clause Details</title>
+
+    <link rel="stylesheet"
+          href="{% static 'contracts/css/style.css' %}">
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="page-header">
+
+        <div>
+            <h1>Clause Details</h1>
+            <p>{{ clause.title }}</p>
+        </div>
+
+        <div class="header-actions">
+
+            <!-- Correct: clause_list takes NO argument -->
+            <a href="{% url 'clause_list' %}" class="btn btn-secondary">
+                ← Back to Clauses
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="detail-row">
+            <strong>Clause Number</strong>
+            <span>{{ clause.clause_number|default:"-" }}</span>
+        </div>
+
+        <div class="detail-row">
+            <strong>Title</strong>
+            <span>{{ clause.title|default:"-" }}</span>
+        </div>
+
+        <div class="detail-row">
+            <strong>Order</strong>
+            <span>{{ clause.order|default:"-" }}</span>
+        </div>
+
+        {% if clause.contract %}
+        <div class="detail-row">
+            <strong>Contract</strong>
+            <span>{{ clause.contract.title }}</span>
+        </div>
+        {% endif %}
+
+        <div class="detail-section">
+
+            <h3>Clause Content</h3>
+
+            <div class="clause-content">
+                {{ clause.content|linebreaks }}
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>
+

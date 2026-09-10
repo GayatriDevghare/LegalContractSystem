@@ -1,0 +1,170 @@
+{% load static %}
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>{{ title }} - Legal Contract System</title>
+
+<link rel="stylesheet"
+      href="{% static 'contracts/css/style.css' %}">
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="page-header">
+
+    <h1>{{ title }}</h1>
+
+    <a href="{% url 'modification_list' %}"
+       class="btn btn-secondary">
+        ← Back
+    </a>
+
+</div>
+
+
+<div class="form-container">
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+
+        {% if form.non_field_errors %}
+
+            <div class="form-errors">
+
+                {{ form.non_field_errors }}
+
+            </div>
+
+        {% endif %}
+
+
+        <div class="form-group">
+
+            <label for="{{ form.contract.id_for_label }}">
+                Contract
+            </label>
+
+            {{ form.contract }}
+
+            {% if form.contract.errors %}
+                <div class="field-error">
+                    {{ form.contract.errors }}
+                </div>
+            {% endif %}
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label for="{{ form.clause.id_for_label }}">
+                Clause
+                <small>(Optional)</small>
+            </label>
+
+            {{ form.clause }}
+
+            <small>
+                Leave this empty if the modification applies
+                to the entire contract.
+            </small>
+
+            {% if form.clause.errors %}
+                <div class="field-error">
+                    {{ form.clause.errors }}
+                </div>
+            {% endif %}
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label for="{{ form.old_content.id_for_label }}">
+                Original Value
+            </label>
+
+            {{ form.old_content }}
+
+            {% if form.old_content.errors %}
+                <div class="field-error">
+                    {{ form.old_content.errors }}
+                </div>
+            {% endif %}
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label for="{{ form.new_content.id_for_label }}">
+                Proposed Modification
+            </label>
+
+            {{ form.new_content }}
+
+            {% if form.new_content.errors %}
+                <div class="field-error">
+                    {{ form.new_content.errors }}
+                </div>
+            {% endif %}
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label for="{{ form.reason.id_for_label }}">
+                Reason / Description
+            </label>
+
+            {{ form.reason }}
+
+            {% if form.reason.errors %}
+                <div class="field-error">
+                    {{ form.reason.errors }}
+                </div>
+            {% endif %}
+
+        </div>
+
+
+        <div class="form-actions">
+
+            <button type="submit"
+                    class="btn btn-primary">
+                Submit Modification Request
+            </button>
+
+            <a href="{% url 'modification_list' %}"
+               class="btn btn-secondary">
+                Cancel
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+</div>
+
+</body>
+
+</html>

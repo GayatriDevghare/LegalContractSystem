@@ -18,6 +18,13 @@ class User(AbstractUser):
         blank=True,
         related_name="users"
     )
+    
+    
+    profile_photo = models.ImageField(
+        upload_to="profile_photos/",
+        blank=True,
+        null=True
+    )
 
     def __str__(self):
         return self.username
@@ -26,14 +33,11 @@ class User(AbstractUser):
 class Contract(models.Model):
 
     STATUS_CHOICES = [
-        ("Draft", "Draft"),
-        ("Review", "Review"),
-        ("Approved", "Approved"),
-        ("Rejected", "Rejected"),
-        ("Active", "Active"),
-        ("Expired", "Expired"),
-        ("Terminated", "Terminated"),
-    ]
+    ("Draft", "Draft"),
+    ("Active", "Active"),
+    ("Expired", "Expired"),
+    ("Terminated", "Terminated"),
+]
 
     contract_number = models.CharField(
         max_length=100,
@@ -51,10 +55,12 @@ class Contract(models.Model):
     )
 
     created_by = models.ForeignKey(
-        User,
-        on_delete=models.PROTECT,
-        related_name="created_contracts"
-    )
+    User,
+    on_delete=models.SET_NULL,
+    null=True,
+    blank=True,
+    related_name="created_contracts"
+)
 
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
@@ -94,10 +100,12 @@ class Document(models.Model):
     )
 
     uploaded_by = models.ForeignKey(
-        User,
-        on_delete=models.PROTECT,
-        related_name="uploaded_documents"
-    )
+    User,
+    on_delete=models.SET_NULL,
+    null=True,
+    blank=True,
+    related_name="uploaded_documents"
+)
 
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
@@ -106,7 +114,7 @@ class Document(models.Model):
 
 
 class Clause(models.Model):
-
+    
     contract = models.ForeignKey(
         Contract,
         on_delete=models.CASCADE,
@@ -119,28 +127,51 @@ class Clause(models.Model):
 
     content = models.TextField()
 
+    order = models.PositiveIntegerField(
+        default=1
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ["clause_number"]
+        ordering = ["order", "id"]
 
     def __str__(self):
         return f"{self.clause_number} - {self.title}"
 
 
+
 class Modification(models.Model):
+    
+    STATUS_CHOICES = [
+        ("PENDING", "Pending"),
+        ("APPROVED", "Approved"),
+        ("REJECTED", "Rejected"),
+    ]
+
+    contract = models.ForeignKey(
+        Contract,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="modifications"
+    )
 
     clause = models.ForeignKey(
         Clause,
         on_delete=models.CASCADE,
+        null=True,
+        blank=True,
         related_name="modifications"
     )
 
     modified_by = models.ForeignKey(
         User,
-        on_delete=models.PROTECT,
-        related_name="clause_modifications"
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="modifications"
     )
 
     old_content = models.TextField()
@@ -149,10 +180,34 @@ class Modification(models.Model):
 
     reason = models.TextField(blank=True)
 
-    modified_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default="PENDING"
+    )
+
+    # Comment added by the Approver
+    approval_comment = models.TextField(
+        blank=True,
+        null=True
+    )
+
+    # Reason provided by the Approver when rejecting
+    rejection_reason = models.TextField(
+        blank=True,
+        null=True
+    )
+
+    modified_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    class Meta:
+        ordering = ["-modified_at"]
 
     def __str__(self):
-        return f"Modification - {self.clause}"
+        return f"{self.contract} - {self.status}"
+
 
 
 class Version(models.Model):
@@ -166,10 +221,12 @@ class Version(models.Model):
     version_number = models.PositiveIntegerField()
 
     created_by = models.ForeignKey(
-        User,
-        on_delete=models.PROTECT,
-        related_name="created_versions"
-    )
+    User,
+    on_delete=models.SET_NULL,
+    null=True,
+    blank=True,
+    related_name="created_versions"
+)
 
     snapshot = models.JSONField(
         default=dict
@@ -213,10 +270,12 @@ class Approval(models.Model):
     )
 
     approver = models.ForeignKey(
-        User,
-        on_delete=models.PROTECT,
-        related_name="contract_approvals"
-    )
+    User,
+    on_delete=models.SET_NULL,
+    null=True,
+    blank=True,
+    related_name="contract_approvals"
+)
 
     status = models.CharField(
         max_length=20,

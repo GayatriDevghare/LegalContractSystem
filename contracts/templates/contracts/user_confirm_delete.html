@@ -1,0 +1,88 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Delete User - Legal Contract System</title>
+
+    <link rel="stylesheet"
+          href="{% static 'contracts/css/delete_user.css' %}">
+
+</head>
+
+<body>
+
+    <div class="delete-page">
+
+        <div class="delete-card">
+
+            <!-- ICON -->
+
+            <div class="delete-icon">
+                ⚠
+            </div>
+
+
+            <!-- TITLE -->
+
+            <h1>
+                Delete User
+            </h1>
+
+
+            <!-- MESSAGE -->
+
+            <p class="delete-message">
+
+                Are you sure you want to permanently delete
+
+                <strong>{{ user_obj.username }}</strong>?
+
+            </p>
+
+
+            <p class="warning-message">
+
+                This action cannot be undone.
+
+            </p>
+
+
+            <!-- ACTIONS -->
+
+            <form method="post"
+                  class="delete-form">
+
+                {% csrf_token %}
+
+                <button type="submit"
+                        class="delete-button">
+
+                    Delete Permanently
+
+                </button>
+
+
+                <a href="{% url 'user_list' %}"
+                   class="cancel-button">
+
+                    Cancel
+
+                </a>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

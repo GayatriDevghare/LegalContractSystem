@@ -1,0 +1,100 @@
+
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Create Clause - Legal Contract System</title>
+
+    <link rel="stylesheet"
+          href="{% static 'contracts/css/style.css' %}">
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="page-header">
+
+        <div>
+            <h1>Create Clause</h1>
+            <p>Select the contract for this clause.</p>
+        </div>
+
+        <div>
+            <a href="{% url 'clause_list' %}"
+               class="btn btn-secondary">
+                ← Back to Clauses
+            </a>
+        </div>
+
+    </div>
+
+
+    <div class="table-container">
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Contract No.</th>
+                    <th>Contract Title</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for contract in contracts %}
+
+                    <tr>
+
+                        <td>
+                            {{ contract.contract_number }}
+                        </td>
+
+                        <td>
+                            <strong>
+                                {{ contract.title }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            {{ contract.status }}
+                        </td>
+
+                        <td>
+                            <a href="{% url 'clause_create' contract.id %}"
+                               class="btn btn-primary">
+                                Create Clause
+                            </a>
+                        </td>
+
+                    </tr>
+
+                {% empty %}
+
+                    <tr>
+                        <td colspan="4">
+                            No contracts available.
+                        </td>
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+</body>
+</html>
+

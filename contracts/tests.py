@@ -18,10 +18,9 @@ from .models import (
 class CRUDAPITestCase(APITestCase):
 
     def setUp(self):
-
         # Create role
         self.role = Role.objects.create(
-            name="Admin",
+            name="Administrator",
             description="Administrator"
         )
 
@@ -112,9 +111,9 @@ class CRUDAPITestCase(APITestCase):
         )
 
 
-    # ========================================================
+
     # USER CRUD
-    # ========================================================
+
 
     def test_user_list(self):
 
@@ -157,9 +156,9 @@ class CRUDAPITestCase(APITestCase):
         )
 
 
-    # ========================================================
+
     # CONTRACT CRUD
-    # ========================================================
+
 
     def test_contract_list(self):
 
@@ -251,9 +250,8 @@ class CRUDAPITestCase(APITestCase):
         )
 
 
-    # ========================================================
     # CLAUSE CRUD
-    # ========================================================
+
 
     def test_clause_list(self):
 
@@ -288,9 +286,8 @@ class CRUDAPITestCase(APITestCase):
         )
 
 
-    # ========================================================
     # MODIFICATION CRUD
-    # ========================================================
+
 
     def test_modification_create(self):
 
@@ -322,9 +319,9 @@ class CRUDAPITestCase(APITestCase):
         )
 
 
-    # ========================================================
+
     # VERSION CRUD
-    # ========================================================
+
 
     def test_version_create(self):
 
@@ -359,9 +356,9 @@ class CRUDAPITestCase(APITestCase):
         )
 
 
-    # ========================================================
+
     # APPROVAL CRUD
-    # ========================================================
+
 
     def test_approval_create(self):
 
@@ -419,4 +416,288 @@ class CRUDAPITestCase(APITestCase):
 
         self.assertIsNotNone(
             approval.approved_at
+        )
+        
+# ============================================================
+# RBAC TESTS
+# ============================================================
+
+class RBACTestCase(APITestCase):
+
+    def setUp(self):
+
+        # Create roles
+        self.admin_role = Role.objects.create(
+            name="Administrator",
+            description="Full system access"
+        )
+
+        self.manager_role = Role.objects.create(
+            name="Manager",
+            description="Manager access"
+        )
+
+        self.employee_role = Role.objects.create(
+            name="Employee",
+            description="Employee read-only access"
+        )
+
+        self.viewer_role = Role.objects.create(
+            name="Viewer",
+            description="Viewer read-only access"
+        )
+
+        # Create users
+        self.admin = User.objects.create_user(
+            username="rbac_admin",
+            password="Test@12345",
+            role=self.admin_role
+        )
+
+        self.manager = User.objects.create_user(
+            username="rbac_manager",
+            password="Test@12345",
+            role=self.manager_role
+        )
+
+        self.employee = User.objects.create_user(
+            username="rbac_employee",
+            password="Test@12345",
+            role=self.employee_role
+        )
+
+        self.viewer = User.objects.create_user(
+            username="rbac_viewer",
+            password="Test@12345",
+            role=self.viewer_role
+        )
+
+        # Create a contract
+        self.contract = Contract.objects.create(
+            contract_number="RBAC-001",
+            title="RBAC Test Contract",
+            description="Contract for RBAC testing",
+            status="Draft",
+            created_by=self.admin
+        )
+
+    # ========================================================
+    # ADMINISTRATOR
+    # ========================================================
+
+    def test_administrator_can_list_contracts(self):
+
+        self.client.force_authenticate(
+            user=self.admin
+        )
+
+        response = self.client.get(
+            "/api/contracts/"
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK
+        )
+
+    def test_administrator_can_create_contract(self):
+
+        self.client.force_authenticate(
+            user=self.admin
+        )
+
+        data = {
+            "contract_number": "RBAC-ADMIN-001",
+            "title": "Admin Contract",
+            "description": "Created by administrator",
+            "status": "Draft"
+        }
+
+        response = self.client.post(
+            "/api/contracts/",
+            data,
+            format="json"
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_201_CREATED
+        )
+
+    def test_administrator_can_delete_contract(self):
+
+        self.client.force_authenticate(
+            user=self.admin
+        )
+
+        response = self.client.delete(
+            f"/api/contracts/{self.contract.id}/"
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_204_NO_CONTENT
+        )
+
+    # ========================================================
+    # MANAGER
+    # ========================================================
+
+    def test_manager_can_list_contracts(self):
+
+        self.client.force_authenticate(
+            user=self.manager
+        )
+
+        response = self.client.get(
+            "/api/contracts/"
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK
+        )
+
+    def test_manager_can_create_contract(self):
+
+        self.client.force_authenticate(
+            user=self.manager
+        )
+
+        data = {
+            "contract_number": "RBAC-MANAGER-001",
+            "title": "Manager Contract",
+            "description": "Created by manager",
+            "status": "Draft"
+        }
+
+        response = self.client.post(
+            "/api/contracts/",
+            data,
+            format="json"
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_201_CREATED
+        )
+
+    def test_manager_cannot_delete_contract(self):
+
+        self.client.force_authenticate(
+            user=self.manager
+        )
+
+        response = self.client.delete(
+            f"/api/contracts/{self.contract.id}/"
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_403_FORBIDDEN
+        )
+
+    # ========================================================
+    # EMPLOYEE
+    # ========================================================
+
+    def test_employee_can_list_contracts(self):
+
+        self.client.force_authenticate(
+            user=self.employee
+        )
+
+        response = self.client.get(
+            "/api/contracts/"
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK
+        )
+
+    def test_employee_cannot_create_contract(self):
+
+        self.client.force_authenticate(
+            user=self.employee
+        )
+
+        data = {
+            "contract_number": "RBAC-EMPLOYEE-001",
+            "title": "Employee Contract",
+            "description": "Should not be created",
+            "status": "Draft"
+        }
+
+        response = self.client.post(
+            "/api/contracts/",
+            data,
+            format="json"
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_403_FORBIDDEN
+        )
+
+    # ========================================================
+    # VIEWER
+    # ========================================================
+
+    def test_viewer_can_list_contracts(self):
+
+        self.client.force_authenticate(
+            user=self.viewer
+        )
+
+        response = self.client.get(
+            "/api/contracts/"
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK
+        )
+
+    def test_viewer_cannot_create_contract(self):
+
+        self.client.force_authenticate(
+            user=self.viewer
+        )
+
+        data = {
+            "contract_number": "RBAC-VIEWER-001",
+            "title": "Viewer Contract",
+            "description": "Should not be created",
+            "status": "Draft"
+        }
+
+        response = self.client.post(
+            "/api/contracts/",
+            data,
+            format="json"
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_403_FORBIDDEN
+        )
+
+    # ========================================================
+    # UNAUTHENTICATED
+    # ========================================================
+
+    def test_unauthenticated_user_cannot_list_contracts(self):
+
+        self.client.force_authenticate(
+            user=None
+        )
+
+        response = self.client.get(
+            "/api/contracts/"
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_401_UNAUTHORIZED
         )

@@ -1,0 +1,200 @@
+{% load static %}
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>Add Clause - Legal Contract System</title>
+
+<link rel="stylesheet"
+      href="{% static 'contracts/css/style.css' %}">
+
+<style>
+
+    .form-container {
+        max-width: 800px;
+        margin: 40px auto;
+        background: #ffffff;
+        padding: 30px;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.06);
+    }
+
+    .form-container h1 {
+        margin-bottom: 8px;
+        color: #111827;
+    }
+
+    .contract-info {
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+    }
+
+    .contract-info strong {
+        color: #111827;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 7px;
+        font-weight: 600;
+        color: #374151;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 11px 13px;
+        border: 1px solid #d1d5db;
+        border-radius: 7px;
+        box-sizing: border-box;
+        font-size: 14px;
+    }
+
+    textarea.form-control {
+        min-height: 150px;
+        resize: vertical;
+    }
+
+    .error {
+        color: #dc3545;
+        font-size: 13px;
+        margin-top: 5px;
+    }
+
+    .button-row {
+        display: flex;
+        gap: 10px;
+        margin-top: 25px;
+    }
+
+    .btn {
+        padding: 11px 20px;
+        border-radius: 7px;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+    }
+
+    .btn-primary {
+        background: #4f46e5;
+        color: #ffffff;
+    }
+
+    .btn-primary:hover {
+        background: #3730a3;
+    }
+
+    .btn-secondary {
+        background: #e5e7eb;
+        color: #374151;
+    }
+
+</style>
+
+
+</head>
+
+<body>
+
+<main class="main-content">
+
+
+<div class="form-container">
+
+    <h1>
+        Add Clause
+    </h1>
+
+    <p>
+        Add a new clause to this contract.
+    </p>
+
+    <div class="contract-info">
+
+        <strong>Contract:</strong>
+        {{ contract.title }}
+
+        <br>
+
+        <strong>Contract Number:</strong>
+        {{ contract.contract_number }}
+
+    </div>
+
+
+    <form method="post">
+
+        {% csrf_token %}
+
+
+        {% for field in form %}
+
+            <div class="form-group">
+
+                {{ field.label_tag }}
+
+                {{ field }}
+
+                {% if field.errors %}
+
+                    {% for error in field.errors %}
+
+                        <div class="error">
+                            {{ error }}
+                        </div>
+
+                    {% endfor %}
+
+                {% endif %}
+
+            </div>
+
+        {% endfor %}
+
+
+        <div class="button-row">
+
+            <button type="submit"
+                    class="btn btn-primary">
+
+                ➕ Save Clause
+
+            </button>
+
+
+            <a href="{% url 'dashboard' %}"
+               class="btn btn-secondary">
+
+                Cancel
+
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+</main>
+
+</body>
+
+</html>

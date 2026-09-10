@@ -1,0 +1,205 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+            content="width=device-width, initial-scale=1.0">
+
+    <title>User Management - Legal Contract System</title>
+    <link rel="stylesheet" href="{% static 'contracts/css/style.css' %}">
+
+</head>
+
+<body>
+
+
+    <nav>
+
+        <a class="brand"
+            href="{% url 'dashboard' %}">
+            Legal Contract System
+        </a>
+
+        <a href="{% url 'dashboard' %}">
+            Dashboard
+        </a>
+
+        <a href="{% url 'user_list' %}">
+            User Management
+        </a>
+
+        <a href="{% url 'web_logout' %}">
+            Logout
+        </a>
+
+    </nav>
+
+
+    <div class="container">
+
+        <div class="card">
+
+
+            <div class="top-bar">
+
+                <h1>
+                    User Management
+                </h1>
+
+                <a class="add-button"
+                   href="{% url 'user_create' %}">
+                    + Add New User
+                </a>
+
+            </div>
+
+
+            {% if messages %}
+                <div class="messages-container">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+
+                        <th>Username</th>
+
+                        <th>First Name</th>
+
+                        <th>Last Name</th>
+
+                        <th>Email</th>
+
+                        <th>Role</th>
+
+                        <th>Status</th>
+
+                        <th>Actions</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for user in users %}
+
+                        <tr>
+
+                            <td>
+                                {{ user.id }}
+                            </td>
+
+                            <td>
+                                {{ user.username }}
+                            </td>
+
+                            <td>
+                                {{ user.first_name|default:"-" }}
+                            </td>
+
+                            <td>
+                                {{ user.last_name|default:"-" }}
+                            </td>
+
+                            <td>
+                                {{ user.email|default:"-" }}
+                            </td>
+
+                            <td>
+
+                                {% if user.role %}
+
+                                    {{ user.role.name }}
+
+                                {% else %}
+
+                                    No Role Assigned
+
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+
+                                {% if user.is_active %}
+
+                                    <span class="status-active">
+                                        Active
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="status-inactive">
+                                        Inactive
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+
+                                <a class="edit"
+                                href="{% url 'user_update' user.id %}">
+                                    Edit
+                                </a>
+
+                                <a class="delete"
+                                href="{% url 'user_delete' user.id %}">
+                                    Delete
+                                </a>
+
+                            </td>
+
+                        </tr>
+
+                    {% empty %}
+
+                        <tr>
+
+                            <td colspan="8">
+                                No users found.
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+
+            <br>
+
+            <a href="{% url 'dashboard' %}">
+                ← Back to Dashboard
+            </a>
+
+
+        </div>
+
+    </div>
+
+
+</body>
+
+</html>

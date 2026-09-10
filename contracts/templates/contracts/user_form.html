@@ -1,0 +1,224 @@
+{% load static %}
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+    content="width=device-width, initial-scale=1.0">
+
+<title>{{ title }} - Legal Contract System</title>
+
+<link rel="stylesheet"
+    href="{% static 'contracts/css/style.css' %}">
+
+
+</head>
+
+<body>
+
+<div class="form-page">
+
+
+<div class="form-card">
+
+    <h1>{{ title }}</h1>
+
+    <form method="post">
+
+        {% csrf_token %}
+
+        <!-- Username -->
+        <div class="form-group">
+
+            <label for="{{ form.username.id_for_label }}">
+                Username
+            </label>
+
+            <input
+                type="text"
+                name="{{ form.username.name }}"
+                id="{{ form.username.id_for_label }}"
+                placeholder="Enter username"
+                value="{{ form.username.value|default:'' }}"
+                required
+            >
+
+            {% if form.username.errors %}
+                <div class="field-error">
+                    {{ form.username.errors }}
+                </div>
+            {% endif %}
+
+        </div>
+
+
+        <!-- First Name -->
+        <div class="form-group">
+
+            <label for="{{ form.first_name.id_for_label }}">
+                First Name
+            </label>
+
+            <input
+                type="text"
+                name="{{ form.first_name.name }}"
+                id="{{ form.first_name.id_for_label }}"
+                placeholder="Enter first name"
+                value="{{ form.first_name.value|default:'' }}"
+            >
+
+            {% if form.first_name.errors %}
+                <div class="field-error">
+                    {{ form.first_name.errors }}
+                </div>
+            {% endif %}
+
+        </div>
+
+
+        <!-- Last Name -->
+        <div class="form-group">
+
+            <label for="{{ form.last_name.id_for_label }}">
+                Last Name
+            </label>
+
+            <input
+                type="text"
+                name="{{ form.last_name.name }}"
+                id="{{ form.last_name.id_for_label }}"
+                placeholder="Enter last name"
+                value="{{ form.last_name.value|default:'' }}"
+            >
+
+            {% if form.last_name.errors %}
+                <div class="field-error">
+                    {{ form.last_name.errors }}
+                </div>
+            {% endif %}
+
+        </div>
+
+
+        <!-- Email -->
+        <div class="form-group">
+
+            <label for="{{ form.email.id_for_label }}">
+                Email
+            </label>
+
+            <input
+                type="email"
+                name="{{ form.email.name }}"
+                id="{{ form.email.id_for_label }}"
+                placeholder="Enter email"
+                value="{{ form.email.value|default:'' }}"
+            >
+
+            {% if form.email.errors %}
+                <div class="field-error">
+                    {{ form.email.errors }}
+                </div>
+            {% endif %}
+
+        </div>
+
+
+        <!-- Password -->
+        <div class="form-group">
+
+            <label for="{{ form.password.id_for_label }}">
+                Password
+            </label>
+
+            <input
+                type="password"
+                name="{{ form.password.name }}"
+                id="{{ form.password.id_for_label }}"
+                placeholder="Enter password"
+            >
+
+            {% if form.password.errors %}
+                <div class="field-error">
+                    {{ form.password.errors }}
+                </div>
+            {% endif %}
+
+        </div>
+
+
+        <!-- Role -->
+        <div class="form-group">
+
+            <label for="{{ form.role.id_for_label }}">
+                Role
+            </label>
+
+            {{ form.role }}
+
+            {% if form.role.errors %}
+                <div class="field-error">
+                    {{ form.role.errors }}
+                </div>
+            {% endif %}
+
+        </div>
+
+
+
+<!-- Activity Status -->
+
+<div class="form-group checkbox-group">
+
+
+<label for="{{ form.is_active.id_for_label }}">
+
+    <input
+        type="checkbox"
+        name="{{ form.is_active.name }}"
+        id="{{ form.is_active.id_for_label }}"
+        {% if form.is_active.value %}checked{% endif %}
+    >
+
+    Active User
+
+</label>
+
+{% if form.is_active.errors %}
+    <div class="field-error">
+        {{ form.is_active.errors }}
+    </div>
+{% endif %}
+
+
+</div>
+
+<div class="form-actions">
+
+<button type="submit" class="btn-save">
+    Save User
+</button>
+
+<a href="{% url 'user_list' %}"
+   class="btn-cancel">
+    Cancel
+</a>
+
+
+</div>
+
+
+</div>
+
+</div>
+ </form>
+
+</body>
+
+</html>

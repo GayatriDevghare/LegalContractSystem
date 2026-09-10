@@ -1,0 +1,698 @@
+{% load static %}
+
+<!doctype html>
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Contracts - Legal Contract System</title>
+
+    <link rel="stylesheet" href="{% static 'contracts/css/style.css' %}" />
+
+    <style>
+      /* =====================================================
+       CONTRACT PAGE
+       ===================================================== */
+
+      .contract-page-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        padding: 28px;
+        margin-top: 28px;
+        box-shadow: 0 8px 25px rgba(15, 23, 42, 0.06);
+      }
+
+      /* =====================================================
+       PAGE HEADER
+       ===================================================== */
+
+      .top-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 4px 2px 0;
+      }
+
+      .top-header h1 {
+        margin: 0;
+        color: #111827;
+        font-size: 28px;
+        font-weight: 750;
+        line-height: 1.2;
+      }
+
+      .top-header p {
+        margin: 7px 0 0;
+        color: #6b7280;
+        font-size: 14px;
+      }
+
+      /* =====================================================
+       HEADER PROFILE
+       ===================================================== */
+
+      .header-user {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .header-profile-image,
+      .header-profile-placeholder {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+      }
+
+      .header-profile-image {
+        object-fit: cover;
+        border: 3px solid #eef2ff;
+      }
+
+      .header-profile-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #4f46e5;
+        color: #ffffff;
+        font-size: 17px;
+        font-weight: 700;
+      }
+
+      /* =====================================================
+       CONTRACT PAGE HEADER
+       ===================================================== */
+
+      .contract-page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding-bottom: 22px;
+        margin-bottom: 24px;
+        border-bottom: 1px solid #e5e7eb;
+      }
+
+      .contract-page-header h2 {
+        margin: 0;
+        color: #111827;
+        font-size: 21px;
+        font-weight: 700;
+      }
+
+      .contract-page-header p {
+        margin: 7px 0 0;
+        color: #6b7280;
+        font-size: 14px;
+      }
+
+      /* =====================================================
+       CREATE BUTTON
+       ===================================================== */
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        padding: 11px 18px;
+        border: 0;
+        border-radius: 9px;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .btn-primary {
+        background: #4f46e5;
+        color: #ffffff;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.22);
+      }
+
+      .btn-primary:hover {
+        background: #4338ca;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(79, 70, 229, 0.28);
+      }
+
+      /* =====================================================
+       TABLE CONTAINER
+       ===================================================== */
+
+      .table-container {
+        width: 100%;
+        overflow-x: auto;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        background: #ffffff;
+      }
+
+      /* =====================================================
+       CONTRACT TABLE
+       ===================================================== */
+
+      .contract-table {
+        width: 100%;
+        min-width: 1100px;
+        border-collapse: collapse;
+        table-layout: auto;
+      }
+
+      .contract-table thead {
+        background: #f8fafc;
+      }
+
+      .contract-table th {
+        padding: 14px 16px;
+        color: #475569;
+        text-align: left;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        white-space: nowrap;
+        border-bottom: 1px solid #e2e8f0;
+      }
+
+      .contract-table td {
+        padding: 15px 16px;
+        color: #374151;
+        font-size: 13px;
+        border-bottom: 1px solid #f1f5f9;
+        vertical-align: middle;
+        white-space: nowrap;
+      }
+
+      .contract-table tbody tr {
+        transition: background 0.2s ease;
+      }
+
+      .contract-table tbody tr:hover {
+        background: #f8faff;
+      }
+
+      .contract-table tbody tr:last-child td {
+        border-bottom: none;
+      }
+
+      /* =====================================================
+       TABLE TEXT
+       ===================================================== */
+
+      .contract-id {
+        color: #64748b;
+        font-weight: 600;
+      }
+
+      .contract-number {
+        color: #312e81;
+        font-weight: 700;
+      }
+
+      .contract-title {
+        color: #1f2937;
+        font-weight: 600;
+      }
+
+      .created-by {
+        color: #475569;
+        font-weight: 500;
+      }
+
+      /* =====================================================
+       STATUS BADGES
+       ===================================================== */
+
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 78px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: capitalize;
+      }
+
+      .status-active {
+        background: #dcfce7;
+        color: #166534;
+      }
+
+      .status-draft {
+        background: #f1f5f9;
+        color: #475569;
+      }
+
+      .status-pending {
+        background: #fef3c7;
+        color: #92400e;
+      }
+
+      .status-approved {
+        background: #dbeafe;
+        color: #1d4ed8;
+      }
+
+      .status-rejected {
+        background: #fee2e2;
+        color: #b91c1c;
+      }
+
+      .status-expired {
+        background: #f3e8ff;
+        color: #7e22ce;
+      }
+
+      /* =====================================================
+       ACTION BUTTONS
+       ===================================================== */
+
+      .contract-actions {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+      }
+
+      .contract-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        min-height: 31px;
+        padding: 6px 9px;
+        border: 1px solid transparent;
+        border-radius: 7px;
+        text-decoration: none;
+        font-size: 11px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+      }
+
+      /* View */
+
+      .contract-view {
+        background: #eff6ff;
+        color: #2563eb;
+        border-color: #bfdbfe;
+      }
+
+      .contract-view:hover {
+        background: #dbeafe;
+        border-color: #93c5fd;
+      }
+
+      /* Edit */
+
+      .contract-edit {
+        background: #fffbeb;
+        color: #d97706;
+        border-color: #fde68a;
+      }
+
+      .contract-edit:hover {
+        background: #fef3c7;
+        border-color: #fcd34d;
+      }
+
+      /* Delete */
+
+      .contract-delete {
+        background: #fef2f2;
+        color: #dc2626;
+        border-color: #fecaca;
+      }
+
+      .contract-delete:hover {
+        background: #fee2e2;
+        border-color: #fca5a5;
+      }
+
+      /* =====================================================
+       EMPTY STATE
+       ===================================================== */
+
+      .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 70px 20px;
+        text-align: center;
+      }
+
+      .empty-state-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 72px;
+        height: 72px;
+        margin-bottom: 18px;
+        background: #eef2ff;
+        border-radius: 50%;
+        font-size: 30px;
+      }
+
+      .empty-state h3 {
+        margin: 0 0 8px;
+        color: #111827;
+        font-size: 20px;
+        font-weight: 700;
+      }
+
+      .empty-state p {
+        margin: 0 0 22px;
+        color: #6b7280;
+        font-size: 14px;
+      }
+
+      /* =====================================================
+       RESPONSIVE
+       ===================================================== */
+
+      @media (max-width: 900px) {
+        .contract-page-card {
+          padding: 20px;
+        }
+
+        .contract-page-header {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .contract-page-header .btn {
+          width: 100%;
+        }
+      }
+
+      @media (max-width: 600px) {
+        .contract-page-card {
+          padding: 15px;
+          margin-top: 20px;
+          border-radius: 12px;
+        }
+
+        .top-header h1 {
+          font-size: 23px;
+        }
+
+        .top-header p {
+          font-size: 13px;
+        }
+
+        .contract-page-header h2 {
+          font-size: 19px;
+        }
+
+        .table-container {
+          border-radius: 9px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <!-- =====================================================
+     MAIN CONTENT
+     ===================================================== -->
+
+      <main class="main-content">
+        <!-- =================================================
+         HEADER
+         ================================================= -->
+
+        <header class="top-header">
+          <div>
+            <h1>Contracts</h1>
+
+            <p>Manage and track your legal contracts</p>
+          </div>
+
+          <div class="header-user">
+            {% if user.profile_photo %}
+
+            <img
+              src="{{ user.profile_photo.url }}"
+              alt="Profile"
+              class="header-profile-image"
+            />
+
+            {% else %}
+
+            <div class="header-profile-placeholder">
+              {{ user.username|first|upper }}
+            </div>
+
+            {% endif %}
+          </div>
+        </header>
+
+        <!-- =================================================
+         CONTRACT CARD
+         ================================================= -->
+
+        <section class="contract-page-card">
+          <!-- PAGE HEADER -->
+
+          <div class="contract-page-header">
+            <div>
+              <h2>Contract List</h2>
+
+              <p>View, create, edit and manage your contracts.</p>
+            </div>
+
+            <!-- CREATE CONTRACT -->
+
+            {% if user.is_superuser or user.role and user.role.name|lower ==
+            "admin" or user.role and user.role.name|lower == "contract manager"
+            or user.role and user.role.name|lower == "user" %}
+
+            <a href="{% url 'contract_create' %}" class="btn btn-primary">
+              ➕ Create Contract
+            </a>
+
+            {% endif %}
+            <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+              ← Back to Dashboard
+            </a>
+          </div>
+
+          <!-- =================================================
+             CONTRACT TABLE
+             ================================================= -->
+
+          <div class="table-container">
+            <table class="contract-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+
+                  <th>Contract Number</th>
+
+                  <th>Title</th>
+
+                  <th>Status</th>
+
+                  <th>Start Date</th>
+
+                  <th>End Date</th>
+
+                  <th>Created By</th>
+
+                  <th>Actions</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {% for contract in contracts %}
+
+                <tr>
+                  <!-- ID -->
+
+                  <td>
+                    <span class="contract-id"> #{{ contract.id }} </span>
+                  </td>
+
+                  <!-- CONTRACT NUMBER -->
+
+                  <td>
+                    <span class="contract-number">
+                      {{ contract.contract_number }}
+                    </span>
+                  </td>
+
+                  <!-- TITLE -->
+
+                  <td>
+                    <span class="contract-title"> {{ contract.title }} </span>
+                  </td>
+
+                  <!-- STATUS -->
+
+                  <td>
+                    <span
+                      class="status-badge status-{{ contract.status|lower }}"
+                    >
+                      {{ contract.status }}
+                    </span>
+                  </td>
+
+                  <!-- START DATE -->
+
+                  <td>
+                    {% if contract.start_date %} {{ contract.start_date|date:"d
+                    M Y" }} {% else %} - {% endif %}
+                  </td>
+
+                  <!-- END DATE -->
+
+                  <td>
+                    {% if contract.end_date %} {{ contract.end_date|date:"d M Y"
+                    }} {% else %} - {% endif %}
+                  </td>
+
+                  <!-- CREATED BY -->
+
+                  <td>
+                    {% if contract.created_by %}
+
+                    <span class="created-by">
+                      {{ contract.created_by.username }}
+                    </span>
+
+                    {% else %} - {% endif %}
+                  </td>
+
+                  <!-- ACTIONS -->
+
+                  <td>
+                    <div class="action-buttons">
+                      <!-- View: everyone can view -->
+                      <a
+                        href="{% url 'contract_detail' contract.id %}"
+                        class="btn btn-view"
+                      >
+                        View
+                      </a>
+
+                      <!-- Edit -->
+                      {% if user.is_superuser %}
+                      <a
+                        href="{% url 'contract_update' contract.id %}"
+                        class="btn btn-edit"
+                      >
+                        Edit
+                      </a>
+
+                      {% elif user.role and user.role.name|lower == "admin" %}
+                      <a
+                        href="{% url 'contract_update' contract.id %}"
+                        class="btn btn-edit"
+                      >
+                        Edit
+                      </a>
+
+                      {% elif user.role and user.role.name|lower == "contract
+                      manager" %}
+                      <a
+                        href="{% url 'contract_update' contract.id %}"
+                        class="btn btn-edit"
+                      >
+                        Edit
+                      </a>
+
+                      {% elif user.role and user.role.name|lower == "user" and
+                      contract.created_by.id == user.id %}
+                      <a
+                        href="{% url 'contract_update' contract.id %}"
+                        class="btn btn-edit"
+                      >
+                        Edit
+                      </a>
+                      {% endif %}
+
+                      <!-- Delete -->
+                      {% if user.is_superuser %}
+                      <a
+                        href="{% url 'contract_delete' contract.id %}"
+                        class="btn btn-delete"
+                      >
+                        Delete
+                      </a>
+
+                      {% elif user.role and user.role.name|lower == "admin" %}
+                      <a
+                        href="{% url 'contract_delete' contract.id %}"
+                        class="btn btn-delete"
+                      >
+                        Delete
+                      </a>
+
+                      {% elif user.role and user.role.name|lower == "contract
+                      manager" %}
+                      <a
+                        href="{% url 'contract_delete' contract.id %}"
+                        class="btn btn-delete"
+                      >
+                        Delete
+                      </a>
+
+                      {% elif user.role and user.role.name|lower == "user" and
+                      contract.created_by.id == user.id %}
+                      <a
+                        href="{% url 'contract_delete' contract.id %}"
+                        class="btn btn-delete"
+                      >
+                        Delete
+                      </a>
+                      {% endif %}
+                    </div>
+                  </td>
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                  <td colspan="8">
+                    <div class="empty-state">
+                      <div class="empty-state-icon">📄</div>
+
+                      <h3>No Contracts Found</h3>
+
+                      <p>You have not created any contracts yet.</p>
+
+                      {% if user.is_superuser or user.role and
+                      user.role.name|lower == "admin" or user.role and
+                      user.role.name|lower == "contract manager" or user.role
+                      and user.role.name|lower == "user" %}
+
+                      <a
+                        href="{% url 'contract_create' %}"
+                        class="btn btn-primary"
+                      >
+                        ➕ Create Contract
+                      </a>
+
+                      {% endif %}
+                    </div>
+                  </td>
+                </tr>
+
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>
