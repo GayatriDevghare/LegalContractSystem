@@ -1,76 +1,837 @@
-
 {% load static %}
+
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
 
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-    <meta name="viewport"
-            content="width=device-width, initial-scale=1.0">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
 
-    <title>User Management - Legal Contract System</title>
-    <link rel="stylesheet" href="{% static 'contracts/css/style.css' %}">
+<title>
+    User Management - Legal Contract System
+</title>
+
+<link rel="stylesheet"
+      href="{% static 'contracts/css/style.css' %}">
+
+<style>
+
+    /* =========================================================
+       USER MANAGEMENT PAGE
+       ========================================================= */
+
+    .user-management-page {
+        min-height: 100vh;
+        padding: 32px 24px;
+        box-sizing: border-box;
+    }
+
+    .user-management-container {
+        width: 100%;
+        max-width: 1500px;
+        margin: 0 auto;
+    }
+
+    /* =========================================================
+       HEADER
+       ========================================================= */
+
+    .user-management-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 20px;
+
+        margin-bottom: 24px;
+    }
+
+    .user-management-title {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .user-management-icon {
+        width: 46px;
+        height: 46px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        flex-shrink: 0;
+
+        border-radius: 11px;
+
+        background: rgba(185, 28, 28, 0.10);
+
+        color: #b91c1c;
+
+        font-size: 22px;
+    }
+
+    .user-management-header h1 {
+        margin: 0 0 5px;
+
+        color: var(
+            --text-primary,
+            #1f2937
+        );
+
+        font-size: 26px;
+        font-weight: 700;
+    }
+
+    .user-management-header p {
+        margin: 0;
+
+        color: var(
+            --text-secondary,
+            #6b7280
+        );
+
+        font-size: 13px;
+    }
+
+    .add-user-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        gap: 7px;
+
+        min-height: 42px;
+
+        padding: 0 17px;
+
+        border-radius: 8px;
+
+        background: #b91c1c;
+
+        color: #ffffff;
+
+        text-decoration: none;
+
+        font-size: 13px;
+        font-weight: 600;
+
+        transition:
+            background 0.2s ease,
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
+    }
+
+    .add-user-btn:hover {
+        background: #991b1b;
+
+        transform: translateY(-1px);
+
+        box-shadow:
+            0 5px 14px
+            rgba(185, 28, 28, 0.20);
+    }
+
+    /* =========================================================
+       MESSAGE ALERTS
+       ========================================================= */
+
+    .user-messages {
+        margin-bottom: 20px;
+    }
+
+    .user-alert {
+        padding: 12px 15px;
+
+        margin-bottom: 9px;
+
+        border-radius: 8px;
+
+        font-size: 13px;
+    }
+
+    .user-alert.success {
+        background: #ecfdf5;
+        border: 1px solid #a7f3d0;
+        color: #047857;
+    }
+
+    .user-alert.error {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #b91c1c;
+    }
+
+    .user-alert.warning {
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        color: #b45309;
+    }
+
+    .user-alert.info {
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        color: #1d4ed8;
+    }
+
+    /* =========================================================
+       TABLE CARD
+       ========================================================= */
+
+    .user-table-card {
+        background: var(
+            --card-bg,
+            #ffffff
+        );
+
+        border: 1px solid var(
+            --border-color,
+            #e5e7eb
+        );
+
+        border-radius: 14px;
+
+        overflow: hidden;
+
+        box-shadow:
+            0 7px 25px
+            rgba(0, 0, 0, 0.05);
+    }
+
+    .user-table-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        padding: 18px 21px;
+
+        border-bottom: 1px solid var(
+            --border-color,
+            #e5e7eb
+        );
+    }
+
+    .user-table-header h2 {
+        margin: 0;
+
+        color: var(
+            --text-primary,
+            #1f2937
+        );
+
+        font-size: 16px;
+        font-weight: 700;
+    }
+
+    .user-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        min-width: 28px;
+        height: 27px;
+
+        padding: 0 9px;
+
+        border-radius: 20px;
+
+        background: rgba(
+            185,
+            28,
+            28,
+            0.09
+        );
+
+        color: #b91c1c;
+
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    /* =========================================================
+       TABLE WRAPPER
+       ========================================================= */
+
+    .user-table-wrapper {
+        width: 100%;
+
+        overflow-x: auto;
+    }
+
+    .user-table {
+        width: 100%;
+
+        min-width: 1050px;
+
+        border-collapse: collapse;
+    }
+
+    .user-table th {
+        padding: 13px 15px;
+
+        background: var(
+            --table-header-bg,
+            #f8fafc
+        );
+
+        color: var(
+            --text-secondary,
+            #6b7280
+        );
+
+        border-bottom: 1px solid var(
+            --border-color,
+            #e5e7eb
+        );
+
+        font-size: 11px;
+
+        font-weight: 700;
+
+        text-align: left;
+
+        text-transform: uppercase;
+
+        letter-spacing: 0.04em;
+
+        white-space: nowrap;
+    }
+
+    .user-table td {
+        padding: 14px 15px;
+
+        color: var(
+            --text-primary,
+            #374151
+        );
+
+        border-bottom: 1px solid var(
+            --border-color,
+            #eef0f3
+        );
+
+        font-size: 13px;
+
+        vertical-align: middle;
+    }
+
+    .user-table tbody tr {
+        transition:
+            background 0.15s ease;
+    }
+
+    .user-table tbody tr:hover {
+        background: rgba(
+            185,
+            28,
+            28,
+            0.025
+        );
+    }
+
+    .user-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* =========================================================
+       USERNAME
+       ========================================================= */
+
+    .username-cell {
+        display: flex;
+        align-items: center;
+
+        gap: 10px;
+
+        min-width: 150px;
+    }
+
+    .user-avatar {
+        width: 34px;
+        height: 34px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        flex-shrink: 0;
+
+        border-radius: 50%;
+
+        background: rgba(
+            185,
+            28,
+            28,
+            0.10
+        );
+
+        color: #b91c1c;
+
+        font-size: 12px;
+
+        font-weight: 700;
+    }
+
+    .username-text {
+        color: var(
+            --text-primary,
+            #1f2937
+        );
+
+        font-weight: 600;
+    }
+
+    /* =========================================================
+       ROLE BADGE
+       ========================================================= */
+
+    .role-badge {
+        display: inline-flex;
+        align-items: center;
+
+        padding: 5px 9px;
+
+        border-radius: 6px;
+
+        background: #f3f4f6;
+
+        color: #4b5563;
+
+        font-size: 11px;
+
+        font-weight: 600;
+
+        white-space: nowrap;
+    }
+
+    /* =========================================================
+       STATUS
+       ========================================================= */
+
+    .user-status {
+        display: inline-flex;
+        align-items: center;
+
+        gap: 6px;
+
+        padding: 5px 9px;
+
+        border-radius: 20px;
+
+        font-size: 11px;
+
+        font-weight: 700;
+
+        white-space: nowrap;
+    }
+
+    .user-status::before {
+        content: "";
+
+        width: 6px;
+        height: 6px;
+
+        border-radius: 50%;
+
+        background: currentColor;
+    }
+
+    .user-status.active {
+        background: #ecfdf5;
+        color: #047857;
+    }
+
+    .user-status.inactive {
+        background: #f3f4f6;
+        color: #6b7280;
+    }
+
+    /* =========================================================
+       ACTIONS
+       ========================================================= */
+
+    .user-actions {
+        display: flex;
+        align-items: center;
+
+        gap: 7px;
+
+        white-space: nowrap;
+    }
+
+    .user-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        min-height: 31px;
+
+        padding: 0 10px;
+
+        border-radius: 6px;
+
+        text-decoration: none;
+
+        font-size: 11px;
+
+        font-weight: 600;
+
+        transition:
+            background 0.15s ease,
+            transform 0.15s ease;
+    }
+
+    .user-action.edit {
+        background: #eff6ff;
+        color: #2563eb;
+    }
+
+    .user-action.edit:hover {
+        background: #dbeafe;
+    }
+
+    .user-action.delete {
+        background: #fef2f2;
+        color: #dc2626;
+    }
+
+    .user-action.delete:hover {
+        background: #fee2e2;
+    }
+
+    .user-action:hover {
+        transform: translateY(-1px);
+    }
+
+    /* =========================================================
+       EMPTY STATE
+       ========================================================= */
+
+    .user-empty-state {
+        padding: 65px 25px;
+
+        text-align: center;
+    }
+
+    .user-empty-icon {
+        width: 58px;
+        height: 58px;
+
+        margin: 0 auto 14px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 50%;
+
+        background: #f3f4f6;
+
+        color: #9ca3af;
+
+        font-size: 25px;
+    }
+
+    .user-empty-state h3 {
+        margin: 0 0 6px;
+
+        color: var(
+            --text-primary,
+            #374151
+        );
+
+        font-size: 15px;
+    }
+
+    .user-empty-state p {
+        margin: 0;
+
+        color: var(
+            --text-secondary,
+            #6b7280
+        );
+
+        font-size: 12px;
+    }
+
+    /* =========================================================
+       BACK BUTTON
+       ========================================================= */
+
+    .back-dashboard {
+        display: inline-flex;
+        align-items: center;
+
+        gap: 6px;
+
+        margin-top: 20px;
+
+        color: #b91c1c;
+
+        text-decoration: none;
+
+        font-size: 13px;
+
+        font-weight: 600;
+    }
+
+    .back-dashboard:hover {
+        text-decoration: underline;
+    }
+
+    /* =========================================================
+       DARK THEME
+       ========================================================= */
+
+    html[data-theme="dark"] .user-management-header h1,
+    html[data-theme="dark"] .user-table-header h2,
+    html[data-theme="dark"] .username-text,
+    html[data-theme="dark"] .user-table td,
+    html[data-theme="dark"] .user-empty-state h3 {
+        color: #f3f4f6;
+    }
+
+    html[data-theme="dark"] .user-management-header p,
+    html[data-theme="dark"] .user-table th,
+    html[data-theme="dark"] .user-empty-state p {
+        color: #aeb6c5;
+    }
+
+    html[data-theme="dark"] .user-table-card {
+        background: #151922;
+
+        border-color: #2d3340;
+    }
+
+    html[data-theme="dark"] .user-table-header {
+        border-bottom-color: #2d3340;
+    }
+
+    html[data-theme="dark"] .user-table th {
+        background: #1b202b;
+
+        border-bottom-color: #2d3340;
+    }
+
+    html[data-theme="dark"] .user-table td {
+        border-bottom-color: #292f3a;
+    }
+
+    html[data-theme="dark"] .user-table tbody tr:hover {
+        background: rgba(
+            255,
+            255,
+            255,
+            0.025
+        );
+    }
+
+    html[data-theme="dark"] .role-badge {
+        background: #252b36;
+        color: #d1d5db;
+    }
+
+    html[data-theme="dark"] .user-status.inactive {
+        background: #252b36;
+        color: #9ca3af;
+    }
+
+    html[data-theme="dark"] .user-empty-icon {
+        background: #252b36;
+        color: #9ca3af;
+    }
+
+    html[data-theme="dark"] .user-alert.success {
+        background: rgba(16, 185, 129, 0.10);
+        border-color: rgba(52, 211, 153, 0.25);
+        color: #6ee7b7;
+    }
+
+    html[data-theme="dark"] .user-alert.error {
+        background: rgba(220, 38, 38, 0.10);
+        border-color: rgba(248, 113, 113, 0.25);
+        color: #fca5a5;
+    }
+
+    html[data-theme="dark"] .user-alert.warning {
+        background: rgba(245, 158, 11, 0.10);
+        border-color: rgba(251, 191, 36, 0.25);
+        color: #fcd34d;
+    }
+
+    html[data-theme="dark"] .user-alert.info {
+        background: rgba(37, 99, 235, 0.10);
+        border-color: rgba(96, 165, 250, 0.25);
+        color: #93c5fd;
+    }
+
+    /* =========================================================
+       RESPONSIVE
+       ========================================================= */
+
+    @media (max-width: 800px) {
+
+        .user-management-page {
+            padding: 24px 16px;
+        }
+
+        .user-management-header {
+            align-items: flex-start;
+
+            flex-direction: column;
+        }
+
+        .add-user-btn {
+            width: 100%;
+        }
+
+    }
+
+    @media (max-width: 500px) {
+
+        .user-management-page {
+            padding: 18px 12px;
+        }
+
+        .user-management-title {
+            align-items: flex-start;
+        }
+
+        .user-management-header h1 {
+            font-size: 22px;
+        }
+
+        .user-management-icon {
+            width: 40px;
+            height: 40px;
+
+            font-size: 19px;
+        }
+
+        .user-table-header {
+            padding: 15px;
+        }
+
+    }
+
+</style>
+
 
 </head>
 
 <body>
 
+<div class="user-management-page">
 
-    <nav>
-
-        <a class="brand"
-            href="{% url 'dashboard' %}">
-            Legal Contract System
-        </a>
-
-        <a href="{% url 'dashboard' %}">
-            Dashboard
-        </a>
-
-        <a href="{% url 'user_list' %}">
-            User Management
-        </a>
-
-        <a href="{% url 'web_logout' %}">
-            Logout
-        </a>
-
-    </nav>
+<div class="user-management-container">
 
 
-    <div class="container">
+    <!-- =====================================================
+         PAGE HEADER
+         ===================================================== -->
 
-        <div class="card">
+    <div class="user-management-header">
 
 
-            <div class="top-bar">
+        <div class="user-management-title">
+
+
+            <div class="user-management-icon">
+                👥
+            </div>
+
+
+            <div>
 
                 <h1>
                     User Management
                 </h1>
 
-                <a class="add-button"
-                   href="{% url 'user_create' %}">
-                    + Add New User
-                </a>
+                <p>
+                    Manage system users, roles and account access.
+                </p>
 
             </div>
 
 
-            {% if messages %}
-                <div class="messages-container">
-                    {% for message in messages %}
-                        <div class="alert alert-{{ message.tags }}">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
+        </div>
+
+
+        <a
+            href="{% url 'user_create' %}"
+            class="add-user-btn"
+        >
+
+            <span>+</span>
+
+            Add New User
+
+        </a>
+
+
+    </div>
+
+
+    <!-- =====================================================
+         MESSAGES
+         ===================================================== -->
+
+    {% if messages %}
+
+        <div class="user-messages">
+
+            {% for message in messages %}
+
+                <div
+                    class="user-alert
+                    {% if message.tags %}
+                        {{ message.tags }}
+                    {% endif %}"
+                >
+
+                    {{ message }}
+
                 </div>
-            {% endif %}
+
+            {% endfor %}
+
+        </div>
+
+    {% endif %}
 
 
-            <table>
+    <!-- =====================================================
+         USERS TABLE
+         ===================================================== -->
+
+    <div class="user-table-card">
+
+
+        <div class="user-table-header">
+
+
+            <h2>
+                System Users
+            </h2>
+
+
+            <span class="user-count">
+                {{ users|length }}
+            </span>
+
+
+        </div>
+
+
+        <div class="user-table-wrapper">
+
+
+            <table class="user-table">
+
 
                 <thead>
 
@@ -78,7 +839,7 @@
 
                         <th>ID</th>
 
-                        <th>Username</th>
+                        <th>User</th>
 
                         <th>First Name</th>
 
@@ -99,106 +860,253 @@
 
                 <tbody>
 
+
                     {% for user in users %}
+
 
                         <tr>
 
-                            <td>
-                                {{ user.id }}
-                            </td>
+
+                            <!-- ID -->
 
                             <td>
-                                {{ user.username }}
+                                #{{ user.id }}
                             </td>
 
+
+                            <!-- USERNAME -->
+
                             <td>
+
+
+                                <div class="username-cell">
+
+
+                                    <div class="user-avatar">
+
+                                        {{ user.username|first|upper }}
+
+                                    </div>
+
+
+                                    <span class="username-text">
+
+                                        {{ user.username }}
+
+                                    </span>
+
+
+                                </div>
+
+
+                            </td>
+
+
+                            <!-- FIRST NAME -->
+
+                            <td>
+
                                 {{ user.first_name|default:"-" }}
+
                             </td>
 
+
+                            <!-- LAST NAME -->
+
                             <td>
+
                                 {{ user.last_name|default:"-" }}
+
                             </td>
 
+
+                            <!-- EMAIL -->
+
                             <td>
+
                                 {{ user.email|default:"-" }}
+
                             </td>
 
+
+                            <!-- ROLE -->
+
                             <td>
+
 
                                 {% if user.role %}
 
-                                    {{ user.role.name }}
+                                    <span class="role-badge">
+
+                                        {{ user.role.name }}
+
+                                    </span>
 
                                 {% else %}
 
-                                    No Role Assigned
+                                    <span class="role-badge">
+
+                                        No Role Assigned
+
+                                    </span>
 
                                 {% endif %}
 
+
                             </td>
 
+
+                            <!-- STATUS -->
+
                             <td>
+
 
                                 {% if user.is_active %}
 
-                                    <span class="status-active">
+                                    <span class="user-status active">
+
                                         Active
+
                                     </span>
 
                                 {% else %}
 
-                                    <span class="status-inactive">
+                                    <span class="user-status inactive">
+
                                         Inactive
+
                                     </span>
 
                                 {% endif %}
 
+
                             </td>
+
+
+                            <!-- ACTIONS -->
 
                             <td>
 
-                                <a class="edit"
-                                href="{% url 'user_update' user.id %}">
-                                    Edit
-                                </a>
 
-                                <a class="delete"
-                                href="{% url 'user_delete' user.id %}">
-                                    Delete
-                                </a>
+                                <div class="user-actions">
+
+
+                                    <a
+                                        href="{% url 'user_update' user.id %}"
+                                        class="user-action edit"
+                                    >
+
+                                        Edit
+
+                                    </a>
+
+
+                                    <a
+                                        href="{% url 'user_delete' user.id %}"
+                                        class="user-action delete"
+                                    >
+
+                                        Delete
+
+                                    </a>
+
+
+                                </div>
+
 
                             </td>
 
+
                         </tr>
 
+
                     {% empty %}
+
 
                         <tr>
 
                             <td colspan="8">
-                                No users found.
+
+
+                                <div class="user-empty-state">
+
+
+                                    <div class="user-empty-icon">
+                                        👤
+                                    </div>
+
+
+                                    <h3>
+                                        No users found
+                                    </h3>
+
+
+                                    <p>
+                                        There are currently no users
+                                        available in the system.
+                                    </p>
+
+
+                                </div>
+
+
                             </td>
 
                         </tr>
 
+
                     {% endfor %}
 
+
                 </tbody>
+
 
             </table>
 
 
-            <br>
-
-            <a href="{% url 'dashboard' %}">
-                ← Back to Dashboard
-            </a>
-
-
         </div>
+
 
     </div>
 
+
+    <!-- =====================================================
+         BACK TO DASHBOARD
+         ===================================================== -->
+
+    <a
+        href="{% url 'dashboard' %}"
+        class="back-dashboard"
+    >
+
+        ← Back to Dashboard
+
+    </a>
+
+
+</div>
+
+</div>
+
+<!-- =========================================================
+     THEME PERSISTENCE
+     ========================================================= -->
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const savedTheme =
+        localStorage.getItem("legalContractTheme") || "light";
+
+    document.documentElement.setAttribute(
+        "data-theme",
+        savedTheme
+    );
+
+});
+
+</script>
 
 </body>
 

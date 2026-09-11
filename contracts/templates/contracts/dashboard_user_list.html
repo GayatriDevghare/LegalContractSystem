@@ -1,260 +1,866 @@
 {% load static %}
 
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
 
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
 
-    <title>{{ page_title }} - Legal Contract System</title>
+<title>{{ page_title }} - Legal Contract System</title>
 
-    <link rel="stylesheet"
-        href="{% static 'contracts/css/style.css' %}">
+<link rel="stylesheet"
+      href="{% static 'contracts/css/style.css' %}">
+
+<style>
+
+    /* =====================================================
+       USER LIST PAGE
+    ===================================================== */
+
+    .users-page {
+        max-width: 1350px;
+        margin: 0 auto;
+        padding: 30px 25px 50px;
+    }
+
+
+    /* =====================================================
+       PAGE HEADER
+    ===================================================== */
+
+    .users-top-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin-bottom: 28px;
+    }
+
+    .users-heading h1 {
+        margin: 0;
+        color: var(--text-primary, #111827);
+        font-size: 30px;
+        font-weight: 750;
+        line-height: 1.2;
+    }
+
+    .users-heading p {
+        margin: 7px 0 0;
+        color: var(--text-secondary, #6b7280);
+        font-size: 14px;
+    }
+
+
+    /* =====================================================
+       BACK BUTTON
+    ===================================================== */
+
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+
+        min-height: 40px;
+        padding: 9px 16px;
+
+        background: var(--card-bg, #ffffff);
+        color: var(--text-primary, #374151);
+
+        border: 1px solid var(--border-color, #d1d5db);
+        border-radius: 9px;
+
+        text-decoration: none;
+
+        font-size: 13px;
+        font-weight: 650;
+
+        transition: all .2s ease;
+    }
+
+    .back-button:hover {
+        background: var(--hover-bg, #f3f4f6);
+        transform: translateY(-1px);
+    }
+
+
+    /* =====================================================
+       MAIN CARD
+    ===================================================== */
+
+    .users-card {
+        background: var(--card-bg, #ffffff);
+        border: 1px solid var(--border-color, #e5e7eb);
+        border-radius: 17px;
+        overflow: hidden;
+
+        box-shadow:
+            0 8px 28px rgba(15, 23, 42, .06);
+    }
+
+
+    /* =====================================================
+       CARD HEADER
+    ===================================================== */
+
+    .users-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 15px;
+
+        padding: 22px 25px;
+
+        border-bottom: 1px solid
+            var(--border-color, #e5e7eb);
+    }
+
+    .users-card-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .users-card-icon {
+        width: 43px;
+        height: 43px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 11px;
+
+        background: #fff1f2;
+        color: #dc3545;
+
+        font-size: 20px;
+    }
+
+    .users-card-title h2 {
+        margin: 0;
+
+        color: var(--text-primary, #111827);
+
+        font-size: 19px;
+        font-weight: 700;
+    }
+
+    .users-card-title p {
+        margin: 4px 0 0;
+
+        color: var(--text-secondary, #6b7280);
+
+        font-size: 12px;
+    }
+
+
+    /* =====================================================
+       TABLE WRAPPER
+    ===================================================== */
+
+    .users-table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+
+    /* =====================================================
+       USER TABLE
+    ===================================================== */
+
+    .users-table {
+        width: 100%;
+        min-width: 950px;
+
+        border-collapse: collapse;
+    }
+
+    .users-table thead {
+        background: var(--table-header-bg, #f8fafc);
+    }
+
+    .users-table th {
+        padding: 14px 18px;
+
+        text-align: left;
+        white-space: nowrap;
+
+        color: var(--text-secondary, #64748b);
+
+        font-size: 11px;
+        font-weight: 750;
+
+        text-transform: uppercase;
+        letter-spacing: .05em;
+
+        border-bottom: 1px solid
+            var(--border-color, #e5e7eb);
+    }
+
+    .users-table td {
+        padding: 15px 18px;
+
+        color: var(--text-primary, #374151);
+
+        font-size: 13px;
+
+        vertical-align: middle;
+
+        border-bottom: 1px solid
+            var(--border-color, #eef2f7);
+    }
+
+    .users-table tbody tr {
+        transition: background .2s ease;
+    }
+
+    .users-table tbody tr:hover {
+        background: var(--hover-bg, #fafafa);
+    }
+
+    .users-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+
+    /* =====================================================
+       USER INFORMATION
+    ===================================================== */
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+
+    /* =====================================================
+       USER AVATAR
+    ===================================================== */
+
+    .user-avatar {
+        width: 42px;
+        height: 42px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        flex-shrink: 0;
+
+        overflow: hidden;
+
+        border-radius: 50%;
+
+        background: #dc3545;
+        color: #ffffff;
+
+        font-size: 15px;
+        font-weight: 750;
+    }
+
+    .user-avatar img {
+        width: 100%;
+        height: 100%;
+
+        object-fit: cover;
+    }
+
+
+    /* =====================================================
+       USER NAME
+    ===================================================== */
+
+    .user-info strong {
+        display: block;
+
+        color: var(--text-primary, #1f2937);
+
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .user-info small {
+        display: block;
+
+        margin-top: 3px;
+
+        color: var(--text-secondary, #6b7280);
+
+        font-size: 11px;
+    }
+
+
+    /* =====================================================
+       EMAIL
+    ===================================================== */
+
+    .user-email {
+        color: var(--text-secondary, #475569);
+    }
+
+
+    /* =====================================================
+       ROLE BADGE
+    ===================================================== */
+
+    .role-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        min-width: 85px;
+
+        padding: 6px 11px;
+
+        border-radius: 999px;
+
+        background: #fff1f2;
+        color: #be123c;
+
+        border: 1px solid #fecdd3;
+
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .no-role {
+        display: inline-flex;
+        align-items: center;
+
+        padding: 6px 10px;
+
+        border-radius: 999px;
+
+        background: #f1f5f9;
+        color: #64748b;
+
+        font-size: 11px;
+        font-weight: 650;
+    }
+
+
+    /* =====================================================
+       STATUS
+    ===================================================== */
+
+    .active-status,
+    .inactive-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+
+        font-size: 12px;
+        font-weight: 650;
+    }
+
+    .active-status {
+        color: #15803d;
+    }
+
+    .inactive-status {
+        color: #dc2626;
+    }
+
+
+    /* =====================================================
+       JOINED DATE
+    ===================================================== */
+
+    .joined-date {
+        color: var(--text-secondary, #64748b);
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+
+    /* =====================================================
+       EMPTY STATE
+    ===================================================== */
+
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+
+        min-height: 350px;
+
+        padding: 50px 20px;
+
+        text-align: center;
+    }
+
+    .empty-state-icon {
+        width: 74px;
+        height: 74px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        margin-bottom: 18px;
+
+        border-radius: 50%;
+
+        background: #fff1f2;
+        color: #dc3545;
+
+        font-size: 30px;
+    }
+
+    .empty-state h2 {
+        margin: 0 0 8px;
+
+        color: var(--text-primary, #111827);
+
+        font-size: 20px;
+        font-weight: 700;
+    }
+
+    .empty-state p {
+        margin: 0;
+
+        color: var(--text-secondary, #6b7280);
+
+        font-size: 13px;
+    }
+
+
+    /* =====================================================
+       DARK THEME
+    ===================================================== */
+
+    html[data-theme="dark"] .users-card {
+        background: #1b202b;
+        border-color: #303746;
+
+        box-shadow:
+            0 10px 30px rgba(0, 0, 0, .30);
+    }
+
+    html[data-theme="dark"] .users-card-header {
+        border-color: #303746;
+    }
+
+    html[data-theme="dark"] .users-table thead {
+        background: #202632;
+    }
+
+    html[data-theme="dark"] .users-table th,
+    html[data-theme="dark"] .users-table td {
+        border-color: #303746;
+    }
+
+    html[data-theme="dark"] .users-table tbody tr:hover {
+        background: #252b36;
+    }
+
+    html[data-theme="dark"] .user-info strong {
+        color: #f3f4f6;
+    }
+
+    html[data-theme="dark"] .user-email,
+    html[data-theme="dark"] .joined-date {
+        color: #aeb7c6;
+    }
+
+    html[data-theme="dark"] .users-card-icon,
+    html[data-theme="dark"] .empty-state-icon {
+        background: rgba(220, 53, 69, .12);
+    }
+
+    html[data-theme="dark"] .role-badge {
+        background: rgba(190, 18, 60, .14);
+        border-color: rgba(251, 113, 133, .25);
+        color: #fda4af;
+    }
+
+    html[data-theme="dark"] .no-role {
+        background: rgba(148, 163, 184, .14);
+        color: #cbd5e1;
+    }
+
+    html[data-theme="dark"] .active-status {
+        color: #86efac;
+    }
+
+    html[data-theme="dark"] .inactive-status {
+        color: #fca5a5;
+    }
+
+    html[data-theme="dark"] .back-button {
+        background: #202632;
+        border-color: #3a4251;
+        color: #e5e7eb;
+    }
+
+    html[data-theme="dark"] .back-button:hover {
+        background: #29303d;
+    }
+
+
+    /* =====================================================
+       RESPONSIVE
+    ===================================================== */
+
+    @media (max-width: 900px) {
+
+        .users-page {
+            padding: 25px 18px 40px;
+        }
+
+    }
+
+
+    @media (max-width: 600px) {
+
+        .users-page {
+            padding: 20px 12px 35px;
+        }
+
+        .users-heading h1 {
+            font-size: 25px;
+        }
+
+        .users-heading p {
+            font-size: 13px;
+        }
+
+        .users-top-header {
+            margin-bottom: 20px;
+        }
+
+        .back-button {
+            width: 100%;
+        }
+
+        .users-card {
+            border-radius: 13px;
+        }
+
+        .users-card-header {
+            padding: 18px;
+        }
+
+        .users-table th {
+            padding: 12px 14px;
+        }
+
+        .users-table td {
+            padding: 14px;
+        }
+
+        .user-avatar {
+            width: 39px;
+            height: 39px;
+        }
+
+    }
+
+</style>
 
 </head>
 
-
 <body>
 
+<main class="users-page">
 
-<div class="page-container">
+
+<!-- =====================================================
+     PAGE HEADER
+====================================================== -->
+
+<header class="users-top-header">
+
+    <div class="users-heading">
+
+        <h1>
+            {{ page_title }}
+        </h1>
+
+        <p>
+            {{ page_description }}
+        </p>
+
+    </div>
 
 
-    <!-- =====================================================
-         HEADER
-    ====================================================== -->
+    <a href="{% url 'dashboard' %}"
+       class="back-button">
 
-    <div class="page-header">
+        ← Back to Dashboard
 
-        <div>
+    </a>
 
-            <h1>
-                {{ page_title }}
-            </h1>
+</header>
+
+
+<!-- =====================================================
+     USERS CARD
+====================================================== -->
+
+<section class="users-card">
+
+
+    <!-- CARD HEADER -->
+
+    <div class="users-card-header">
+
+        <div class="users-card-title">
+
+            <div class="users-card-icon">
+                👥
+            </div>
+
+            <div>
+
+                <h2>
+                    User Management
+                </h2>
+
+                <p>
+                    Users registered in the legal contract system
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         USER TABLE
+    ================================================== -->
+
+    {% if users %}
+
+        <div class="users-table-wrapper">
+
+            <table class="users-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            User
+                        </th>
+
+                        <th>
+                            Email
+                        </th>
+
+                        <th>
+                            Role
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Joined
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for recent_user in users %}
+
+                        <tr>
+
+
+                            <!-- USER -->
+
+                            <td>
+
+                                <div class="user-info">
+
+
+                                    <div class="user-avatar">
+
+                                        {% if recent_user.profile_photo %}
+
+                                            <img
+                                                src="{{ recent_user.profile_photo.url }}"
+                                                alt="Profile">
+
+                                        {% else %}
+
+                                            {{ recent_user.username|first|upper }}
+
+                                        {% endif %}
+
+                                    </div>
+
+
+                                    <div>
+
+                                        <strong>
+                                            {{ recent_user.username }}
+                                        </strong>
+
+                                        <small>
+
+                                            {{ recent_user.first_name }}
+                                            {{ recent_user.last_name }}
+
+                                        </small>
+
+                                    </div>
+
+                                </div>
+
+                            </td>
+
+
+                            <!-- EMAIL -->
+
+                            <td>
+
+                                <span class="user-email">
+
+                                    {{ recent_user.email|default:"-" }}
+
+                                </span>
+
+                            </td>
+
+
+                            <!-- ROLE -->
+
+                            <td>
+
+                                {% if recent_user.role %}
+
+                                    <span class="role-badge">
+
+                                        {{ recent_user.role.name }}
+
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="no-role">
+
+                                        No Role
+
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- STATUS -->
+
+                            <td>
+
+                                {% if recent_user.is_active %}
+
+                                    <span class="active-status">
+                                        ● Active
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="inactive-status">
+                                        ● Inactive
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- JOINED -->
+
+                            <td>
+
+                                <span class="joined-date">
+
+                                    {{ recent_user.date_joined|date:"d M Y, h:i A" }}
+
+                                </span>
+
+                            </td>
+
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+    {% else %}
+
+
+        <!-- =================================================
+             EMPTY STATE
+        ================================================== -->
+
+        <div class="empty-state">
+
+            <div class="empty-state-icon">
+                👥
+            </div>
+
+            <h2>
+                No Users Found
+            </h2>
 
             <p>
-                {{ page_description }}
+                There are no users matching this category.
             </p>
 
         </div>
 
 
-        <a href="{% url 'dashboard' %}"
-           class="back-button">
+    {% endif %}
 
-            ← Back to Dashboard
 
-        </a>
+</section>
 
-    </div>
+</main>
 
+<!-- =====================================================
+     THEME
+====================================================== -->
 
+<script>
 
-    <!-- =====================================================
-         USER TABLE
-    ====================================================== -->
+    document.addEventListener("DOMContentLoaded", function () {
 
-    <div class="table-card">
+        const savedTheme =
+            localStorage.getItem("legalContractTheme") || "light";
 
+        document.documentElement.setAttribute(
+            "data-theme",
+            savedTheme
+        );
 
-        {% if users %}
+    });
 
-            <div class="table-wrapper">
-
-                <table>
-
-                    <thead>
-
-                        <tr>
-
-                            <th>
-                                User
-                            </th>
-
-                            <th>
-                                Email
-                            </th>
-
-                            <th>
-                                Role
-                            </th>
-
-                            <th>
-                                Status
-                            </th>
-
-                            <th>
-                                Joined
-                            </th>
-
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody>
-
-
-                        {% for recent_user in users %}
-
-                            <tr>
-
-
-                                <!-- USER -->
-
-                                <td>
-
-                                    <div class="user-info">
-
-
-                                        <div class="user-avatar">
-
-                                            {% if recent_user.profile_photo %}
-
-                                                <img
-                                                    src="{{ recent_user.profile_photo.url }}"
-                                                    alt="Profile">
-
-                                            {% else %}
-
-                                                {{ recent_user.username|first|upper }}
-
-                                            {% endif %}
-
-                                        </div>
-
-
-                                        <div>
-
-                                            <strong>
-                                                {{ recent_user.username }}
-                                            </strong>
-
-                                            <small>
-
-                                                {{ recent_user.first_name }}
-                                                {{ recent_user.last_name }}
-
-                                            </small>
-
-                                        </div>
-
-
-                                    </div>
-
-                                </td>
-
-
-
-                                <!-- EMAIL -->
-
-                                <td>
-
-                                    {{ recent_user.email|default:"-" }}
-
-                                </td>
-
-
-
-                                <!-- ROLE -->
-
-                                <td>
-
-                                    {% if recent_user.role %}
-
-                                        <span class="role-badge">
-
-                                            {{ recent_user.role.name }}
-
-                                        </span>
-
-                                    {% else %}
-
-                                        <span class="no-role">
-                                            No Role
-                                        </span>
-
-                                    {% endif %}
-
-                                </td>
-
-
-
-                                <!-- STATUS -->
-
-                                <td>
-
-                                    {% if recent_user.is_active %}
-
-                                        <span class="active-status">
-                                            ● Active
-                                        </span>
-
-                                    {% else %}
-
-                                        <span class="inactive-status">
-                                            ● Inactive
-                                        </span>
-
-                                    {% endif %}
-
-                                </td>
-
-
-
-                                <!-- JOINED -->
-
-                                <td>
-
-                                    {{ recent_user.date_joined|date:"d M Y, h:i A" }}
-
-                                </td>
-
-
-                            </tr>
-
-                        {% endfor %}
-
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-
-        {% else %}
-
-
-            <div class="empty-state">
-
-                <div>
-                    👥
-                </div>
-
-                <h2>
-                    No Users Found
-                </h2>
-
-                <p>
-                    There are no users matching this category.
-                </p>
-
-            </div>
-
-
-        {% endif %}
-
-
-    </div>
-
-
-</div>
-
+</script>
 
 </body>
 

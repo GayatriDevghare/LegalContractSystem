@@ -1,100 +1,950 @@
-
 {% load static %}
 
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Create Clause - Legal Contract System</title>
 
-    <link rel="stylesheet"
-          href="{% static 'contracts/css/style.css' %}">
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>Create Clause - Legal Contract System</title>
+
+<link rel="stylesheet"
+      href="{% static 'contracts/css/style.css' %}">
+
+<style>
+
+    /* =====================================================
+       SELECT CONTRACT PAGE
+    ===================================================== */
+
+    .clause-select-page {
+
+        width: 100%;
+        min-height: 100vh;
+
+        box-sizing: border-box;
+
+        padding: 28px;
+
+        background: var(
+            --page-bg,
+            #f8fafc
+        );
+    }
+
+
+    .clause-select-wrapper {
+
+        width: 100%;
+        max-width: 1400px;
+
+        margin: 0 auto;
+    }
+
+
+    /* =====================================================
+       PAGE HEADER
+    ===================================================== */
+
+    .clause-select-header {
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: space-between;
+
+        gap: 20px;
+
+        margin-bottom: 24px;
+    }
+
+
+    .clause-select-title h1 {
+
+        margin: 0 0 6px;
+
+        font-size: 27px;
+
+        font-weight: 700;
+
+        color: var(
+            --text-primary,
+            #1f2937
+        );
+    }
+
+
+    .clause-select-title p {
+
+        margin: 0;
+
+        color: var(
+            --text-secondary,
+            #6b7280
+        );
+
+        font-size: 14px;
+    }
+
+
+    /* =====================================================
+       HEADER BUTTON
+    ===================================================== */
+
+    .clause-select-header .btn {
+
+        display: inline-flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        min-height: 43px;
+
+        padding: 10px 17px;
+
+        border-radius: 9px;
+
+        text-decoration: none;
+
+        font-size: 13px;
+
+        font-weight: 600;
+
+        white-space: nowrap;
+    }
+
+
+    /* =====================================================
+       TABLE CARD
+    ===================================================== */
+
+    .clause-select-card {
+
+        background: var(
+            --card-bg,
+            #ffffff
+        );
+
+        border: 1px solid var(
+            --border-color,
+            #e5e7eb
+        );
+
+        border-radius: 14px;
+
+        overflow: hidden;
+
+        box-shadow:
+            0 4px 16px
+            rgba(0, 0, 0, 0.05);
+    }
+
+
+    .clause-select-card-header {
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: space-between;
+
+        padding: 18px 22px;
+
+        border-bottom: 1px solid var(
+            --border-color,
+            #e5e7eb
+        );
+    }
+
+
+    .clause-select-card-header h2 {
+
+        margin: 0;
+
+        font-size: 17px;
+
+        font-weight: 700;
+
+        color: var(
+            --text-primary,
+            #1f2937
+        );
+    }
+
+
+    .contract-count {
+
+        display: inline-flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        min-width: 30px;
+
+        height: 27px;
+
+        padding: 0 9px;
+
+        border-radius: 20px;
+
+        background: rgba(
+            185,
+            28,
+            28,
+            0.10
+        );
+
+        color: #b91c1c;
+
+        font-size: 12px;
+
+        font-weight: 700;
+    }
+
+
+    /* =====================================================
+       TABLE WRAPPER
+    ===================================================== */
+
+    .clause-table-wrapper {
+
+        width: 100%;
+
+        overflow-x: auto;
+    }
+
+
+    .clause-select-table {
+
+        width: 100%;
+
+        min-width: 850px;
+
+        border-collapse: collapse;
+    }
+
+
+    .clause-select-table th {
+
+        padding: 14px 18px;
+
+        text-align: left;
+
+        background: #f8fafc;
+
+        color: #6b7280;
+
+        font-size: 11px;
+
+        font-weight: 700;
+
+        text-transform: uppercase;
+
+        letter-spacing: 0.04em;
+
+        white-space: nowrap;
+
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+
+    .clause-select-table td {
+
+        padding: 16px 18px;
+
+        color: #374151;
+
+        font-size: 13px;
+
+        border-bottom: 1px solid #e5e7eb;
+
+        vertical-align: middle;
+    }
+
+
+    .clause-select-table tbody tr {
+
+        transition: background 0.2s ease;
+    }
+
+
+    .clause-select-table tbody tr:hover {
+
+        background: rgba(
+            185,
+            28,
+            28,
+            0.025
+        );
+    }
+
+
+    .clause-select-table tbody tr:last-child td {
+
+        border-bottom: none;
+    }
+
+
+    /* =====================================================
+       CONTRACT NUMBER
+    ===================================================== */
+
+    .contract-number {
+
+        display: inline-flex;
+
+        align-items: center;
+
+        padding: 5px 9px;
+
+        border-radius: 6px;
+
+        background: #fef2f2;
+
+        color: #b91c1c;
+
+        font-size: 12px;
+
+        font-weight: 700;
+
+        white-space: nowrap;
+    }
+
+
+    /* =====================================================
+       CONTRACT TITLE
+    ===================================================== */
+
+    .contract-title {
+
+        color: #1f2937;
+
+        font-size: 14px;
+
+        font-weight: 600;
+    }
+
+
+    /* =====================================================
+       STATUS
+    ===================================================== */
+
+    .contract-status {
+
+        display: inline-flex;
+
+        align-items: center;
+
+        padding: 5px 10px;
+
+        border-radius: 20px;
+
+        font-size: 11px;
+
+        font-weight: 700;
+    }
+
+
+    .status-draft {
+
+        background: #f3f4f6;
+
+        color: #4b5563;
+    }
+
+
+    .status-active {
+
+        background: #ecfdf5;
+
+        color: #047857;
+    }
+
+
+    .status-expired {
+
+        background: #fff7ed;
+
+        color: #c2410c;
+    }
+
+
+    .status-terminated {
+
+        background: #fef2f2;
+
+        color: #b91c1c;
+    }
+
+
+    .status-default {
+
+        background: #f3f4f6;
+
+        color: #4b5563;
+    }
+
+
+    /* =====================================================
+       ACTION BUTTON
+    ===================================================== */
+
+    .create-clause-button {
+
+        display: inline-flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        min-height: 38px;
+
+        padding: 8px 13px;
+
+        border-radius: 8px;
+
+        background: #b91c1c;
+
+        color: #ffffff;
+
+        text-decoration: none;
+
+        font-size: 12px;
+
+        font-weight: 600;
+
+        white-space: nowrap;
+
+        transition:
+            background 0.2s ease,
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
+    }
+
+
+    .create-clause-button:hover {
+
+        background: #991b1b;
+
+        color: #ffffff;
+
+        transform: translateY(-1px);
+
+        box-shadow:
+            0 4px 10px
+            rgba(
+                185,
+                28,
+                28,
+                0.20
+            );
+    }
+
+
+    /* =====================================================
+       EMPTY STATE
+    ===================================================== */
+
+    .clause-empty-state {
+
+        padding: 60px 20px;
+
+        text-align: center;
+    }
+
+
+    .clause-empty-icon {
+
+        margin-bottom: 12px;
+
+        font-size: 40px;
+
+        opacity: 0.6;
+    }
+
+
+    .clause-empty-state h3 {
+
+        margin: 0 0 6px;
+
+        font-size: 17px;
+
+        color: var(
+            --text-primary,
+            #1f2937
+        );
+    }
+
+
+    .clause-empty-state p {
+
+        margin: 0;
+
+        color: var(
+            --text-secondary,
+            #6b7280
+        );
+
+        font-size: 13px;
+    }
+
+
+    /* =====================================================
+       DARK THEME
+    ===================================================== */
+
+    html[data-theme="dark"] .clause-select-page {
+
+        background: #111318;
+    }
+
+
+    html[data-theme="dark"] .clause-select-card {
+
+        background: #151922;
+
+        border-color: #2d3340;
+
+        box-shadow:
+            0 4px 18px
+            rgba(0, 0, 0, 0.25);
+    }
+
+
+    html[data-theme="dark"] .clause-select-card-header {
+
+        border-color: #2d3340;
+    }
+
+
+    html[data-theme="dark"] .clause-select-title h1,
+
+    html[data-theme="dark"] .clause-select-card-header h2 {
+
+        color: #f9fafb;
+    }
+
+
+    html[data-theme="dark"] .clause-select-title p {
+
+        color: #9ca3af;
+    }
+
+
+    html[data-theme="dark"] .clause-select-table th {
+
+        background: #1d222c;
+
+        color: #9ca3af;
+
+        border-color: #2d3340;
+    }
+
+
+    html[data-theme="dark"] .clause-select-table td {
+
+        color: #d1d5db;
+
+        border-color: #2d3340;
+    }
+
+
+    html[data-theme="dark"] .clause-select-table tbody tr:hover {
+
+        background: rgba(
+            239,
+            68,
+            68,
+            0.06
+        );
+    }
+
+
+    html[data-theme="dark"] .contract-number {
+
+        background: rgba(
+            239,
+            68,
+            68,
+            0.12
+        );
+
+        color: #f87171;
+    }
+
+
+    html[data-theme="dark"] .contract-title {
+
+        color: #f3f4f6;
+    }
+
+
+    html[data-theme="dark"] .status-draft,
+
+    html[data-theme="dark"] .status-default {
+
+        background: #374151;
+
+        color: #d1d5db;
+    }
+
+
+    html[data-theme="dark"] .status-active {
+
+        background: rgba(
+            16,
+            185,
+            129,
+            0.12
+        );
+
+        color: #6ee7b7;
+    }
+
+
+    html[data-theme="dark"] .status-expired {
+
+        background: rgba(
+            249,
+            115,
+            22,
+            0.12
+        );
+
+        color: #fdba74;
+    }
+
+
+    html[data-theme="dark"] .status-terminated {
+
+        background: rgba(
+            239,
+            68,
+            68,
+            0.12
+        );
+
+        color: #f87171;
+    }
+
+
+    html[data-theme="dark"] .clause-empty-state h3 {
+
+        color: #f3f4f6;
+    }
+
+
+    html[data-theme="dark"] .clause-empty-state p {
+
+        color: #9ca3af;
+    }
+
+
+    /* =====================================================
+       RESPONSIVE
+    ===================================================== */
+
+    @media (max-width: 768px) {
+
+        .clause-select-page {
+
+            padding: 20px 14px;
+        }
+
+
+        .clause-select-header {
+
+            align-items: flex-start;
+
+            flex-direction: column;
+        }
+
+
+        .clause-select-header > div:last-child {
+
+            width: 100%;
+        }
+
+
+        .clause-select-header .btn {
+
+            width: 100%;
+        }
+
+
+        .clause-select-title h1 {
+
+            font-size: 23px;
+        }
+
+
+        .clause-select-card-header {
+
+            padding: 15px;
+        }
+
+    }
+
+</style>
+```
+
 </head>
 
 <body>
 
-<div class="container">
+```
+<main class="main-content">
 
-    <div class="page-header">
+    <div class="clause-select-page">
 
-        <div>
-            <h1>Create Clause</h1>
-            <p>Select the contract for this clause.</p>
-        </div>
+        <div class="clause-select-wrapper">
 
-        <div>
-            <a href="{% url 'clause_list' %}"
-               class="btn btn-secondary">
-                ← Back to Clauses
-            </a>
+
+            <!-- =================================================
+                 PAGE HEADER
+            ================================================== -->
+
+            <header class="clause-select-header">
+
+                <div class="clause-select-title">
+
+                    <h1>
+                        Create Clause
+                    </h1>
+
+                    <p>
+                        Select a contract to create a new clause.
+                    </p>
+
+                </div>
+
+
+                <div>
+
+                    <a href="{% url 'clause_list' %}"
+                       class="btn btn-secondary">
+
+                        ← Back to Clauses
+
+                    </a>
+
+                </div>
+
+            </header>
+
+
+            <!-- =================================================
+                 CONTRACT CARD
+            ================================================== -->
+
+            <section class="clause-select-card">
+
+
+                <div class="clause-select-card-header">
+
+                    <h2>
+                        Select Contract
+                    </h2>
+
+                    <span class="contract-count">
+                        {{ contracts|length }}
+                    </span>
+
+                </div>
+
+
+                {% if contracts %}
+
+                    <div class="clause-table-wrapper">
+
+                        <table class="clause-select-table">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>
+                                        Contract No.
+                                    </th>
+
+                                    <th>
+                                        Contract Title
+                                    </th>
+
+                                    <th>
+                                        Status
+                                    </th>
+
+                                    <th>
+                                        Action
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+                                {% for contract in contracts %}
+
+                                    <tr>
+
+
+                                        <!-- CONTRACT NUMBER -->
+
+                                        <td>
+
+                                            <span class="contract-number">
+
+                                                {{ contract.contract_number }}
+
+                                            </span>
+
+                                        </td>
+
+
+                                        <!-- CONTRACT TITLE -->
+
+                                        <td>
+
+                                            <span class="contract-title">
+
+                                                {{ contract.title }}
+
+                                            </span>
+
+                                        </td>
+
+
+                                        <!-- STATUS -->
+
+                                        <td>
+
+                                            {% if contract.status == "Draft" %}
+
+                                                <span class="contract-status status-draft">
+                                                    Draft
+                                                </span>
+
+                                            {% elif contract.status == "Active" %}
+
+                                                <span class="contract-status status-active">
+                                                    Active
+                                                </span>
+
+                                            {% elif contract.status == "Expired" %}
+
+                                                <span class="contract-status status-expired">
+                                                    Expired
+                                                </span>
+
+                                            {% elif contract.status == "Terminated" %}
+
+                                                <span class="contract-status status-terminated">
+                                                    Terminated
+                                                </span>
+
+                                            {% else %}
+
+                                                <span class="contract-status status-default">
+                                                    {{ contract.status }}
+                                                </span>
+
+                                            {% endif %}
+
+                                        </td>
+
+
+                                        <!-- ACTION -->
+
+                                        <td>
+
+                                            <a href="{% url 'clause_create' contract.id %}"
+                                               class="create-clause-button">
+
+                                                + Create Clause
+
+                                            </a>
+
+                                        </td>
+
+                                    </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+
+                {% else %}
+
+                    <div class="clause-empty-state">
+
+                        <div class="clause-empty-icon">
+                            📄
+                        </div>
+
+                        <h3>
+                            No Contracts Available
+                        </h3>
+
+                        <p>
+                            Create a contract first before adding a clause.
+                        </p>
+
+                    </div>
+
+                {% endif %}
+
+
+            </section>
+
         </div>
 
     </div>
 
+</main>
 
-    <div class="table-container">
 
-        <table>
+<!-- =====================================================
+     THEME SUPPORT
+====================================================== -->
 
-            <thead>
-                <tr>
-                    <th>Contract No.</th>
-                    <th>Contract Title</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
+<script>
 
-            <tbody>
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
 
-                {% for contract in contracts %}
+            const savedTheme =
+                localStorage.getItem(
+                    "legalContractTheme"
+                ) || "light";
 
-                    <tr>
+            document.documentElement.setAttribute(
+                "data-theme",
+                savedTheme
+            );
 
-                        <td>
-                            {{ contract.contract_number }}
-                        </td>
+        }
+    );
 
-                        <td>
-                            <strong>
-                                {{ contract.title }}
-                            </strong>
-                        </td>
+</script>
 
-                        <td>
-                            {{ contract.status }}
-                        </td>
-
-                        <td>
-                            <a href="{% url 'clause_create' contract.id %}"
-                               class="btn btn-primary">
-                                Create Clause
-                            </a>
-                        </td>
-
-                    </tr>
-
-                {% empty %}
-
-                    <tr>
-                        <td colspan="4">
-                            No contracts available.
-                        </td>
-                    </tr>
-
-                {% endfor %}
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-</div>
 
 </body>
-</html>
 
+</html>

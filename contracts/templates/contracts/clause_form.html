@@ -1,200 +1,764 @@
 {% load static %}
 
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <title>
+        {% if is_edit %}Edit Clause{% else %}Add Clause{% endif %}
+        - Legal Contract System
+    </title>
 
-<meta charset="UTF-8">
+    <link rel="stylesheet"
+          href="{% static 'contracts/css/style.css' %}">
 
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
+    <style>
+        /* =========================================
+           CLAUSE FORM PAGE
+        ========================================= */
 
-<title>Add Clause - Legal Contract System</title>
+        .clause-form-page {
+            max-width: 950px;
+            margin: 0 auto;
+            padding: 35px 25px 50px;
+        }
 
-<link rel="stylesheet"
-      href="{% static 'contracts/css/style.css' %}">
+        /* =========================================
+           PAGE HEADER
+        ========================================= */
 
-<style>
+        .clause-form-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 28px;
+            padding-bottom: 22px;
+            border-bottom: 1px solid var(--border-color, #e5e7eb);
+        }
 
-    .form-container {
-        max-width: 800px;
-        margin: 40px auto;
-        background: #ffffff;
-        padding: 30px;
-        border-radius: 12px;
-        border: 1px solid #e5e7eb;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.06);
-    }
+        .clause-form-heading h1 {
+            margin: 0 0 8px;
+            font-size: 30px;
+            font-weight: 700;
+            color: var(--text-primary, #111827);
+        }
 
-    .form-container h1 {
-        margin-bottom: 8px;
-        color: #111827;
-    }
+        .clause-form-heading p {
+            margin: 0;
+            font-size: 15px;
+            color: var(--text-secondary, #6b7280);
+        }
 
-    .contract-info {
-        background: #f8fafc;
-        border: 1px solid #e5e7eb;
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 25px;
-    }
+        /* =========================================
+           FORM CARD
+        ========================================= */
 
-    .contract-info strong {
-        color: #111827;
-    }
+        .clause-form-card {
+            background: var(--card-bg, #ffffff);
+            border: 1px solid var(--border-color, #e5e7eb);
+            border-radius: 14px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+        }
 
-    .form-group {
-        margin-bottom: 20px;
-    }
+        .clause-form-body {
+            padding: 32px;
+        }
 
-    .form-group label {
-        display: block;
-        margin-bottom: 7px;
-        font-weight: 600;
-        color: #374151;
-    }
+        /* =========================================
+           CONTRACT INFORMATION
+        ========================================= */
 
-    .form-control {
-        width: 100%;
-        padding: 11px 13px;
-        border: 1px solid #d1d5db;
-        border-radius: 7px;
-        box-sizing: border-box;
-        font-size: 14px;
-    }
+        .contract-info-box {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 18px 20px;
+            margin-bottom: 30px;
+            background: rgba(220, 38, 38, 0.05);
+            border: 1px solid rgba(220, 38, 38, 0.18);
+            border-left: 4px solid #dc2626;
+            border-radius: 10px;
+        }
 
-    textarea.form-control {
-        min-height: 150px;
-        resize: vertical;
-    }
+        .contract-info-icon {
+            width: 42px;
+            height: 42px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9px;
+            background: rgba(220, 38, 38, 0.10);
+            color: #dc2626;
+            font-size: 20px;
+        }
 
-    .error {
-        color: #dc3545;
-        font-size: 13px;
-        margin-top: 5px;
-    }
+        .contract-info-content {
+            min-width: 0;
+        }
 
-    .button-row {
-        display: flex;
-        gap: 10px;
-        margin-top: 25px;
-    }
+        .contract-info-title {
+            margin-bottom: 5px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #dc2626;
+        }
 
-    .btn {
-        padding: 11px 20px;
-        border-radius: 7px;
-        text-decoration: none;
-        border: none;
-        cursor: pointer;
-        font-weight: 600;
-    }
+        .contract-info-value {
+            color: var(--text-primary, #1f2937);
+            font-size: 15px;
+            line-height: 1.5;
+            word-break: break-word;
+        }
 
-    .btn-primary {
-        background: #4f46e5;
-        color: #ffffff;
-    }
+        .contract-info-value strong {
+            font-weight: 700;
+        }
 
-    .btn-primary:hover {
-        background: #3730a3;
-    }
+        /* =========================================
+           FORM GRID
+        ========================================= */
 
-    .btn-secondary {
-        background: #e5e7eb;
-        color: #374151;
-    }
+        .clause-form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+        }
 
-</style>
+        .form-group {
+            margin-bottom: 22px;
+        }
 
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
 
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary, #374151);
+        }
+
+        .required {
+            color: #dc2626;
+            margin-left: 2px;
+        }
+
+        /* =========================================
+           FORM CONTROLS
+        ========================================= */
+
+        .clause-form-control {
+            width: 100%;
+            min-height: 46px;
+            padding: 11px 14px;
+            box-sizing: border-box;
+
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+
+            background: #ffffff;
+            color: #111827;
+
+            font-size: 14px;
+            font-family: inherit;
+
+            transition:
+                border-color 0.2s ease,
+                box-shadow 0.2s ease,
+                background 0.2s ease;
+        }
+
+        .clause-form-control:hover {
+            border-color: #9ca3af;
+        }
+
+        .clause-form-control:focus {
+            outline: none;
+            border-color: #dc2626;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.10);
+        }
+
+        .clause-form-control::placeholder {
+            color: #9ca3af;
+        }
+
+        textarea.clause-form-control {
+            min-height: 280px;
+            resize: vertical;
+            line-height: 1.7;
+            font-family: Arial, sans-serif;
+        }
+
+        input[type="number"].clause-form-control {
+            appearance: textfield;
+        }
+
+        input[type="number"].clause-form-control::-webkit-inner-spin-button,
+        input[type="number"].clause-form-control::-webkit-outer-spin-button {
+            opacity: 1;
+        }
+
+        /* =========================================
+           HELP TEXT
+        ========================================= */
+
+        .form-help {
+            display: block;
+            margin-top: 7px;
+            font-size: 12px;
+            line-height: 1.5;
+            color: var(--text-secondary, #6b7280);
+        }
+
+        /* =========================================
+           FORM ERRORS
+        ========================================= */
+
+        .form-error {
+            margin-top: 7px;
+            padding: 8px 10px;
+            border-radius: 6px;
+            background: #fef2f2;
+            color: #b91c1c;
+            font-size: 13px;
+            border: 1px solid #fecaca;
+        }
+
+        .error-message {
+            padding: 12px 15px;
+            margin-bottom: 22px;
+            border-radius: 8px;
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+            font-size: 14px;
+        }
+
+        /* =========================================
+           BUTTON AREA
+        ========================================= */
+
+        .clause-button-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+
+            margin-top: 10px;
+            padding-top: 25px;
+
+            border-top: 1px solid var(--border-color, #e5e7eb);
+        }
+
+        .clause-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+
+            min-height: 44px;
+            padding: 10px 20px;
+
+            border: none;
+            border-radius: 8px;
+
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+
+            cursor: pointer;
+
+            transition:
+                transform 0.15s ease,
+                background 0.2s ease,
+                box-shadow 0.2s ease;
+        }
+
+        .clause-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .clause-btn-primary {
+            background: #dc2626;
+            color: #ffffff;
+            box-shadow: 0 3px 8px rgba(220, 38, 38, 0.18);
+        }
+
+        .clause-btn-primary:hover {
+            background: #b91c1c;
+        }
+
+        .clause-btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+
+        .clause-btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        /* =========================================
+           FORM FOOTER NOTE
+        ========================================= */
+
+        .form-footer-note {
+            margin-top: 22px;
+            padding: 13px 15px;
+            border-radius: 8px;
+            background: #f9fafb;
+            color: #6b7280;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .form-footer-note strong {
+            color: #374151;
+        }
+
+        /* =========================================
+           DARK THEME
+        ========================================= */
+
+        html[data-theme="dark"] .clause-form-header {
+            border-bottom-color: #2d3340;
+        }
+
+        html[data-theme="dark"] .clause-form-heading h1,
+        html[data-theme="dark"] .contract-info-value,
+        html[data-theme="dark"] .form-group label {
+            color: #f3f4f6;
+        }
+
+        html[data-theme="dark"] .clause-form-heading p,
+        html[data-theme="dark"] .form-help {
+            color: #9ca3af;
+        }
+
+        html[data-theme="dark"] .clause-form-card {
+            background: #1b202b;
+            border-color: #2d3340;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        html[data-theme="dark"] .contract-info-box {
+            background: rgba(220, 38, 38, 0.08);
+            border-color: rgba(248, 113, 113, 0.20);
+        }
+
+        html[data-theme="dark"] .clause-form-control {
+            background: #151922;
+            color: #f3f4f6;
+            border-color: #374151;
+        }
+
+        html[data-theme="dark"] .clause-form-control:hover {
+            border-color: #4b5563;
+        }
+
+        html[data-theme="dark"] .clause-form-control:focus {
+            border-color: #ef4444;
+        }
+
+        html[data-theme="dark"] .clause-form-control::placeholder {
+            color: #6b7280;
+        }
+
+        html[data-theme="dark"] .clause-button-row {
+            border-top-color: #2d3340;
+        }
+
+        html[data-theme="dark"] .clause-btn-secondary {
+            background: #252b36;
+            color: #e5e7eb;
+            border-color: #3b4350;
+        }
+
+        html[data-theme="dark"] .clause-btn-secondary:hover {
+            background: #303744;
+        }
+
+        html[data-theme="dark"] .form-footer-note {
+            background: #151922;
+            color: #9ca3af;
+        }
+
+        html[data-theme="dark"] .form-footer-note strong {
+            color: #d1d5db;
+        }
+
+        /* =========================================
+           RESPONSIVE
+        ========================================= */
+
+        @media (max-width: 768px) {
+
+            .clause-form-page {
+                padding: 25px 18px 40px;
+            }
+
+            .clause-form-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .clause-form-heading h1 {
+                font-size: 25px;
+            }
+
+            .clause-form-body {
+                padding: 24px 20px;
+            }
+
+            .clause-form-grid {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .form-group.full-width {
+                grid-column: auto;
+            }
+        }
+
+        @media (max-width: 480px) {
+
+            .clause-form-page {
+                padding: 20px 12px 30px;
+            }
+
+            .clause-form-heading h1 {
+                font-size: 22px;
+            }
+
+            .clause-form-body {
+                padding: 20px 16px;
+            }
+
+            .contract-info-box {
+                padding: 15px;
+            }
+
+            .contract-info-icon {
+                width: 36px;
+                height: 36px;
+                font-size: 17px;
+            }
+
+            .clause-button-row {
+                flex-direction: column;
+            }
+
+            .clause-btn {
+                width: 100%;
+                box-sizing: border-box;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
 <main class="main-content">
 
+    <div class="clause-form-page">
 
-<div class="form-container">
+        <!-- =====================================
+             PAGE HEADER
+        ====================================== -->
 
-    <h1>
-        Add Clause
-    </h1>
+        <div class="clause-form-header">
 
-    <p>
-        Add a new clause to this contract.
-    </p>
+            <div class="clause-form-heading">
 
-    <div class="contract-info">
+                <h1>
+                    {% if is_edit %}
+                        ✏️ Edit Clause
+                    {% else %}
+                        ➕ Add Clause
+                    {% endif %}
+                </h1>
 
-        <strong>Contract:</strong>
-        {{ contract.title }}
-
-        <br>
-
-        <strong>Contract Number:</strong>
-        {{ contract.contract_number }}
-
-    </div>
-
-
-    <form method="post">
-
-        {% csrf_token %}
-
-
-        {% for field in form %}
-
-            <div class="form-group">
-
-                {{ field.label_tag }}
-
-                {{ field }}
-
-                {% if field.errors %}
-
-                    {% for error in field.errors %}
-
-                        <div class="error">
-                            {{ error }}
-                        </div>
-
-                    {% endfor %}
-
-                {% endif %}
+                <p>
+                    {% if is_edit %}
+                        Update the clause information and legal content.
+                    {% else %}
+                        Add a new clause to this contract.
+                    {% endif %}
+                </p>
 
             </div>
 
-        {% endfor %}
+        </div>
 
 
-        <div class="button-row">
+        <!-- =====================================
+             FORM CARD
+        ====================================== -->
 
-            <button type="submit"
-                    class="btn btn-primary">
+        <div class="clause-form-card">
 
-                ➕ Save Clause
-
-            </button>
+            <div class="clause-form-body">
 
 
-            <a href="{% url 'dashboard' %}"
-               class="btn btn-secondary">
+                <!-- =================================
+                     CONTRACT INFORMATION
+                ================================== -->
 
-                Cancel
+                <div class="contract-info-box">
 
-            </a>
+                    <div class="contract-info-icon">
+                        📄
+                    </div>
+
+                    <div class="contract-info-content">
+
+                        <div class="contract-info-title">
+                            Contract
+                        </div>
+
+                        <div class="contract-info-value">
+
+                            <strong>
+                                {{ contract.contract_number }}
+                            </strong>
+
+                            <span>
+                                — {{ contract.title }}
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================
+                     FORM
+                ================================== -->
+
+                <form method="post">
+
+                    {% csrf_token %}
+
+
+                    <!-- FORM ERRORS -->
+
+                    {% if form.errors %}
+
+                        <div class="error-message">
+                            Please correct the errors below and try again.
+                        </div>
+
+                    {% endif %}
+
+
+                    <div class="clause-form-grid">
+
+
+                        <!-- =========================
+                             CLAUSE NUMBER
+                        ========================== -->
+
+                        <div class="form-group">
+
+                            <label for="clause_number">
+                                Clause Number
+                                <span class="required">*</span>
+                            </label>
+
+                            <input
+                                type="text"
+                                id="clause_number"
+                                name="clause_number"
+                                class="clause-form-control"
+                                placeholder="Example: 1.1"
+                                value="{% if is_edit %}{{ clause.clause_number }}{% else %}{{ clause_number|default:'' }}{% endif %}"
+                                required
+                            >
+
+                            <small class="form-help">
+                                Example: 1.1, 1.2, 2.1
+                            </small>
+
+                        </div>
+
+
+                        <!-- =========================
+                             TITLE
+                        ========================== -->
+
+                        <div class="form-group">
+
+                            <label for="title">
+                                Clause Title
+                                <span class="required">*</span>
+                            </label>
+
+                            <input
+                                type="text"
+                                id="title"
+                                name="title"
+                                class="clause-form-control"
+                                placeholder="Enter clause title"
+                                value="{% if is_edit %}{{ clause.title }}{% else %}{{ clause_title|default:'' }}{% endif %}"
+                                required
+                            >
+
+                        </div>
+
+
+                        <!-- =========================
+                             ORDER
+                        ========================== -->
+
+                        <div class="form-group">
+
+                            <label for="order">
+                                Display Order
+                                <span class="required">*</span>
+                            </label>
+
+                            <input
+                                type="number"
+                                id="order"
+                                name="order"
+                                class="clause-form-control"
+                                min="1"
+                                value="{% if is_edit %}{{ clause.order }}{% else %}{{ order|default:'1' }}{% endif %}"
+                                required
+                            >
+
+                            <small class="form-help">
+                                Determines the order in which clauses appear.
+                            </small>
+
+                        </div>
+
+
+                        <!-- =========================
+                             CONTENT
+                        ========================== -->
+
+                        <div class="form-group full-width">
+
+                            <label for="content">
+                                Clause Content
+                                <span class="required">*</span>
+                            </label>
+
+                            <textarea
+                                id="content"
+                                name="content"
+                                class="clause-form-control"
+                                placeholder="Enter the complete legal content of the clause..."
+                                required>{% if is_edit %}{{ clause.content }}{% else %}{{ content|default:'' }}{% endif %}</textarea>
+
+                            <small class="form-help">
+                                Enter the complete legal content of the clause.
+                            </small>
+
+                        </div>
+
+
+                    </div>
+
+
+                    <!-- =================================
+                         BUTTONS
+                    ================================== -->
+
+                    <div class="clause-button-row">
+
+
+                        <!-- SUBMIT -->
+
+                        <button
+                            type="submit"
+                            class="clause-btn clause-btn-primary">
+
+                            {% if is_edit %}
+                                ✏️ Update Clause
+                            {% else %}
+                                ➕ Add Clause
+                            {% endif %}
+
+                        </button>
+
+
+                        <!-- CANCEL -->
+
+                        <a
+                            href="{% url 'contract_clause_list' contract.id %}"
+                            class="clause-btn clause-btn-secondary">
+
+                            Cancel
+
+                        </a>
+
+
+                        <!-- DASHBOARD -->
+
+                        <a
+                            href="{% url 'dashboard' %}"
+                            class="clause-btn clause-btn-secondary">
+
+                            ← Back to Dashboard
+
+                        </a>
+
+                    </div>
+
+
+                    <!-- =================================
+                         FOOTER NOTE
+                    ================================== -->
+
+                    <div class="form-footer-note">
+
+                        <strong>Note:</strong>
+                        Make sure the clause number, title, order, and legal
+                        content are correct before saving.
+
+                    </div>
+
+                </form>
+
+            </div>
 
         </div>
 
-    </form>
-
-</div>
-
+    </div>
 
 </main>
 
-</body>
 
+<!-- =========================================
+     THEME SUPPORT
+========================================= -->
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const savedTheme =
+        localStorage.getItem("legalContractTheme") || "light";
+
+    document.documentElement.setAttribute(
+        "data-theme",
+        savedTheme
+    );
+
+});
+</script>
+
+</body>
 </html>

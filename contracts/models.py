@@ -264,10 +264,12 @@ class Approval(models.Model):
     )
 
     version = models.ForeignKey(
-        Version,
-        on_delete=models.CASCADE,
-        related_name="approvals"
-    )
+    Version,
+    on_delete=models.CASCADE,
+    related_name="approvals",
+    null=True,
+    blank=True
+)
 
     approver = models.ForeignKey(
     User,

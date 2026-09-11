@@ -1,163 +1,705 @@
 {% load static %}
 
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
 
-    <meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
 
-    <title>Total Roles - Legal Contract System</title>
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet"
-        href="{% static 'contracts/css/style.css' %}">
+<title>Roles | Legal Contract System</title>
+
+<link rel="stylesheet"
+      href="{% static 'contracts/css/style.css' %}">
+
+<style>
+
+    /* =====================================================
+       ROLE LIST PAGE
+    ===================================================== */
+
+    .roles-page {
+        max-width: 1250px;
+        margin: 0 auto;
+        padding: 30px 25px 50px;
+    }
+
+
+    /* =====================================================
+       PAGE HEADER
+    ===================================================== */
+
+    .roles-top-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin-bottom: 28px;
+    }
+
+    .roles-heading h1 {
+        margin: 0;
+        color: var(--text-primary, #111827);
+        font-size: 30px;
+        font-weight: 750;
+        line-height: 1.2;
+    }
+
+    .roles-heading p {
+        margin: 7px 0 0;
+        color: var(--text-secondary, #6b7280);
+        font-size: 14px;
+    }
+
+
+    /* =====================================================
+       BACK BUTTON
+    ===================================================== */
+
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        min-height: 40px;
+        padding: 9px 16px;
+
+        background: var(--card-bg, #ffffff);
+        color: var(--text-primary, #374151);
+
+        border: 1px solid var(--border-color, #d1d5db);
+        border-radius: 9px;
+
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 650;
+
+        transition: all .2s ease;
+    }
+
+    .back-button:hover {
+        background: var(--hover-bg, #f3f4f6);
+        transform: translateY(-1px);
+    }
+
+
+    /* =====================================================
+       MAIN CARD
+    ===================================================== */
+
+    .roles-card {
+        background: var(--card-bg, #ffffff);
+        border: 1px solid var(--border-color, #e5e7eb);
+        border-radius: 17px;
+        overflow: hidden;
+
+        box-shadow:
+            0 8px 28px rgba(15, 23, 42, .06);
+    }
+
+
+    /* =====================================================
+       CARD HEADER
+    ===================================================== */
+
+    .roles-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+
+        padding: 22px 25px;
+
+        border-bottom: 1px solid
+            var(--border-color, #e5e7eb);
+    }
+
+    .roles-card-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .roles-card-icon {
+        width: 42px;
+        height: 42px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 11px;
+
+        background: #fff1f2;
+        color: #dc3545;
+
+        font-size: 19px;
+    }
+
+    .roles-card-title h2 {
+        margin: 0;
+
+        color: var(--text-primary, #111827);
+
+        font-size: 19px;
+        font-weight: 700;
+    }
+
+    .roles-card-title p {
+        margin: 4px 0 0;
+
+        color: var(--text-secondary, #6b7280);
+
+        font-size: 12px;
+    }
+
+
+    /* =====================================================
+       TABLE
+    ===================================================== */
+
+    .roles-table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .roles-table {
+        width: 100%;
+        min-width: 750px;
+
+        border-collapse: collapse;
+    }
+
+    .roles-table thead {
+        background: var(--table-header-bg, #f8fafc);
+    }
+
+    .roles-table th {
+        padding: 14px 18px;
+
+        text-align: left;
+        white-space: nowrap;
+
+        color: var(--text-secondary, #64748b);
+
+        font-size: 11px;
+        font-weight: 750;
+
+        text-transform: uppercase;
+        letter-spacing: .05em;
+
+        border-bottom: 1px solid
+            var(--border-color, #e5e7eb);
+    }
+
+    .roles-table td {
+        padding: 17px 18px;
+
+        color: var(--text-primary, #374151);
+
+        font-size: 13px;
+
+        vertical-align: middle;
+
+        border-bottom: 1px solid
+            var(--border-color, #eef2f7);
+    }
+
+    .roles-table tbody tr {
+        transition: background .2s ease;
+    }
+
+    .roles-table tbody tr:hover {
+        background: var(--hover-bg, #fafafa);
+    }
+
+    .roles-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+
+    /* =====================================================
+       ROLE NAME
+    ===================================================== */
+
+    .role-name {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+
+        color: var(--text-primary, #1f2937);
+
+        font-weight: 700;
+    }
+
+    .role-icon {
+        width: 34px;
+        height: 34px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        flex-shrink: 0;
+
+        border-radius: 9px;
+
+        background: #fef2f2;
+        color: #dc3545;
+
+        font-size: 15px;
+    }
+
+
+    /* =====================================================
+       DESCRIPTION
+    ===================================================== */
+
+    .role-description {
+        max-width: 500px;
+
+        color: var(--text-secondary, #64748b);
+
+        line-height: 1.55;
+    }
+
+    .no-description {
+        color: #9ca3af;
+        font-style: italic;
+    }
+
+
+    /* =====================================================
+       USER BADGE
+    ===================================================== */
+
+    .role-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+
+        min-width: 90px;
+
+        padding: 7px 12px;
+
+        border-radius: 999px;
+
+        background: #eff6ff;
+        color: #2563eb;
+
+        border: 1px solid #bfdbfe;
+
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+
+    /* =====================================================
+       EMPTY STATE
+    ===================================================== */
+
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+
+        min-height: 350px;
+
+        padding: 50px 20px;
+
+        text-align: center;
+    }
+
+    .empty-state-icon {
+        width: 74px;
+        height: 74px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        margin-bottom: 18px;
+
+        border-radius: 50%;
+
+        background: #fff1f2;
+        color: #dc3545;
+
+        font-size: 30px;
+    }
+
+    .empty-state h2 {
+        margin: 0 0 8px;
+
+        color: var(--text-primary, #111827);
+
+        font-size: 20px;
+        font-weight: 700;
+    }
+
+    .empty-state p {
+        margin: 0;
+
+        color: var(--text-secondary, #6b7280);
+
+        font-size: 13px;
+    }
+
+
+    /* =====================================================
+       DARK THEME
+    ===================================================== */
+
+    html[data-theme="dark"] .roles-card {
+        background: #1b202b;
+        border-color: #303746;
+
+        box-shadow:
+            0 10px 30px rgba(0, 0, 0, .30);
+    }
+
+    html[data-theme="dark"] .roles-card-header {
+        border-color: #303746;
+    }
+
+    html[data-theme="dark"] .roles-table thead {
+        background: #202632;
+    }
+
+    html[data-theme="dark"] .roles-table th,
+    html[data-theme="dark"] .roles-table td {
+        border-color: #303746;
+    }
+
+    html[data-theme="dark"] .roles-table tbody tr:hover {
+        background: #252b36;
+    }
+
+    html[data-theme="dark"] .role-name {
+        color: #f3f4f6;
+    }
+
+    html[data-theme="dark"] .role-description {
+        color: #aeb7c6;
+    }
+
+    html[data-theme="dark"] .no-description {
+        color: #7f8998;
+    }
+
+    html[data-theme="dark"] .roles-card-icon,
+    html[data-theme="dark"] .role-icon,
+    html[data-theme="dark"] .empty-state-icon {
+        background: rgba(220, 53, 69, .12);
+    }
+
+    html[data-theme="dark"] .role-badge {
+        background: rgba(37, 99, 235, .14);
+        border-color: rgba(147, 197, 253, .25);
+        color: #93c5fd;
+    }
+
+    html[data-theme="dark"] .back-button {
+        background: #202632;
+        border-color: #3a4251;
+        color: #e5e7eb;
+    }
+
+    html[data-theme="dark"] .back-button:hover {
+        background: #29303d;
+    }
+
+
+    /* =====================================================
+       RESPONSIVE
+    ===================================================== */
+
+    @media (max-width: 900px) {
+
+        .roles-page {
+            padding: 25px 18px 40px;
+        }
+
+        .roles-top-header {
+            align-items: flex-start;
+        }
+
+    }
+
+
+    @media (max-width: 600px) {
+
+        .roles-page {
+            padding: 20px 12px 35px;
+        }
+
+        .roles-heading h1 {
+            font-size: 25px;
+        }
+
+        .roles-heading p {
+            font-size: 13px;
+        }
+
+        .roles-top-header {
+            margin-bottom: 20px;
+        }
+
+        .back-button {
+            width: 100%;
+        }
+
+        .roles-card {
+            border-radius: 13px;
+        }
+
+        .roles-card-header {
+            padding: 18px;
+        }
+
+        .roles-table th {
+            padding: 12px 14px;
+        }
+
+        .roles-table td {
+            padding: 14px;
+        }
+
+    }
+
+</style>
+
 
 </head>
 
-
 <body>
 
-
-<div class="page-container">
-
-
-    <!-- HEADER -->
-
-    <div class="page-header">
-
-        <div>
-
-            <h1>
-                All Roles
-            </h1>
-
-            <p>
-                All roles available in the system
-            </p>
-
-        </div>
+<main class="roles-page">
 
 
-        <a href="{% url 'dashboard' %}"
-           class="back-button">
+<!-- =====================================================
+     PAGE HEADER
+====================================================== -->
 
-            ← Back to Dashboard
+<header class="roles-top-header">
 
-        </a>
+    <div class="roles-heading">
+
+        <h1>
+            All Roles
+        </h1>
+
+        <p>
+            View all roles available in the legal contract system
+        </p>
 
     </div>
 
 
+    <a href="{% url 'dashboard' %}"
+       class="back-button">
 
-    <!-- ROLES -->
+        ← Back to Dashboard
 
-    <div class="table-card">
+    </a>
+
+</header>
 
 
-        {% if roles %}
+<!-- =====================================================
+     ROLES CARD
+====================================================== -->
+
+<section class="roles-card">
 
 
-            <div class="table-wrapper">
+    <!-- CARD HEADER -->
 
-                <table>
+    <div class="roles-card-header">
 
-                    <thead>
+        <div class="roles-card-title">
+
+            <div class="roles-card-icon">
+                🔐
+            </div>
+
+            <div>
+
+                <h2>
+                    Role Management
+                </h2>
+
+                <p>
+                    System roles and assigned users
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         ROLE TABLE
+    ================================================== -->
+
+    {% if roles %}
+
+        <div class="roles-table-wrapper">
+
+            <table class="roles-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Role
+                        </th>
+
+                        <th>
+                            Description
+                        </th>
+
+                        <th>
+                            Users
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for role in roles %}
 
                         <tr>
 
-                            <th>
-                                Role
-                            </th>
 
-                            <th>
-                                Description
-                            </th>
+                            <!-- ROLE -->
 
-                            <th>
-                                Users
-                            </th>
+                            <td>
 
-                        </tr>
+                                <div class="role-name">
 
-                    </thead>
-
-
-                    <tbody>
-
-
-                        {% for role in roles %}
-
-                            <tr>
-
-                                <td>
+                                    <span class="role-icon">
+                                        👤
+                                    </span>
 
                                     <strong>
                                         {{ role.name }}
                                     </strong>
 
-                                </td>
+                                </div>
+
+                            </td>
 
 
-                                <td>
+                            <!-- DESCRIPTION -->
 
-                                    {{ role.description|default:"-" }}
+                            <td>
 
-                                </td>
+                                {% if role.description %}
 
+                                    <div class="role-description">
+                                        {{ role.description }}
+                                    </div>
 
-                                <td>
+                                {% else %}
 
-                                    <span class="role-badge">
-
-                                        {{ role.users.count }} Users
-
+                                    <span class="no-description">
+                                        No description available
                                     </span>
 
-                                </td>
+                                {% endif %}
 
-                            </tr>
-
-                        {% endfor %}
+                            </td>
 
 
-                    </tbody>
+                            <!-- USERS -->
 
-                </table>
+                            <td>
 
+                                <span class="role-badge">
+
+                                    👥 {{ role.users.count }} Users
+
+                                </span>
+
+                            </td>
+
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+    {% else %}
+
+
+        <!-- =================================================
+             EMPTY STATE
+        ================================================== -->
+
+        <div class="empty-state">
+
+            <div class="empty-state-icon">
+                🔐
             </div>
 
+            <h2>
+                No Roles Found
+            </h2>
 
-        {% else %}
+            <p>
+                No roles have been created yet.
+            </p>
 
-
-            <div class="empty-state">
-
-                <div>
-                    🔐
-                </div>
-
-                <h2>
-                    No Roles Found
-                </h2>
-
-                <p>
-                    No roles have been created yet.
-                </p>
-
-            </div>
+        </div>
 
 
-        {% endif %}
+    {% endif %}
 
 
-    </div>
+</section>
 
+</main>
 
-</div>
+<!-- =====================================================
+     THEME
+====================================================== -->
 
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const savedTheme =
+            localStorage.getItem("legalContractTheme") || "light";
+
+        document.documentElement.setAttribute(
+            "data-theme",
+            savedTheme
+        );
+
+    });
+
+</script>
 
 </body>
 

@@ -1,5 +1,5 @@
 from os import name
-
+import re
 from django import forms
 from django.contrib.auth import get_user_model
 from django.core.serializers import python
@@ -49,85 +49,257 @@ class UserCreateForm(forms.ModelForm):
 
 
 
+class RegistrationForm(forms.ModelForm):
+
+    password = forms.CharField(
+        widget=forms.PasswordInput(
+            attrs={
+                "class": "form-control",
+                "placeholder": "Enter password",
+            }
+        )
+    )
+
+    role = forms.ModelChoiceField(
+        queryset=Role.objects.all().order_by("name"),
+        empty_label="Select Role",
+        widget=forms.Select(
+            attrs={
+                "class": "form-control",
+            }
+        )
+    )
+
+    class Meta:
+        model = User
+        fields = ["username", "password", "email", "role"]
+
+        widgets = {
+            "username": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Enter username",
+                }
+            ),
+            "email": forms.EmailInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Enter email address",
+                }
+            ),
+        }
+
+    def clean_username(self):
+        username = self.cleaned_data.get("username", "").strip()
+
+        if len(username) < 6:
+            raise forms.ValidationError(
+                "Username must be at least 6 characters long."
+            )
+
+        if not re.search(r"[A-Z]", username):
+            raise forms.ValidationError(
+                "Username must contain at least one uppercase letter."
+            )
+
+        if not re.search(r"[a-z]", username):
+            raise forms.ValidationError(
+                "Username must contain at least one lowercase letter."
+            )
+
+        if not re.search(r"[0-9]", username):
+            raise forms.ValidationError(
+                "Username must contain at least one number."
+            )
+
+        if not re.search(r"[^A-Za-z0-9]", username):
+            raise forms.ValidationError(
+                "Username must contain at least one special character."
+            )
+
+        if User.objects.filter(username__iexact=username).exists():
+            raise forms.ValidationError(
+                "This username is already registered."
+            )
+
+        return username
+
+    def clean_email(self):
+        email = self.cleaned_data.get("email", "").strip()
+
+        if not email:
+            raise forms.ValidationError(
+                "Email address is required."
+            )
+
+        if User.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError(
+                "This email address is already registered."
+            )
+
+        return email
+
+
+    def clean_password(self):
+        password = self.cleaned_data.get("password", "")
+
+        if len(password) < 6:
+            raise forms.ValidationError(
+                "Password must be at least 6 characters long."
+            )
+
+        if not re.search(r"[A-Z]", password):
+            raise forms.ValidationError(
+                "Password must contain at least one uppercase letter."
+            )
+
+        if not re.search(r"[a-z]", password):
+            raise forms.ValidationError(
+                "Password must contain at least one lowercase letter."
+            )
+
+        if not re.search(r"[0-9]", password):
+            raise forms.ValidationError(
+                "Password must contain at least one number."
+            )
+
+        if not re.search(r"[^A-Za-z0-9]", password):
+            raise forms.ValidationError(
+                "Password must contain at least one special character."
+            )
+
+        return password
+
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+
+        # Password is stored as a secure Django hash
+        user.set_password(
+            self.cleaned_data["password"]
+        )
+
+        if commit:
+            user.save()
+
+        return user
+
+
+
+class ChangePasswordForm(forms.Form):
+    current_password = forms.CharField(
+        label="Current Password",
+        widget=forms.PasswordInput(attrs={
+            "class": "form-control",
+            "placeholder": "Enter current password",
+        })
+    )
+
+    new_password = forms.CharField(
+        label="New Password",
+        widget=forms.PasswordInput(attrs={
+            "class": "form-control",
+            "placeholder": "Enter new password",
+        })
+    )
+
+    confirm_password = forms.CharField(
+        label="Confirm New Password",
+        widget=forms.PasswordInput(attrs={
+            "class": "form-control",
+            "placeholder": "Confirm new password",
+        })
+    )
+
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+
+    def clean_current_password(self):
+        password = self.cleaned_data.get("current_password")
+
+        if not self.user.check_password(password):
+            raise forms.ValidationError(
+                "Current password is incorrect."
+            )
+
+        return password
+
+    def clean_new_password(self):
+        password = self.cleaned_data.get("new_password")
+
+        if len(password) < 6:
+            raise forms.ValidationError(
+                "New password must be at least 6 characters long."
+            )
+
+        if not any(char.isupper() for char in password):
+            raise forms.ValidationError(
+                "New password must contain at least one uppercase letter."
+            )
+
+        if not any(char.islower() for char in password):
+            raise forms.ValidationError(
+                "New password must contain at least one lowercase letter."
+            )
+
+        if not any(char.isdigit() for char in password):
+            raise forms.ValidationError(
+                "New password must contain at least one number."
+            )
+
+        if not any(not char.isalnum() for char in password):
+            raise forms.ValidationError(
+                "New password must contain at least one special character."
+            )
+
+        if self.user.check_password(password):
+            raise forms.ValidationError(
+                "New password must be different from your current password."
+            )
+
+        return password
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        new_password = cleaned_data.get("new_password")
+        confirm_password = cleaned_data.get("confirm_password")
+
+        if new_password and confirm_password:
+            if new_password != confirm_password:
+                self.add_error(
+                    "confirm_password",
+                    "New passwords do not match."
+                )
+
+        return cleaned_data
 
 
 class ModificationForm(forms.ModelForm):
-    
     class Meta:
         model = Modification
-
         fields = [
-            "contract",
             "clause",
-            "old_content",
             "new_content",
             "reason",
         ]
 
         widgets = {
-            "contract": forms.Select(
-                attrs={
-                    "class": "form-control"
-                }
-            ),
-
-            "clause": forms.Select(
-                attrs={
-                    "class": "form-control"
-                }
-            ),
-
-            "old_content": forms.Textarea(
-                attrs={
-                    "class": "form-control",
-                    "rows": 5,
-                    "placeholder": "Enter original content"
-                }
-            ),
-
-            "new_content": forms.Textarea(
-                attrs={
-                    "class": "form-control",
-                    "rows": 5,
-                    "placeholder": "Enter proposed modification"
-                }
-            ),
-
-            "reason": forms.Textarea(
-                attrs={
-                    "class": "form-control",
-                    "rows": 4,
-                    "placeholder": "Enter reason for modification"
-                }
-            ),
+            "clause": forms.Select(attrs={
+                "class": "form-control"
+            }),
+            "new_content": forms.Textarea(attrs={
+                "class": "form-control",
+                "rows": 8,
+                "placeholder": "Enter the modified clause content"
+            }),
+            "reason": forms.Textarea(attrs={
+                "class": "form-control",
+                "rows": 4,
+                "placeholder": "Enter reason for modification"
+            }),
         }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.fields["contract"].required = True
-        self.fields["clause"].required = False
-
-        self.fields["contract"].queryset = Contract.objects.all()
-
-        self.fields["clause"].queryset = Clause.objects.select_related(
-            "contract"
-        ).all()
-
-    def clean(self):
-        cleaned_data = super().clean()
-
-        contract = cleaned_data.get("contract")
-        clause = cleaned_data.get("clause")
-
-        if contract and clause:
-            if clause.contract_id != contract.id:
-                raise forms.ValidationError(
-                    "The selected clause does not belong to the selected contract."
-                )
-
-        return cleaned_data
-
 
 
 
@@ -248,6 +420,7 @@ class ContractForm(forms.ModelForm):
     
     
 
+
 class DocumentForm(forms.ModelForm):
 
     class Meta:
@@ -264,10 +437,41 @@ class DocumentForm(forms.ModelForm):
 
         super().__init__(*args, **kwargs)
 
-        if user:
-            self.fields["contract"].queryset = Contract.objects.filter(
-                created_by=user
-            ).order_by("-created_at")
+        if user and user.is_authenticated:
+
+            role = (
+                user.role.name.strip().lower()
+                if user.role
+                else ""
+            )
+
+            # Admin and Contract Manager
+            # can select from all contracts
+            if user.is_superuser or role in [
+                "admin",
+                "contract manager",
+            ]:
+                self.fields["contract"].queryset = (
+                    Contract.objects.all()
+                    .order_by("-created_at")
+                )
+
+            # User can select only their own contracts
+            elif role == "user":
+                self.fields["contract"].queryset = (
+                    Contract.objects.filter(
+                        created_by=user
+                    ).order_by("-created_at")
+                )
+
+            # Approver and other roles
+            # cannot select any contract
+            else:
+                self.fields["contract"].queryset = (
+                    Contract.objects.none()
+                )
+
+
 
 
 

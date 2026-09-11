@@ -1,23 +1,28 @@
-
+from django.db import transaction
 from django.db.models import Q
+
 from django.http import HttpResponse, FileResponse, HttpResponseForbidden
 from django.utils import timezone
 
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView, LogoutView
-from django.urls import reverse_lazy
+
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
-from django.contrib.auth import get_user_model
+from django.urls import reverse_lazy
 
 from .models import (
+    User,
+    Role,
     Contract,
     Document,
     Clause,
-    Role,
     Modification,
+    Version,
+    Approval,
+    AuditLog,
 )
-
 from .forms import (
     UserCreateForm,
     UserUpdateForm,
@@ -28,6 +33,8 @@ from .forms import (
     PasswordChangeForm,
     ClauseForm,
     ModificationForm,
+    RegistrationForm,
+    ChangePasswordForm,
 )
 
 
@@ -35,7 +42,7 @@ User = get_user_model()
 
 
 # =========================================================
-# AUTHENTICATION
+# AUTHENTICATION + AUDIT LOG
 # =========================================================
 
 class UserLoginView(LoginView):
@@ -46,12 +53,79 @@ class UserLoginView(LoginView):
     def get_success_url(self):
         return reverse_lazy("dashboard")
 
+    def form_valid(self, form):
+        response = super().form_valid(form)
+
+        create_audit_log(
+            self.request,
+            action="LOGIN",
+            entity="User",
+            entity_id=self.request.user.id,
+            details={
+                "username": self.request.user.username,
+                "message": "User logged in successfully",
+            },
+        )
+
+        return response
+
 
 class UserLogoutView(LogoutView):
 
     next_page = reverse_lazy("web_login")
 
+    def dispatch(self, request, *args, **kwargs):
 
+        if request.user.is_authenticated:
+
+            create_audit_log(
+                request,
+                action="LOGOUT",
+                entity="User",
+                entity_id=request.user.id,
+                details={
+                    "username": request.user.username,
+                    "message": "User logged out",
+                },
+            )
+
+        return super().dispatch(request, *args, **kwargs)
+
+
+def create_audit_log(
+    request,
+    action,
+    entity,
+    entity_id=None,
+    details=None
+):
+
+    AuditLog.objects.create(
+        user=(
+            request.user
+            if request.user.is_authenticated
+            else None
+        ),
+        action=action,
+        entity=entity,
+        entity_id=entity_id,
+        details=details or {},
+        ip_address=request.META.get("REMOTE_ADDR"),
+    )
+
+
+@login_required
+def audit_log_list(request):
+    if not is_administrator(request.user):
+        return HttpResponseForbidden("You are not authorized to view audit logs.")
+
+    logs = AuditLog.objects.select_related("user").all().order_by("-timestamp")
+
+    return render(
+        request,
+        "contracts/audit_log_list.html",
+        {"logs": logs}
+    )
 # =========================================================
 # ROLE HELPERS
 # =========================================================
@@ -133,14 +207,49 @@ def can_manage_contracts(user):
 
 
 def can_approve_modifications(user):
-    """
-    Only users with the Approver role can
-    approve or reject modification requests.
-    """
     if not user.is_authenticated:
         return False
 
+# Only the Approver role can approve/reject.
+    if user.is_superuser:
+        return False
+
     return get_user_role(user) == "approver"
+
+
+
+
+
+def register(request):
+
+    if request.user.is_authenticated:
+        return redirect("dashboard")
+
+    if request.method == "POST":
+
+        form = RegistrationForm(request.POST)
+
+        if form.is_valid():
+
+            form.save()
+
+            messages.success(
+                request,
+                "Registration successful. Please login."
+            )
+
+            return redirect("web_login")
+
+    else:
+        form = RegistrationForm()
+
+    return render(
+        request,
+        "contracts/register.html",
+        {
+            "form": form,
+        }
+    )
 
 
 
@@ -385,6 +494,17 @@ def profile_edit(request):
 
             user.save()
 
+            create_audit_log(
+                request,
+                action="UPDATE",
+                entity="User Profile",
+                entity_id=request.user.id,
+                details={
+                    "username": request.user.username,
+                    "message": "User profile updated successfully",
+                },
+            )
+
             messages.success(
                 request,
                 "Profile updated successfully."
@@ -429,6 +549,17 @@ def password_change(request):
 
             request.user.save()
 
+            create_audit_log(
+                request,
+                action="UPDATE",
+                entity="User Password",
+                entity_id=request.user.id,
+                details={
+                    "username": request.user.username,
+                    "message": "User password changed successfully",
+                },
+            )
+
             messages.success(
                 request,
                 "Password updated successfully."
@@ -465,7 +596,18 @@ def profile_remove_photo(request):
             request.user.profile_photo = None
 
             request.user.save(
-                update_fields=["profile_photo"]
+            update_fields=["profile_photo"]
+            )
+
+            create_audit_log(
+                request,
+                action="UPDATE",
+                entity="User Profile Photo",
+                entity_id=request.user.id,
+                details={
+                    "username": request.user.username,
+                    "message": "Profile photo removed",
+                },
             )
 
             messages.success(
@@ -512,6 +654,7 @@ def user_list(request):
     )
 
 
+
 @login_required
 def user_create(request):
 
@@ -532,7 +675,23 @@ def user_create(request):
 
         if form.is_valid():
 
-            form.save()
+            new_user = form.save()
+
+            create_audit_log(
+                request,
+                action="CREATE",
+                entity="User",
+                entity_id=new_user.id,
+                details={
+                    "username": new_user.username,
+                    "role": (
+                        new_user.role.name
+                        if new_user.role
+                        else None
+                    ),
+                    "message": "User created successfully",
+                },
+            )
 
             messages.success(
                 request,
@@ -553,6 +712,9 @@ def user_create(request):
             "title": "Add New User"
         }
     )
+
+
+
 
 
 @login_required
@@ -583,6 +745,22 @@ def user_update(request, user_id):
 
             form.save()
 
+            create_audit_log(
+                request,
+                action="UPDATE",
+                entity="User",
+                entity_id=user.id,
+                details={
+                    "username": user.username,
+                    "role": (
+                        user.role.name
+                        if user.role
+                        else None
+                    ),
+                    "message": "User updated successfully",
+                },
+            )
+
             messages.success(
                 request,
                 "User updated successfully."
@@ -607,6 +785,8 @@ def user_update(request, user_id):
     )
 
 
+
+
 @login_required
 def user_delete(request, user_id):
 
@@ -624,6 +804,7 @@ def user_delete(request, user_id):
         id=user_id
     )
 
+    # Prevent Admin from deleting their own account
     if user == request.user:
 
         messages.error(
@@ -636,6 +817,19 @@ def user_delete(request, user_id):
     if request.method == "POST":
 
         username = user.username
+        deleted_user_id = user.id
+
+        # Create audit log BEFORE deleting the user
+        create_audit_log(
+            request,
+            action="DELETE",
+            entity="User",
+            entity_id=deleted_user_id,
+            details={
+                "username": username,
+                "message": "User deleted successfully",
+            },
+        )
 
         user.delete()
 
@@ -653,6 +847,7 @@ def user_delete(request, user_id):
             "user_obj": user
         }
     )
+
 
 
 # =========================================================
@@ -703,8 +898,19 @@ def role_create(request):
         )
 
         if form.is_valid():
+    
+            role = form.save()
 
-            form.save()
+            create_audit_log(
+                request,
+                action="CREATE",
+                entity="Role",
+                entity_id=role.id,
+                details={
+                    "role_name": role.name,
+                    "message": "Role created successfully",
+                },
+            )
 
             messages.success(
                 request,
@@ -725,6 +931,7 @@ def role_create(request):
             "title": "Add New Role"
         }
     )
+
 
 
 @login_required
@@ -753,7 +960,18 @@ def role_update(request, role_id):
 
         if form.is_valid():
 
-            form.save()
+            updated_role = form.save()
+
+            create_audit_log(
+                request,
+                action="UPDATE",
+                entity="Role",
+                entity_id=updated_role.id,
+                details={
+                    "role_name": updated_role.name,
+                    "message": "Role updated successfully",
+                },
+            )
 
             messages.success(
                 request,
@@ -777,6 +995,8 @@ def role_update(request, role_id):
             "role": role
         }
     )
+
+
 
 
 @login_required
@@ -809,8 +1029,20 @@ def role_delete(request, role_id):
         return redirect("role_list")
 
     if request.method == "POST":
-
+    
         role_name = role.name
+        deleted_role_id = role.id
+
+        create_audit_log(
+            request,
+            action="DELETE",
+            entity="Role",
+            entity_id=deleted_role_id,
+            details={
+                "role_name": role_name,
+                "message": "Role deleted successfully",
+            },
+        )
 
         role.delete()
 
@@ -837,7 +1069,6 @@ def role_delete(request, role_id):
 @login_required
 def document_create(request):
 
-    # Only show contracts created by the logged-in user
     contracts = Contract.objects.filter(
         created_by=request.user
     ).order_by("-created_at")
@@ -854,10 +1085,21 @@ def document_create(request):
 
             document = form.save(commit=False)
 
-            # Store the logged-in user as uploader
             document.uploaded_by = request.user
-
             document.save()
+
+            create_audit_log(
+                request,
+                action="UPLOAD",
+                entity="Document",
+                entity_id=document.id,
+                details={
+                    "contract_id": document.contract.id,
+                    "contract_number": document.contract.contract_number,
+                    "file_name": document.file.name,
+                    "message": "Document uploaded successfully",
+                },
+            )
 
             messages.success(
                 request,
@@ -881,7 +1123,6 @@ def document_create(request):
             "title": "Create Document",
         }
     )
-
 
 @login_required
 def document_list(request):
@@ -941,7 +1182,6 @@ def document_view(request, document_id):
         }
     )
 
-
 @login_required
 def document_download(request, document_id):
 
@@ -967,6 +1207,19 @@ def document_download(request, document_id):
             status=404
         )
 
+    create_audit_log(
+        request,
+        action="DOWNLOAD",
+        entity="Document",
+        entity_id=document.id,
+        details={
+            "contract_id": document.contract.id,
+            "contract_number": document.contract.contract_number,
+            "file_name": document.file.name,
+            "message": "Document downloaded",
+        },
+    )
+
     response = FileResponse(
         document.file.open("rb"),
         as_attachment=True,
@@ -977,6 +1230,7 @@ def document_download(request, document_id):
 
 
 
+
 @login_required
 def document_update(request, document_id):
     document = get_object_or_404(
@@ -984,32 +1238,38 @@ def document_update(request, document_id):
         id=document_id
     )
 
-    # Admin permission
+    role = get_user_role(request.user)
+
+    # Approver cannot edit documents
+    if role == "approver":
+        messages.error(
+            request,
+            "Approvers are not authorized to edit documents."
+        )
+        return redirect("document_list")
+
+    # Admin can edit all documents
     is_admin = (
         request.user.is_superuser
-        or (
-            request.user.role
-            and request.user.role.name.strip().lower() == "admin"
-        )
+        or role == "admin"
     )
 
-    # Contract Manager permission
-    is_manager = (
-        request.user.role
-        and request.user.role.name.strip().lower() == "contract manager"
-    )
+    # Contract Manager can edit all documents
+    is_manager = role == "contract manager"
 
-    # User who created the contract
+    # User can edit only documents belonging to their own contracts
     is_contract_owner = (
-        document.contract.created_by == request.user
+        role == "user"
+        and document.contract.created_by_id == request.user.id
     )
 
-    # User who uploaded the document
+    # User who uploaded the document can also edit it
     is_document_uploader = (
-        document.uploaded_by == request.user
+        role == "user"
+        and document.uploaded_by_id == request.user.id
     )
 
-    # Allow any of these users
+    # Permission check
     if not (
         is_admin
         or is_manager
@@ -1027,17 +1287,35 @@ def document_update(request, document_id):
         form = DocumentForm(
             request.POST,
             request.FILES,
-            instance=document
+            instance=document,
+            user=request.user
         )
 
         if form.is_valid():
 
             updated_document = form.save(commit=False)
 
-            # Keep the original uploader
+            # Keep original uploader
             updated_document.uploaded_by = document.uploaded_by
 
             updated_document.save()
+
+            create_audit_log(
+                request,
+                action="UPDATE",
+                entity="Document",
+                entity_id=document.id,
+                details={
+                    "contract_id": document.contract.id,
+                    "contract_number": document.contract.contract_number,
+                    "file_name": (
+                        document.file.name
+                        if document.file
+                        else None
+                    ),
+                    "message": "Document updated successfully",
+                },
+            )
 
             messages.success(
                 request,
@@ -1047,9 +1325,9 @@ def document_update(request, document_id):
             return redirect("document_list")
 
     else:
-
         form = DocumentForm(
-            instance=document
+            instance=document,
+            user=request.user
         )
 
     return render(
@@ -1057,6 +1335,7 @@ def document_update(request, document_id):
         "contracts/document_form.html",
         {
             "form": form,
+            "title": "Edit Document",
             "document": document,
         }
     )
@@ -1064,124 +1343,138 @@ def document_update(request, document_id):
 
 
 
+
+
+
 @login_required
 def document_delete(request, document_id):
+    document = get_object_or_404(
+        Document,
+        id=document_id
+    )
 
     role = get_user_role(request.user)
 
-    if role in [
-        "admin",
-        "contract manager",
-    ] or request.user.is_superuser:
-
-        document = get_object_or_404(
-            Document,
-            id=document_id
-        )
-
-    elif role == "user":
-
-        document = get_object_or_404(
-            Document,
-            id=document_id,
-            contract__created_by=request.user
-        )
-
-    else:
-
+    # Approver cannot delete documents
+    if role == "approver":
         messages.error(
             request,
-            "You are not authorized to delete documents."
+            "Approvers are not authorized to delete documents."
         )
-
         return redirect("document_list")
 
-    if request.method == "POST":
-
-        document.delete()
-
-        messages.success(
-            request,
-            "Document deleted successfully."
-        )
-
-        return redirect(
-            "document_list"
-        )
-
-    return render(
-        request,
-        "contracts/document_confirm_delete.html",
-        {
-            "document": document
-        }
+    # Admin can delete any document
+    is_admin = (
+        request.user.is_superuser
+        or role == "admin"
     )
+
+    # Contract Manager can delete any document
+    is_manager = role == "contract manager"
+
+    # User can delete only documents from their own contracts
+    is_contract_owner = (
+        role == "user"
+        and document.contract.created_by_id == request.user.id
+    )
+
+    # Permission check
+    if not (
+        is_admin
+        or is_manager
+        or is_contract_owner
+    ):
+        messages.error(
+            request,
+            "You do not have permission to delete this document."
+        )
+        return redirect("document_list")
+
+    # Save details before deleting
+    contract_id = document.contract.id
+    contract_number = document.contract.contract_number
+    file_name = document.file.name if document.file else None
+
+    # Create audit log BEFORE deleting the document
+    create_audit_log(
+        request,
+        action="DELETE",
+        entity="Document",
+        entity_id=document.id,
+        details={
+            "contract_id": contract_id,
+            "contract_number": contract_number,
+            "file_name": file_name,
+            "message": "Document deleted successfully",
+        },
+    )
+
+    document.delete()
+
+    messages.success(
+        request,
+        "Document deleted successfully."
+    )
+
+    return redirect("document_list")
+
+
 # =========================================================
 # CONTRACT MANAGEMENT
 # =========================================================
-
 @login_required
 def contract_list(request):
+    role = get_user_role(request.user)
 
-    contracts = Contract.objects.select_related(
-        "created_by"
-    ).prefetch_related(
-        "documents",
-        "clauses"
-    ).all()
+    if role in ["admin", "contract manager"] or request.user.is_superuser:
+        # Admin and Contract Manager can see all contracts
+        contracts = Contract.objects.all().order_by("-created_at")
 
-    search = request.GET.get(
-        "search",
-        ""
-    ).strip()
+    elif role == "user":
+        # User can see ONLY their own contracts
+        contracts = Contract.objects.filter(
+            created_by=request.user
+        ).order_by("-created_at")
 
-    if search:
-
-        contracts = contracts.filter(
-            Q(
-                contract_number__icontains=search
-            )
-            |
-            Q(
-                title__icontains=search
-            )
-        )
-
-    status = request.GET.get(
-        "status",
-        ""
-    ).strip()
-
-    if status:
-
-        contracts = contracts.filter(
-            status=status
-        )
+    else:
+        # Approver
+        contracts = Contract.objects.all().order_by("-created_at")
 
     return render(
         request,
         "contracts/contract_list.html",
         {
             "contracts": contracts,
-            "search": search,
-            "selected_status": status,
-            "status_choices": Contract.STATUS_CHOICES,
         }
     )
 
 
+
+
 @login_required
 def contract_detail(request, contract_id):
+    role = get_user_role(request.user)
+    # Admin, Contract Manager, and Approver
+    # can view all contracts.
+    if role in ["admin", "contract manager", "approver"]:
+        contract = get_object_or_404(
+            Contract,
+            id=contract_id
+        )
 
-    contract = get_object_or_404(
-        Contract.objects.select_related(
-            "created_by"
-        ).prefetch_related(
-            "documents",
-            "clauses"
-        ),
-        id=contract_id
-    )
+    # Normal User can view only contracts created by themselves.
+    elif role == "user":
+        contract = get_object_or_404(
+            Contract,
+            id=contract_id,
+            created_by=request.user
+        )
+
+    # No role assigned
+    else:
+        return HttpResponseForbidden(
+            "You are not authorized to view this contract."
+        )
 
     return render(
         request,
@@ -1193,38 +1486,115 @@ def contract_detail(request, contract_id):
 
 
 
+
 @login_required
 def contract_create(request):
+
     role = get_user_role(request.user)
 
-    # Admin, Contract Manager, and User can create contracts
-    if role not in ["admin", "contract manager", "user"] and not request.user.is_superuser:
-        messages.error(request, "You are not authorized to create contracts.")
+    if (
+        role not in [
+            "admin",
+            "contract manager",
+            "user"
+        ]
+        and not request.user.is_superuser
+    ):
+
+        messages.error(
+            request,
+            "You are not authorized to create contracts."
+        )
+
         return redirect("dashboard")
 
     if request.method == "POST":
-        contract_form = ContractForm(request.POST)
 
-        # First validate the contract
+        contract_form = ContractForm(
+            request.POST
+        )
+
         if contract_form.is_valid():
-            contract = contract_form.save(commit=False)
+
+            contract = contract_form.save(
+                commit=False
+            )
+
             contract.created_by = request.user
             contract.save()
 
-            # Document is optional during contract creation
-            if request.FILES.get("file"):
-                document_form = DocumentForm(request.POST, request.FILES)
+            # -----------------------------------------
+            # CREATE INITIAL VERSION
+            # -----------------------------------------
 
-                # Contract is assigned automatically
-                document_form.fields["contract"].required = False
+            initial_version = Version.objects.create(
+                contract=contract,
+                version_number=1,
+                created_by=request.user,
+                snapshot=create_contract_snapshot(contract),
+                change_summary="Initial contract version"
+            )
+
+            create_audit_log(
+                request,
+                action="CREATE",
+                entity="Version",
+                entity_id=initial_version.id,
+                details={
+                    "contract_id": contract.id,
+                    "contract_number": contract.contract_number,
+                    "version_number": initial_version.version_number,
+                    "message": "Initial contract version created",
+                },
+            )
+                # -----------------------------------------
+            # OPTIONAL DOCUMENT
+            # -----------------------------------------
+
+            if request.FILES.get("file"):
+
+                document_form = DocumentForm(
+                    request.POST,
+                    request.FILES
+                )
+
+                document_form.fields[
+                    "contract"
+                ].required = False
 
                 if document_form.is_valid():
-                    document = document_form.save(commit=False)
+
+                    document = document_form.save(
+                        commit=False
+                    )
+
                     document.contract = contract
                     document.uploaded_by = request.user
                     document.save()
+
+                    # ---------------------------------
+                    # AUDIT LOG - DOCUMENT UPLOAD
+                    # ---------------------------------
+
+                    create_audit_log(
+                        request,
+                        action="UPLOAD",
+                        entity="Document",
+                        entity_id=document.id,
+                        details={
+                            "contract_id":
+                                contract.id,
+                            "contract_number":
+                                contract.contract_number,
+                            "file_name":
+                                document.file.name,
+                            "message":
+                                "Document uploaded with contract",
+                        },
+                    )
+
                 else:
-                    # If document has an error, delete the contract
+
                     contract.delete()
 
                     messages.error(
@@ -1236,9 +1606,12 @@ def contract_create(request):
                         request,
                         "contracts/contract_form.html",
                         {
-                            "contract_form": contract_form,
-                            "document_form": document_form,
-                            "title": "Create Contract",
+                            "contract_form":
+                                contract_form,
+                            "document_form":
+                                document_form,
+                            "title":
+                                "Create Contract",
                         },
                     )
 
@@ -1247,12 +1620,17 @@ def contract_create(request):
                 "Contract created successfully."
             )
 
-            return redirect("contract_list")
+            return redirect(
+                "contract_list"
+            )
 
-        # Contract form is invalid
-        document_form = DocumentForm(request.POST, request.FILES)
+        document_form = DocumentForm(
+            request.POST,
+            request.FILES
+        )
 
     else:
+
         contract_form = ContractForm()
         document_form = DocumentForm()
 
@@ -1260,12 +1638,14 @@ def contract_create(request):
         request,
         "contracts/contract_form.html",
         {
-            "contract_form": contract_form,
-            "document_form": document_form,
-            "title": "Create Contract",
+            "contract_form":
+                contract_form,
+            "document_form":
+                document_form,
+            "title":
+                "Create Contract",
         },
     )
-
 
 
 @login_required
@@ -1290,7 +1670,7 @@ def contract_update(request, contract_id):
             )
             return redirect("contract_list")
 
-    # Approver cannot edit contracts
+    # Approver cannot edit
     else:
         messages.error(
             request,
@@ -1301,11 +1681,30 @@ def contract_update(request, contract_id):
     if request.method == "POST":
         form = ContractForm(
             request.POST,
+            request.FILES,
             instance=contract
         )
 
         if form.is_valid():
+    
             form.save()
+
+            create_audit_log(
+                request,
+                action="UPDATE",
+                entity="Contract",
+                entity_id=contract.id,
+                details={
+                    "contract_number":
+                        contract.contract_number,
+                    "title":
+                        contract.title,
+                    "status":
+                        contract.status,
+                    "message":
+                        "Contract updated successfully",
+                },
+            )
 
             messages.success(
                 request,
@@ -1333,38 +1732,57 @@ def contract_update(request, contract_id):
     )
 
 
+
 @login_required
 def contract_delete(request, contract_id):
+    contract = get_object_or_404(
+        Contract,
+        id=contract_id
+    )
 
     role = get_user_role(request.user)
 
-    # Admin and Contract Manager can delete any contract.
+    # Admin and Contract Manager can delete any contract
     if role in ["admin", "contract manager"] or request.user.is_superuser:
+        pass
 
-        contract = get_object_or_404(
-            Contract,
-            id=contract_id
-        )
-
-    # User can delete only their own contract.
+    # User can delete ONLY their own contract
     elif role == "user":
+        if contract.created_by_id != request.user.id:
+            messages.error(
+                request,
+                "You can only delete your own contracts."
+            )
+            return redirect("contract_list")
 
-        contract = get_object_or_404(
-            Contract,
-            id=contract_id,
-            created_by=request.user
-        )
-
+    # Approver cannot delete
     else:
-
         messages.error(
             request,
-            "You are not authorized to delete contracts."
+            "You are not authorized to delete this contract."
         )
-
-        return redirect("dashboard")
+        return redirect("contract_list")
 
     if request.method == "POST":
+        
+        contract_number = contract.contract_number
+        contract_title = contract.title
+        contract_id = contract.id
+
+        create_audit_log(
+            request,
+            action="DELETE",
+            entity="Contract",
+            entity_id=contract_id,
+            details={
+                "contract_number":
+                    contract_number,
+                "title":
+                    contract_title,
+                "message":
+                    "Contract deleted",
+            },
+        )
 
         contract.delete()
 
@@ -1377,14 +1795,6 @@ def contract_delete(request, contract_id):
             "contract_list"
         )
 
-    return render(
-        request,
-        "contracts/contract_confirm_delete.html",
-        {
-            "contract": contract
-        }
-    )
-
 
 # =========================================================
 # CLAUSE MANAGEMENT
@@ -1392,118 +1802,57 @@ def contract_delete(request, contract_id):
 
 @login_required
 def clause_list(request, contract_id=None):
+    role = get_user_role(request.user)
 
     if contract_id:
+        contract = get_object_or_404(Contract, id=contract_id)
 
-        # All authenticated users can view clauses
-        # of any contract they can access.
-        contract = get_object_or_404(
-            Contract,
-            id=contract_id
+        # Admin, Approver, and Contract Manager can view all clauses
+        if role in ["admin", "approver", "contract manager"] or request.user.is_superuser:
+            pass
+
+        # User can view only their own contract clauses
+        elif role == "user":
+            if contract.created_by_id != request.user.id:
+                return HttpResponseForbidden(
+                    "You are not authorized to view these clauses."
+                )
+
+        else:
+            return HttpResponseForbidden(
+                "You are not authorized to view these clauses."
+            )
+
+        clauses = contract.clauses.all()
+
+        return render(
+            request,
+            "contracts/clause_list.html",
+            {
+                "contract": contract,
+                "clauses": clauses,
+            },
         )
 
-        clauses = Clause.objects.filter(
-            contract=contract
-        ).order_by(
-            "order",
-            "id"
+    # Clause list without a specific contract
+    if role in ["admin", "approver", "contract manager"] or request.user.is_superuser:
+        clauses = Clause.objects.select_related("contract").all()
+
+    elif role == "user":
+        clauses = Clause.objects.select_related("contract").filter(
+            contract__created_by=request.user
         )
 
     else:
-
-        contract = None
-
-        if can_view_all_data(request.user):
-
-            clauses = Clause.objects.select_related(
-                "contract"
-            ).all().order_by(
-                "contract_id",
-                "order",
-                "id"
-            )
-
-        else:
-
-            clauses = Clause.objects.select_related(
-                "contract"
-            ).filter(
-                contract__created_by=request.user
-            ).order_by(
-                "contract_id",
-                "order",
-                "id"
-            )
+        return HttpResponseForbidden(
+            "You are not authorized to view clauses."
+        )
 
     return render(
         request,
         "contracts/clause_list.html",
         {
             "clauses": clauses,
-            "contract": contract,
-        }
-    )
-
-
-
-@login_required
-def clause_create(request, contract_id):
-    contract = get_object_or_404(
-        Contract,
-        id=contract_id
-    )
-
-    role = get_user_role(request.user)
-
-    # Admin and Contract Manager can add clauses to any contract
-    if role in ["admin", "contract manager"] or request.user.is_superuser:
-        pass
-
-    # User can add clauses ONLY to their own contract
-    elif role == "user":
-        if contract.created_by_id != request.user.id:
-            messages.error(
-                request,
-                "You can only add clauses to your own contracts."
-            )
-            return redirect("clause_list")
-
-    # Approver and other roles cannot add clauses
-    else:
-        messages.error(
-            request,
-            "You are not authorized to add clauses."
-        )
-        return redirect("clause_list")
-
-    if request.method == "POST":
-        form = ClauseForm(request.POST)
-
-        if form.is_valid():
-            clause = form.save(commit=False)
-            clause.contract = contract
-            clause.save()
-
-            messages.success(
-                request,
-                "Clause added successfully."
-            )
-
-            return redirect(
-                "clause_list",
-                contract_id=contract.id
-            )
-
-    else:
-        form = ClauseForm()
-
-    return render(
-        request,
-        "contracts/clause_form.html",
-        {
-            "form": form,
-            "contract": contract,
-            "title": "Add Clause",
         },
     )
 
@@ -1512,21 +1861,241 @@ def clause_create(request, contract_id):
 
 
 @login_required
+def clause_create(request, contract_id):
+
+    contract = get_object_or_404(
+        Contract,
+        id=contract_id
+    )
+
+    role = get_user_role(request.user)
+
+    # -----------------------------------------
+    # PERMISSION CHECK
+    # -----------------------------------------
+    # Approver is NOT allowed to create clauses.
+    # Only Admin, Contract Manager and User can create.
+    if role not in [
+        "admin",
+        "contract manager",
+        "user",
+    ] and not request.user.is_superuser:
+
+        messages.error(
+            request,
+            "You are not authorized to add a clause."
+        )
+
+        return redirect(
+            "contract_detail",
+            contract_id=contract.id
+        )
+
+    # -----------------------------------------
+    # USER CAN ONLY ADD CLAUSES TO OWN CONTRACT
+    # -----------------------------------------
+    if role == "user":
+
+        if contract.created_by_id != request.user.id:
+
+            messages.error(
+                request,
+                "You can only add clauses to your own contracts."
+            )
+
+            return redirect("contract_list")
+
+    # -----------------------------------------
+    # POST
+    # -----------------------------------------
+    if request.method == "POST":
+
+        clause_number = request.POST.get(
+            "clause_number",
+            ""
+        ).strip()
+
+        title = request.POST.get(
+            "title",
+            ""
+        ).strip()
+
+        content = request.POST.get(
+            "content",
+            ""
+        ).strip()
+
+        order = request.POST.get(
+            "order",
+            "1"
+        ).strip()
+
+        # -----------------------------------------
+        # VALIDATION
+        # -----------------------------------------
+        if not clause_number:
+
+            messages.error(
+                request,
+                "Clause number is required."
+            )
+
+            return render(
+                request,
+                "contracts/clause_form.html",
+                {
+                    "contract": contract,
+                    "clause_number": clause_number,
+                    "title": title,
+                    "content": content,
+                    "order": order,
+                }
+            )
+
+        if not title:
+
+            messages.error(
+                request,
+                "Clause title is required."
+            )
+
+            return render(
+                request,
+                "contracts/clause_form.html",
+                {
+                    "contract": contract,
+                    "clause_number": clause_number,
+                    "title": title,
+                    "content": content,
+                    "order": order,
+                }
+            )
+
+        if not content:
+
+            messages.error(
+                request,
+                "Clause content is required."
+            )
+
+            return render(
+                request,
+                "contracts/clause_form.html",
+                {
+                    "contract": contract,
+                    "clause_number": clause_number,
+                    "title": title,
+                    "content": content,
+                    "order": order,
+                }
+            )
+
+        # -----------------------------------------
+        # VALIDATE ORDER
+        # -----------------------------------------
+        try:
+
+            clause_order = int(order or 1)
+
+            if clause_order < 1:
+                raise ValueError
+
+        except (ValueError, TypeError):
+
+            messages.error(
+                request,
+                "Clause order must be a positive number."
+            )
+
+            return render(
+                request,
+                "contracts/clause_form.html",
+                {
+                    "contract": contract,
+                    "clause_number": clause_number,
+                    "title": title,
+                    "content": content,
+                    "order": order,
+                }
+            )
+
+        # -----------------------------------------
+        # CREATE CLAUSE
+        # -----------------------------------------
+        clause = Clause.objects.create(
+            contract=contract,
+            clause_number=clause_number,
+            title=title,
+            content=content,
+            order=clause_order,
+        )
+
+        # -----------------------------------------
+        # AUDIT LOG
+        # -----------------------------------------
+        create_audit_log(
+            request,
+            action="CREATE",
+            entity="Clause",
+            entity_id=clause.id,
+            details={
+                "contract_id": contract.id,
+                "contract_number": contract.contract_number,
+                "clause_number": clause.clause_number,
+                "title": clause.title,
+                "message": "Clause created successfully",
+            },
+        )
+
+        messages.success(
+            request,
+            "Clause created successfully."
+        )
+
+        return redirect(
+            "contract_detail",
+            contract_id=contract.id
+        )
+
+    # -----------------------------------------
+    # GET
+    # -----------------------------------------
+    return render(
+    request,
+    "contracts/clause_form.html",
+    {
+        "contract": contract,
+        "page_title": "Add New Clause",
+        "is_edit": False,
+    }
+)
+
+
+@login_required
 def clause_update(request, clause_id):
 
     role = get_user_role(request.user)
 
-    if role in ["admin", "contract manager"] or request.user.is_superuser:
+    # Approver cannot edit clauses
+    if role == "approver":
+        messages.error(
+            request,
+            "Approvers are only authorized to view clauses."
+        )
+        return redirect("clause_list")
+
+    # Get clause according to role
+    if request.user.is_superuser or role in ["admin", "contract manager"]:
 
         clause = get_object_or_404(
-            Clause,
+            Clause.objects.select_related("contract"),
             id=clause_id
         )
 
     elif role == "user":
 
         clause = get_object_or_404(
-            Clause,
+            Clause.objects.select_related("contract"),
             id=clause_id,
             contract__created_by=request.user
         )
@@ -1535,80 +2104,223 @@ def clause_update(request, clause_id):
 
         messages.error(
             request,
-            "You are not authorized to update clauses."
+            "You are not authorized to edit clauses."
         )
-
         return redirect("dashboard")
 
+
+    # POST - UPDATE CLAUSE
     if request.method == "POST":
 
-        form = ClauseForm(
-            request.POST,
-            instance=clause
-        )
+        clause_number = request.POST.get(
+            "clause_number",
+            ""
+        ).strip()
 
-        if form.is_valid():
+        clause_title = request.POST.get(
+            "title",
+            ""
+        ).strip()
 
-            form.save()
+        content = request.POST.get(
+            "content",
+            ""
+        ).strip()
 
-            messages.success(
+        order = request.POST.get(
+            "order",
+            "1"
+        ).strip()
+
+
+        # Validation
+
+        if not clause_number:
+
+            messages.error(
                 request,
-                "Clause updated successfully."
+                "Clause number is required."
             )
 
-            return redirect(
-                "contract_clause_list",
-                contract_id=clause.contract.id
+            return render(
+                request,
+                "contracts/clause_form.html",
+                {
+                    "contract": clause.contract,
+                    "clause": clause,
+                    "page_title": "Edit Clause",
+                    "is_edit": True,
+                }
             )
 
-    else:
 
-        form = ClauseForm(
-            instance=clause
+        if not clause_title:
+
+            messages.error(
+                request,
+                "Clause title is required."
+            )
+
+            return render(
+                request,
+                "contracts/clause_form.html",
+                {
+                    "contract": clause.contract,
+                    "clause": clause,
+                    "page_title": "Edit Clause",
+                    "is_edit": True,
+                }
+            )
+
+
+        if not content:
+
+            messages.error(
+                request,
+                "Clause content is required."
+            )
+
+            return render(
+                request,
+                "contracts/clause_form.html",
+                {
+                    "contract": clause.contract,
+                    "clause": clause,
+                    "page_title": "Edit Clause",
+                    "is_edit": True,
+                }
+            )
+
+
+        try:
+
+            clause_order = int(order or 1)
+
+            if clause_order < 1:
+                raise ValueError
+
+        except (ValueError, TypeError):
+
+            messages.error(
+                request,
+                "Clause order must be a positive number."
+            )
+
+            return render(
+                request,
+                "contracts/clause_form.html",
+                {
+                    "contract": clause.contract,
+                    "clause": clause,
+                    "page_title": "Edit Clause",
+                    "is_edit": True,
+                }
+            )
+
+
+        # Save changes
+
+        clause.clause_number = clause_number
+        clause.title = clause_title
+        clause.content = content
+        clause.order = clause_order
+
+        clause.save()
+
+
+        # Audit log
+
+        create_audit_log(
+            request,
+            action="UPDATE",
+            entity="Clause",
+            entity_id=clause.id,
+            details={
+                "contract_id": clause.contract.id,
+                "contract_number": clause.contract.contract_number,
+                "clause_number": clause.clause_number,
+                "title": clause.title,
+                "message": "Clause updated successfully",
+            },
         )
+
+
+        messages.success(
+            request,
+            "Clause updated successfully."
+        )
+
+
+        return redirect(
+            "contract_clause_list",
+            contract_id=clause.contract.id
+        )
+
+
+    # GET - OPEN EDIT FORM
 
     return render(
         request,
         "contracts/clause_form.html",
         {
-            "form": form,
             "contract": clause.contract,
-            "title": "Edit Clause",
+            "clause": clause,
+            "page_title": "Edit Clause",
+            "is_edit": True,
         }
     )
 
 
-
 @login_required
 def clause_detail(request, clause_id):
-    clause = get_object_or_404(Clause, id=clause_id)
+
+    clause = get_object_or_404(
+        Clause.objects.select_related("contract"),
+        id=clause_id,
+    )
+
+    role = get_user_role(request.user)
+
+    # -----------------------------------------
+    # ADMIN / APPROVER / CONTRACT MANAGER
+    # CAN VIEW ALL CLAUSES
+    # -----------------------------------------
+    if (
+        role in [
+            "admin",
+            "approver",
+            "contract manager",
+        ]
+        or request.user.is_superuser
+    ):
+
+        pass
+
+    # -----------------------------------------
+    # USER CAN VIEW ONLY OWN CONTRACT CLAUSES
+    # -----------------------------------------
+    elif role == "user":
+
+        if clause.contract.created_by_id != request.user.id:
+
+            return HttpResponseForbidden(
+                "You are not authorized to view this clause."
+            )
+
+    else:
+
+        return HttpResponseForbidden(
+            "You are not authorized to view this clause."
+        )
 
     return render(
         request,
         "contracts/clause_detail.html",
         {
-            "clause": clause
-        }
+            "clause": clause,
+            "contract": clause.contract,
+        },
     )
-
-
-
-@login_required
-def clause_create_select(request):
-
-    # Show only contracts created by the logged-in user
-    contracts = Contract.objects.filter(
-        created_by=request.user
-    ).order_by("-created_at")
-
-    return render(
-        request,
-        "contracts/clause_create_select.html",
-        {
-            "contracts": contracts
-        }
-    )
-
 
 
 @login_required
@@ -1616,17 +2328,35 @@ def clause_delete(request, clause_id):
 
     role = get_user_role(request.user)
 
-    if role in ["admin", "contract manager"] or request.user.is_superuser:
+    # -----------------------------------------
+    # APPROVER CANNOT DELETE CLAUSES
+    # -----------------------------------------
+    if role == "approver":
+
+        messages.error(
+            request,
+            "Approvers are only authorized to view clauses."
+        )
+
+        return redirect("clause_list")
+
+    # -----------------------------------------
+    # GET CLAUSE BASED ON ROLE
+    # -----------------------------------------
+    if (
+        role in ["admin", "contract manager"]
+        or request.user.is_superuser
+    ):
 
         clause = get_object_or_404(
-            Clause,
+            Clause.objects.select_related("contract"),
             id=clause_id
         )
 
     elif role == "user":
 
         clause = get_object_or_404(
-            Clause,
+            Clause.objects.select_related("contract"),
             id=clause_id,
             contract__created_by=request.user
         )
@@ -1640,9 +2370,32 @@ def clause_delete(request, clause_id):
 
         return redirect("dashboard")
 
-    contract_id = clause.contract.id
-
+    # -----------------------------------------
+    # DELETE ONLY ON POST
+    # -----------------------------------------
     if request.method == "POST":
+
+        contract_id = clause.contract.id
+        contract_number = clause.contract.contract_number
+        clause_number = clause.clause_number
+        clause_title = clause.title
+
+        # -----------------------------------------
+        # AUDIT LOG BEFORE DELETE
+        # -----------------------------------------
+        create_audit_log(
+            request,
+            action="DELETE",
+            entity="Clause",
+            entity_id=clause.id,
+            details={
+                "contract_id": contract_id,
+                "contract_number": contract_number,
+                "clause_number": clause_number,
+                "title": clause_title,
+                "message": "Clause deleted",
+            },
+        )
 
         clause.delete()
 
@@ -1656,13 +2409,70 @@ def clause_delete(request, clause_id):
             contract_id=contract_id
         )
 
+    # -----------------------------------------
+    # GET → CONFIRMATION PAGE
+    # -----------------------------------------
     return render(
         request,
         "contracts/clause_confirm_delete.html",
         {
             "clause": clause,
+            "contract": clause.contract,
         }
     )
+
+
+
+
+
+@login_required
+def clause_create_select(request):
+
+    role = get_user_role(request.user)
+
+    # Approver cannot create clauses
+    if role == "approver":
+        messages.error(
+            request,
+            "Approvers are only authorized to view clauses."
+        )
+        return redirect("clause_list")
+
+    # Only Admin, Contract Manager and User can create clauses
+    if not (
+        request.user.is_superuser
+        or role in ["admin", "contract manager", "user"]
+    ):
+        messages.error(
+            request,
+            "You are not authorized to create a clause."
+        )
+        return redirect("dashboard")
+
+    # Admin and Contract Manager → all contracts
+    if request.user.is_superuser or role in ["admin", "contract manager"]:
+
+        contracts = Contract.objects.all().order_by("-created_at")
+
+    # User → only their own contracts
+    elif role == "user":
+
+        contracts = Contract.objects.filter(
+            created_by=request.user
+        ).order_by("-created_at")
+
+    else:
+
+        contracts = Contract.objects.none()
+
+    return render(
+        request,
+        "contracts/clause_select_contract.html",
+        {
+            "contracts": contracts,
+        }
+    )
+
 
 
 # =========================================================
@@ -1760,176 +2570,288 @@ def modification_detail(request, modification_id):
         Modification.objects.select_related(
             "contract",
             "clause",
-            "modified_by"
+            "modified_by",
         ),
-        id=modification_id
+        id=modification_id,
     )
 
     role = get_user_role(request.user)
 
-    # Admin / Approver can view all requests
+    # Admin and Approver can view all modifications
     if role in ["admin", "approver"] or request.user.is_superuser:
         pass
 
-    # User can view ONLY their own modification requests
+    # Contract Manager can view modifications for their own contracts
+    elif role == "contract manager":
+        if modification.contract.created_by_id != request.user.id:
+            return HttpResponseForbidden(
+                "You are not authorized to view this modification."
+            )
+
+    # User can view only their own modification requests
     elif role == "user":
         if modification.modified_by_id != request.user.id:
-            messages.error(
-                request,
-                "You are not authorized to view this modification request."
+            return HttpResponseForbidden(
+                "You are not authorized to view this modification."
             )
-            return redirect("modification_list")
-
-    # Contract Manager can view requests for their own contracts
-    elif role == "contract manager":
-        if (
-            not modification.contract
-            or modification.contract.created_by_id != request.user.id
-        ):
-            messages.error(
-                request,
-                "You are not authorized to view this modification request."
-            )
-            return redirect("modification_list")
 
     else:
-        messages.error(
-            request,
-            "You are not authorized to view this modification request."
+        return HttpResponseForbidden(
+            "You are not authorized to view this modification."
         )
-        return redirect("dashboard")
+
+    can_approve = can_approve_modifications(request.user)
 
     return render(
         request,
         "contracts/modification_detail.html",
         {
             "modification": modification,
-        }
+            "can_approve": can_approve,
+        },
     )
 
 
 @login_required
 def modification_list(request):
+
     role = get_user_role(request.user)
-    
-    print("CURRENT USER:", request.user.username)
-    print("CURRENT USER ID:", request.user.id)
-    print("CURRENT ROLE:", role)
 
-    if role in ["admin", "approver"] or request.user.is_superuser:
+    modifications = Modification.objects.select_related(
+        "contract",
+        "clause",
+        "modified_by"
+    ).all()
 
-        # Admin and Approver can see all requests
-        modifications = Modification.objects.select_related(
-            "contract",
-            "clause",
-            "modified_by"
-        ).all().order_by("-modified_at")
+    # ---------------------------------------------------------
+    # ROLE BASED ACCESS
+    # ---------------------------------------------------------
+
+    if role == "user":
+
+        modifications = modifications.filter(
+            modified_by=request.user
+        )
 
     elif role == "contract manager":
 
-        # Contract Manager can see requests related
-        # to contracts created by them
-        modifications = Modification.objects.select_related(
-            "contract",
-            "clause",
-            "modified_by"
-        ).filter(
+        modifications = modifications.filter(
             contract__created_by=request.user
-        ).order_by("-modified_at")
+        )
 
-    elif role == "user":
+    elif role == "approver":
 
-        # User can see ONLY their own requests
-        modifications = Modification.objects.select_related(
-            "contract",
-            "clause",
-            "modified_by"
-        ).filter(
-            modified_by=request.user
-        ).order_by("-modified_at")
-        
-        print("USER REQUESTS:", list(
-    modifications.values_list(
-        "id",
-        "modified_by__username",
-        "status"
-    )
-))
+        # Approver can review all requests
+        pass
+
+    elif role == "admin" or request.user.is_superuser:
+
+        # Admin can see all
+        pass
 
     else:
 
-        # Any other role sees nothing
-        modifications = Modification.objects.none()
+        modifications = modifications.none()
+
+
+    # ---------------------------------------------------------
+    # STATUS FILTER
+    # ---------------------------------------------------------
+
+    status = request.GET.get("status", "").strip().upper()
+
+    if status in ["PENDING", "APPROVED", "REJECTED"]:
+        modifications = modifications.filter(
+            status=status
+        )
+
+
+    modifications = modifications.order_by("-modified_at")
+
 
     return render(
         request,
         "contracts/modification_list.html",
         {
             "modifications": modifications,
+            "selected_status": status,
         }
     )
 
 
 @login_required
-def modification_create(request):
+def modification_create(request, contract_id=None):
     role = get_user_role(request.user)
 
-    # Users can create modification requests.
-    # Admin / Contract Manager / Approver can also access the form.
-    if role not in [
+    # ---------------------------------------------------------
+    # CHECK PERMISSION
+    # ---------------------------------------------------------
+    allowed_roles = [
         "admin",
         "contract manager",
         "user",
-        "approver",
-    ] and not request.user.is_superuser:
+        # "approver",   # Approver should not create requests
+    ]
+
+    if not (request.user.is_superuser or role in allowed_roles):
         messages.error(
             request,
-            "You are not authorized to create modification requests."
+            "You are not authorized to create a modification request."
         )
-        return redirect("dashboard")
+        return redirect("contract_list")
 
-    # All contracts that the logged-in user is allowed to view
-    contracts = Contract.objects.all().order_by("-id")
+    # ---------------------------------------------------------
+    # GET CONTRACT ID
+    # ---------------------------------------------------------
+    if contract_id is None:
+        contract_id = request.GET.get("contract")
 
+    if not contract_id:
+        messages.error(
+            request,
+            "No contract was selected for modification."
+        )
+        return redirect("contract_list")
+
+    # ---------------------------------------------------------
+    # GET CONTRACT
+    # ---------------------------------------------------------
+    contract = get_object_or_404(
+        Contract,
+        id=contract_id
+    )
+
+    # ---------------------------------------------------------
+    # USER CAN MODIFY ONLY THEIR OWN CONTRACT
+    # ---------------------------------------------------------
+    if role == "user" and contract.created_by_id != request.user.id:
+        messages.error(
+            request,
+            "You can only create modifications for your own contracts."
+        )
+        return redirect("contract_list")
+
+    # ---------------------------------------------------------
+    # CLAUSES FOR THIS CONTRACT
+    # ---------------------------------------------------------
+    clauses = Clause.objects.filter(
+        contract=contract
+    ).order_by("order", "id")
+
+    # ---------------------------------------------------------
+    # POST
+    # ---------------------------------------------------------
     if request.method == "POST":
-        form = ModificationForm(request.POST)
 
-        # Make all viewable contracts available in the form
-        if "contract" in form.fields:
-            form.fields["contract"].queryset = contracts
+        clause_id = request.POST.get("clause")
+        old_content = request.POST.get("old_content", "").strip()
+        new_content = request.POST.get("new_content", "").strip()
+        reason = request.POST.get("reason", "").strip()
 
-        if form.is_valid():
-            modification = form.save(commit=False)
+        # -----------------------------------------------------
+        # VALIDATE CLAUSE
+        # -----------------------------------------------------
+        clause = None
 
-            # Set the user who submitted the request
-            modification.modified_by = request.user
-
-            # New modification requests always start as PENDING
-            modification.status = "PENDING"
-
-            modification.save()
-
-            messages.success(
-                request,
-                "Modification request submitted successfully."
+        if clause_id:
+            clause = get_object_or_404(
+                Clause,
+                id=clause_id,
+                contract=contract
             )
 
-            return redirect("modification_list")
+        # -----------------------------------------------------
+        # VALIDATE OLD CONTENT
+        # -----------------------------------------------------
+        if not old_content:
+            messages.error(
+                request,
+                "Original content is required."
+            )
 
-    else:
-        form = ModificationForm()
+            return render(
+                request,
+                "contracts/modification_form.html",
+                {
+                    "contract": contract,
+                    "clauses": clauses,
+                    "selected_clause_id": clause_id,
+                    "old_content": old_content,
+                    "new_content": new_content,
+                    "reason": reason,
+                }
+            )
 
-        # User can select any contract they can view
-        if "contract" in form.fields:
-            form.fields["contract"].queryset = contracts
+        # -----------------------------------------------------
+        # VALIDATE NEW CONTENT
+        # -----------------------------------------------------
+        if not new_content:
+            messages.error(
+                request,
+                "Modified content is required."
+            )
 
+            return render(
+                request,
+                "contracts/modification_form.html",
+                {
+                    "contract": contract,
+                    "clauses": clauses,
+                    "selected_clause_id": clause_id,
+                    "old_content": old_content,
+                    "new_content": new_content,
+                    "reason": reason,
+                }
+            )
+
+        # -----------------------------------------------------
+        # CREATE MODIFICATION
+        # -----------------------------------------------------
+        modification = Modification.objects.create(
+            contract=contract,
+            clause=clause,
+            modified_by=request.user,
+            old_content=old_content,
+            new_content=new_content,
+            reason=reason,
+            status="PENDING",
+        )
+
+        # -----------------------------------------------------
+        # AUDIT LOG
+        # -----------------------------------------------------
+        create_audit_log(
+            request,
+            action="CREATE",
+            entity="Modification",
+            entity_id=modification.id,
+            details={
+                "contract_id": contract.id,
+                "contract_number": contract.contract_number,
+                "clause_id": clause.id if clause else None,
+                "clause_title": clause.title if clause else None,
+                "status": "PENDING",
+                "message": "Modification request created",
+            },
+        )
+
+        messages.success(
+            request,
+            "Modification request submitted successfully."
+        )
+
+        return redirect("modification_list")
+
+    # ---------------------------------------------------------
+    # GET
+    # ---------------------------------------------------------
     return render(
         request,
         "contracts/modification_form.html",
         {
-            "form": form,
-            "title": "Create Modification Request",
-        },
+            "contract": contract,
+            "clauses": clauses,
+        }
     )
 
 
@@ -1939,11 +2861,11 @@ def modification_create(request):
 @login_required
 def modification_approve(request, modification_id):
 
-    modification = get_object_or_404(
-        Modification,
-        id=modification_id
-    )
 
+    # -----------------------------------------
+    # APPROVER PERMISSION
+    # ONLY APPROVER CAN APPROVE
+    # -----------------------------------------
     if not can_approve_modifications(request.user):
         messages.error(
             request,
@@ -1951,16 +2873,30 @@ def modification_approve(request, modification_id):
         )
         return redirect("modification_list")
 
+    # -----------------------------------------
+    # GET MODIFICATION
+    # -----------------------------------------
+    modification = get_object_or_404(
+        Modification,
+        id=modification_id
+    )
+
+    # -----------------------------------------
+    # ONLY PENDING REQUESTS
+    # -----------------------------------------
     if modification.status != "PENDING":
         messages.error(
             request,
-            "Only pending modification requests can be processed."
+            "Only pending modification requests can be approved."
         )
         return redirect(
             "modification_detail",
             modification_id=modification.id
         )
 
+    # -----------------------------------------
+    # POST ONLY
+    # -----------------------------------------
     if request.method != "POST":
         return redirect(
             "modification_detail",
@@ -1972,21 +2908,137 @@ def modification_approve(request, modification_id):
         ""
     ).strip()
 
-    modification.approval_comment = approval_comment
-    modification.rejection_reason = None
-    modification.status = "APPROVED"
+    with transaction.atomic():
 
-    modification.save(
-        update_fields=[
-            "approval_comment",
-            "rejection_reason",
-            "status"
-        ]
-    )
+        contract = modification.contract
+
+        if not contract:
+            messages.error(
+                request,
+                "This modification is not associated with a contract."
+            )
+            return redirect("modification_list")
+
+        clause = modification.clause
+
+        if not clause:
+            messages.error(
+                request,
+                "This modification is not associated with a clause."
+            )
+            return redirect(
+                "modification_detail",
+                modification_id=modification.id
+            )
+
+        # -----------------------------------------
+        # FIND LATEST VERSION
+        # -----------------------------------------
+        latest_version = (
+            Version.objects
+            .filter(contract=contract)
+            .order_by("-version_number")
+            .first()
+        )
+
+        if latest_version:
+            next_version_number = (
+                latest_version.version_number + 1
+            )
+        else:
+            next_version_number = 1
+
+        # -----------------------------------------
+        # APPLY MODIFICATION
+        # -----------------------------------------
+        clause.content = modification.new_content
+
+        clause.save(
+            update_fields=[
+                "content",
+                "updated_at"
+            ]
+        )
+
+        # -----------------------------------------
+        # CREATE SNAPSHOT
+        # -----------------------------------------
+        snapshot = create_contract_snapshot(contract)
+
+        # -----------------------------------------
+        # CREATE NEW VERSION
+        # -----------------------------------------
+        new_version = Version.objects.create(
+            contract=contract,
+            version_number=next_version_number,
+            created_by=request.user,
+            snapshot=create_contract_snapshot(contract),
+            change_summary=f"Approved modification #{modification.id}",
+        )
+
+        create_audit_log(
+            request,
+            action="CREATE",
+            entity="Version",
+            entity_id=new_version.id,
+            details={
+                "contract_id": contract.id,
+                "contract_number": contract.contract_number,
+                "version_number": new_version.version_number,
+                "modification_id": modification.id,
+                "message": "New contract version created after modification approval",
+            },
+        )
+
+        # -----------------------------------------
+        # CREATE APPROVAL RECORD
+        # -----------------------------------------
+        Approval.objects.create(
+            contract=contract,
+            version=new_version,
+            approver=request.user,
+            status="Approved",
+            comments=approval_comment
+        )
+
+        # -----------------------------------------
+        # UPDATE MODIFICATION
+        # -----------------------------------------
+        modification.approval_comment = approval_comment
+        modification.rejection_reason = None
+        modification.status = "APPROVED"
+
+        modification.save(
+            update_fields=[
+                "approval_comment",
+                "rejection_reason",
+                "status"
+            ]
+        )
+
+        # -----------------------------------------
+        # AUDIT LOG
+        # -----------------------------------------
+        create_audit_log(
+            request,
+            action="APPROVE",
+            entity="Modification",
+            entity_id=modification.id,
+            details={
+                "contract_id": contract.id,
+                "contract_number": contract.contract_number,
+                "clause_id": clause.id,
+                "clause_title": clause.title,
+                "version_id": new_version.id,
+                "version_number": new_version.version_number,
+                "comment": approval_comment,
+            },
+        )
 
     messages.success(
         request,
-        "Modification request approved successfully."
+        f"Modification approved successfully. "
+        f"Version {new_version.version_number} created."
     )
 
     return redirect(
@@ -1997,14 +3049,15 @@ def modification_approve(request, modification_id):
 
 
 
+
+
 @login_required
 def modification_reject(request, modification_id):
-
-    modification = get_object_or_404(
-        Modification,
-        id=modification_id
-    )
-
+    
+# -----------------------------------------
+# APPROVER PERMISSION
+# ONLY APPROVER CAN REJECT
+# -----------------------------------------
     if not can_approve_modifications(request.user):
         messages.error(
             request,
@@ -2012,16 +3065,30 @@ def modification_reject(request, modification_id):
         )
         return redirect("modification_list")
 
+    # -----------------------------------------
+    # GET MODIFICATION
+    # -----------------------------------------
+    modification = get_object_or_404(
+        Modification,
+        id=modification_id
+    )
+
+    # -----------------------------------------
+    # ONLY PENDING REQUESTS
+    # -----------------------------------------
     if modification.status != "PENDING":
         messages.error(
             request,
-            "Only pending modification requests can be processed."
+            "Only pending modification requests can be rejected."
         )
         return redirect(
             "modification_detail",
             modification_id=modification.id
         )
 
+    # -----------------------------------------
+    # POST ONLY
+    # -----------------------------------------
     if request.method != "POST":
         return redirect(
             "modification_detail",
@@ -2033,10 +3100,13 @@ def modification_reject(request, modification_id):
         ""
     ).strip()
 
+    # -----------------------------------------
+    # REJECTION REASON REQUIRED
+    # -----------------------------------------
     if not rejection_reason:
         messages.error(
             request,
-            "Please provide a rejection reason."
+            "Rejection reason is required."
         )
 
         return redirect(
@@ -2044,17 +3114,57 @@ def modification_reject(request, modification_id):
             modification_id=modification.id
         )
 
-    modification.rejection_reason = rejection_reason
-    modification.approval_comment = None
-    modification.status = "REJECTED"
+    with transaction.atomic():
 
-    modification.save(
-        update_fields=[
-            "rejection_reason",
-            "approval_comment",
-            "status"
-        ]
-    )
+        contract = modification.contract
+
+        if not contract:
+            messages.error(
+                request,
+                "This modification is not associated with a contract."
+            )
+            return redirect("modification_list")
+
+        # -----------------------------------------
+        # CREATE REJECTION APPROVAL RECORD
+        # -----------------------------------------
+        Approval.objects.create(
+            contract=contract,
+            version=None,
+            approver=request.user,
+            status="Rejected",
+            comments=rejection_reason
+        )
+
+        # -----------------------------------------
+        # UPDATE MODIFICATION
+        # -----------------------------------------
+        modification.status = "REJECTED"
+        modification.rejection_reason = rejection_reason
+        modification.approval_comment = ""
+
+        modification.save(
+            update_fields=[
+                "status",
+                "rejection_reason",
+                "approval_comment"
+            ]
+        )
+
+        # -----------------------------------------
+        # AUDIT LOG
+        # -----------------------------------------
+        create_audit_log(
+            request,
+            action="REJECT",
+            entity="Modification",
+            entity_id=modification.id,
+            details={
+                "contract_id": contract.id,
+                "contract_number": contract.contract_number,
+                "reason": rejection_reason,
+            },
+        )
 
     messages.success(
         request,
@@ -2069,8 +3179,10 @@ def modification_reject(request, modification_id):
 
 
 
+
 @login_required
 def modification_delete(request, modification_id):
+
     modification = get_object_or_404(
         Modification,
         id=modification_id
@@ -2078,13 +3190,41 @@ def modification_delete(request, modification_id):
 
     # Only Admin can delete modification requests
     if not is_administrator(request.user):
+
         messages.error(
             request,
             "You are not authorized to delete modification requests."
         )
+
         return redirect("modification_list")
 
     if request.method == "POST":
+
+        deleted_modification_id = modification.id
+        contract = modification.contract
+
+        # Create audit log BEFORE deleting the modification
+        create_audit_log(
+            request,
+            action="DELETE",
+            entity="Modification",
+            entity_id=deleted_modification_id,
+            details={
+                "contract_id": (
+                    contract.id
+                    if contract
+                    else None
+                ),
+                "contract_number": (
+                    contract.contract_number
+                    if contract
+                    else None
+                ),
+                "status": modification.status,
+                "message": "Modification request deleted",
+            },
+        )
+
         modification.delete()
 
         messages.success(
@@ -2100,4 +3240,195 @@ def modification_delete(request, modification_id):
         {
             "modification": modification
         }
+    )
+
+
+
+def create_contract_snapshot(contract):
+    """
+    Create a complete snapshot of the current contract
+    and all of its clauses.
+    """
+
+    return {
+        "contract": {
+            "id": contract.id,
+            "contract_number": contract.contract_number,
+            "title": contract.title,
+            "description": contract.description,
+            "status": contract.status,
+            "start_date": (
+                contract.start_date.isoformat()
+                if contract.start_date
+                else None
+            ),
+            "end_date": (
+                contract.end_date.isoformat()
+                if contract.end_date
+                else None
+            ),
+        },
+
+        "clauses": [
+            {
+                "id": clause.id,
+                "clause_number": clause.clause_number,
+                "title": clause.title,
+                "content": clause.content,
+                "order": clause.order,
+            }
+            for clause in contract.clauses.all()
+        ],
+    }
+
+
+# =========================================================
+# VERSION HISTORY
+# =========================================================
+@login_required
+def version_history(request, contract_id):
+    if not is_administrator(request.user):
+        return HttpResponseForbidden(
+            "Only Admin can view version history."
+        )
+
+    contract = get_object_or_404(Contract, id=contract_id)
+
+    versions = contract.versions.select_related(
+        "created_by"
+    ).order_by("-version_number")
+
+    return render(
+        request,
+        "contracts/version_history.html",
+        {
+            "contract": contract,
+            "versions": versions,
+        }
+    )
+    
+
+
+
+@login_required
+def version_detail(request, contract_id, version_id):
+
+    # =========================================================
+    # ADMIN ONLY
+    # =========================================================
+
+    if not is_administrator(request.user):
+        messages.error(
+            request,
+            "You are not authorized to view version details."
+        )
+        return redirect("dashboard")
+
+    # =========================================================
+    # GET CONTRACT
+    # =========================================================
+
+    contract = get_object_or_404(
+        Contract,
+        id=contract_id
+    )
+
+    # =========================================================
+    # GET VERSION
+    # =========================================================
+
+    version = get_object_or_404(
+        Version.objects.select_related(
+            "contract",
+            "created_by"
+        ),
+        id=version_id,
+        contract=contract
+    )
+
+    # =========================================================
+    # GET SNAPSHOT
+    # =========================================================
+
+    snapshot = version.snapshot or {}
+
+    # =========================================================
+    # GET CLAUSES FROM SNAPSHOT
+    # =========================================================
+
+    clauses = snapshot.get("clauses", [])
+
+    # =========================================================
+    # RENDER
+    # =========================================================
+
+    return render(
+        request,
+        "contracts/version_detail.html",
+        {
+            "contract": contract,
+            "version": version,
+            "snapshot": snapshot,
+            "clauses": clauses,
+        }
+    )
+
+
+
+@login_required
+def version_history(request):
+
+    if not is_administrator(request.user):
+        messages.error(
+            request,
+            "You are not authorized to view version history."
+        )
+        return redirect("dashboard")
+
+    versions = Version.objects.select_related(
+        "contract",
+        "created_by"
+    ).order_by("-created_at")
+
+    return render(
+        request,
+        "contracts/version_history.html",
+        {
+            "versions": versions,
+        }
+    )
+
+
+
+
+@login_required
+def change_password(request):
+    if request.method == "POST":
+        form = ChangePasswordForm(request.user, request.POST)
+
+        if form.is_valid():
+            request.user.set_password(form.cleaned_data["new_password"])
+            request.user.save()
+
+            create_audit_log(
+                request,
+                "UPDATE",
+                "User",
+                request.user.id,
+                {"action": "Password changed"}
+            )
+
+            logout(request)
+            messages.success(
+                request,
+                "Password changed successfully. Please login again."
+            )
+            return redirect("web_login")
+    else:
+        form = ChangePasswordForm(request.user)
+
+    return render(
+        request,
+        "contracts/change_password.html",
+        {"form": form}
     )

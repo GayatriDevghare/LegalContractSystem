@@ -1,43 +1,304 @@
 {% load static %}
+
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
-    <title>Delete Contract</title>
-    <link rel="stylesheet" href="{% static 'contracts/css/style.css' %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Delete Contract | Legal Contract System</title>
+
+<link rel="stylesheet"
+      href="{% static 'contracts/css/style.css' %}">
+
+<style>
+    /* ================================
+       DELETE CONTRACT PAGE
+    ================================= */
+
+    .delete-contract-page {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+    }
+
+    .delete-contract-card {
+        width: 100%;
+        max-width: 560px;
+        background: var(--card-bg, #ffffff);
+        border: 1px solid var(--border-color, #e5e7eb);
+        border-radius: 18px;
+        padding: 38px;
+        text-align: center;
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08);
+    }
+
+    .delete-icon {
+        width: 72px;
+        height: 72px;
+        margin: 0 auto 22px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #fee2e2;
+        color: #dc2626;
+        font-size: 32px;
+    }
+
+    .delete-contract-card h1 {
+        margin: 0 0 12px;
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--text-primary, #111827);
+    }
+
+    .delete-subtitle {
+        margin: 0 auto 24px;
+        max-width: 450px;
+        color: var(--text-secondary, #6b7280);
+        font-size: 15px;
+        line-height: 1.7;
+    }
+
+    .contract-name-box {
+        margin: 0 auto 28px;
+        padding: 16px 18px;
+        border-radius: 12px;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+    }
+
+    .contract-name-label {
+        display: block;
+        margin-bottom: 5px;
+        color: #991b1b;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+    }
+
+    .contract-name {
+        color: #7f1d1d;
+        font-size: 17px;
+        font-weight: 700;
+        word-break: break-word;
+    }
+
+    .warning-message {
+        margin-bottom: 28px;
+        color: var(--text-secondary, #6b7280);
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .delete-actions {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .delete-actions .btn {
+        min-width: 145px;
+        text-align: center;
+        padding: 11px 20px;
+        border-radius: 9px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .delete-actions .btn-danger {
+        border: none;
+        background: #dc2626;
+        color: #ffffff;
+    }
+
+    .delete-actions .btn-danger:hover {
+        background: #b91c1c;
+        transform: translateY(-1px);
+    }
+
+    .delete-actions .btn-secondary {
+        border: 1px solid var(--border-color, #d1d5db);
+        background: var(--input-bg, #ffffff);
+        color: var(--text-primary, #374151);
+    }
+
+    .delete-actions .btn-secondary:hover {
+        background: var(--hover-bg, #f3f4f6);
+    }
+
+    .dashboard-link {
+        margin-top: 22px;
+    }
+
+    .dashboard-link a {
+        color: var(--text-secondary, #6b7280);
+        font-size: 13px;
+        text-decoration: none;
+    }
+
+    .dashboard-link a:hover {
+        color: #dc2626;
+    }
+
+    /* Dark Theme */
+    html[data-theme="dark"] .delete-contract-card {
+        background: #1b202b;
+        border-color: #303746;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
+    }
+
+    html[data-theme="dark"] .delete-contract-card h1 {
+        color: #f3f4f6;
+    }
+
+    html[data-theme="dark"] .delete-subtitle,
+    html[data-theme="dark"] .warning-message {
+        color: #aeb6c4;
+    }
+
+    html[data-theme="dark"] .delete-icon {
+        background: rgba(220, 38, 38, 0.15);
+        color: #f87171;
+    }
+
+    html[data-theme="dark"] .contract-name-box {
+        background: rgba(127, 29, 29, 0.18);
+        border-color: rgba(248, 113, 113, 0.3);
+    }
+
+    html[data-theme="dark"] .contract-name-label {
+        color: #fca5a5;
+    }
+
+    html[data-theme="dark"] .contract-name {
+        color: #fecaca;
+    }
+
+    html[data-theme="dark"] .delete-actions .btn-secondary {
+        background: #202632;
+        border-color: #374151;
+        color: #e5e7eb;
+    }
+
+    html[data-theme="dark"] .delete-actions .btn-secondary:hover {
+        background: #29303d;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+        .delete-contract-page {
+            padding: 25px 15px;
+        }
+
+        .delete-contract-card {
+            padding: 28px 20px;
+            border-radius: 14px;
+        }
+
+        .delete-contract-card h1 {
+            font-size: 24px;
+        }
+
+        .delete-actions {
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .delete-actions .btn {
+            width: 100%;
+        }
+    }
+</style>
+
+
 </head>
 
 <body>
 
-    <h1>Delete Contract</h1>
+<main class="delete-contract-page">
 
-    <p>
-        Are you sure you want to permanently delete
-        <strong>{{ contract.title }}</strong>?
-    </p>
+    <section class="delete-contract-card">
 
-    <form method="POST">
+        <div class="delete-icon">
+            🗑️
+        </div>
 
-    {% csrf_token %}
+        <h1>Delete Contract</h1>
 
-    <button type="submit"
-            class="btn btn-danger">
-        Yes, Delete
-    </button>
+        <p class="delete-subtitle">
+            Are you sure you want to permanently delete this contract?
+            This action cannot be undone.
+        </p>
 
-    <a href="{% url 'contract_clause_list' clause.contract.id %}"
-        class="btn btn-secondary">
-        Cancel
-    </a>
+        <div class="contract-name-box">
+            <span class="contract-name-label">
+                Contract to Delete
+            </span>
 
-    <a href="{% url 'dashboard' %}"
-        class="btn btn-secondary">
-        ← Back to Dashboard
-    </a>
+            <div class="contract-name">
+                {{ contract.title }}
+            </div>
+        </div>
 
-</form>
+        <p class="warning-message">
+            All associated contract information may be permanently removed.
+            Please make sure you no longer need this contract before continuing.
+        </p>
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            <div class="delete-actions">
+
+                <button type="submit"
+                        class="btn btn-danger">
+                    🗑️ Yes, Delete
+                </button>
+
+                <a href="{% url 'contract_clause_list' clause.contract.id %}"
+                   class="btn btn-secondary">
+                    Cancel
+                </a>
+
+            </div>
+
+        </form>
+
+        <div class="dashboard-link">
+            <a href="{% url 'dashboard' %}">
+                ← Back to Dashboard
+            </a>
+        </div>
+
+    </section>
+
+</main>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const savedTheme =
+            localStorage.getItem("legalContractTheme") || "light";
+
+        document.documentElement.setAttribute(
+            "data-theme",
+            savedTheme
+        );
+
+    });
+</script>
 
 </body>
-
 </html>

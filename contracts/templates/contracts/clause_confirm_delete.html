@@ -1,68 +1,597 @@
 {% load static %}
 
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
 
-    <meta charset="UTF-8">
 
-    <meta name="viewport"
-            content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
 
-    <title>Delete Clause - Legal Contract System</title>
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet"
-            href="{% static 'contracts/css/style.css' %}">
+<title>Delete Clause - Legal Contract System</title>
+
+<link rel="stylesheet"
+      href="{% static 'contracts/css/style.css' %}">
+
+<style>
+
+    /* =====================================================
+       DELETE CLAUSE PAGE
+    ===================================================== */
+
+    .delete-page {
+
+        min-height: 100vh;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        padding: 30px 20px;
+
+        box-sizing: border-box;
+
+        background:
+            linear-gradient(
+                135deg,
+                #fff7f7 0%,
+                #f8fafc 50%,
+                #fef2f2 100%
+            );
+    }
+
+
+    /* =====================================================
+       DELETE CARD
+    ===================================================== */
+
+    .delete-card {
+
+        width: 100%;
+        max-width: 520px;
+
+        padding: 35px;
+
+        box-sizing: border-box;
+
+        background: #ffffff;
+
+        border: 1px solid #e5e7eb;
+
+        border-radius: 16px;
+
+        text-align: center;
+
+        box-shadow:
+            0 10px 30px
+            rgba(0, 0, 0, 0.08);
+    }
+
+
+    /* =====================================================
+       WARNING ICON
+    ===================================================== */
+
+    .delete-icon {
+
+        width: 68px;
+        height: 68px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        margin: 0 auto 18px;
+
+        border-radius: 50%;
+
+        background: #fef2f2;
+
+        color: #dc2626;
+
+        font-size: 30px;
+    }
+
+
+    /* =====================================================
+       HEADER
+    ===================================================== */
+
+    .delete-card h1 {
+
+        margin: 0 0 8px;
+
+        color: #1f2937;
+
+        font-size: 25px;
+
+        font-weight: 700;
+    }
+
+
+    .delete-subtitle {
+
+        margin: 0 0 25px;
+
+        color: #6b7280;
+
+        font-size: 14px;
+
+        line-height: 1.6;
+    }
+
+
+    /* =====================================================
+       CLAUSE INFORMATION
+    ===================================================== */
+
+    .clause-confirmation {
+
+        margin-bottom: 25px;
+
+        padding: 18px;
+
+        text-align: left;
+
+        background: #f8fafc;
+
+        border: 1px solid #e5e7eb;
+
+        border-left: 4px solid #dc2626;
+
+        border-radius: 10px;
+    }
+
+
+    .clause-info-row {
+
+        display: flex;
+
+        align-items: flex-start;
+
+        gap: 10px;
+
+        padding: 8px 0;
+    }
+
+
+    .clause-info-row:first-child {
+
+        padding-top: 0;
+    }
+
+
+    .clause-info-row:last-child {
+
+        padding-bottom: 0;
+    }
+
+
+    .clause-info-label {
+
+        min-width: 75px;
+
+        color: #6b7280;
+
+        font-size: 12px;
+
+        font-weight: 600;
+
+        text-transform: uppercase;
+
+        letter-spacing: 0.03em;
+    }
+
+
+    .clause-info-value {
+
+        flex: 1;
+
+        color: #1f2937;
+
+        font-size: 14px;
+
+        font-weight: 600;
+
+        word-break: break-word;
+    }
+
+
+    /* =====================================================
+       WARNING MESSAGE
+    ===================================================== */
+
+    .delete-warning {
+
+        margin-bottom: 24px;
+
+        padding: 12px 14px;
+
+        border-radius: 8px;
+
+        background: #fff7ed;
+
+        color: #9a3412;
+
+        font-size: 12px;
+
+        line-height: 1.5;
+
+        text-align: left;
+    }
+
+
+    /* =====================================================
+       BUTTONS
+    ===================================================== */
+
+    .delete-actions {
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        gap: 12px;
+    }
+
+
+    .delete-actions .btn {
+
+        min-width: 135px;
+
+        min-height: 44px;
+
+        display: inline-flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        padding: 10px 18px;
+
+        border-radius: 9px;
+
+        text-decoration: none;
+
+        font-size: 13px;
+
+        font-weight: 600;
+
+        box-sizing: border-box;
+
+        cursor: pointer;
+
+        transition:
+            background 0.2s ease,
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
+    }
+
+
+    .delete-button {
+
+        border: none;
+
+        background: #dc2626;
+
+        color: #ffffff;
+    }
+
+
+    .delete-button:hover {
+
+        background: #b91c1c;
+
+        transform: translateY(-1px);
+
+        box-shadow:
+            0 5px 12px
+            rgba(220, 38, 38, 0.20);
+    }
+
+
+    .delete-cancel {
+
+        border: 1px solid #d1d5db;
+
+        background: #ffffff;
+
+        color: #374151;
+    }
+
+
+    .delete-cancel:hover {
+
+        background: #f3f4f6;
+
+        transform: translateY(-1px);
+    }
+
+
+    /* =====================================================
+       DARK THEME
+    ===================================================== */
+
+    html[data-theme="dark"] .delete-page {
+
+        background:
+            linear-gradient(
+                135deg,
+                #111318 0%,
+                #171a21 50%,
+                #1d1719 100%
+            );
+    }
+
+
+    html[data-theme="dark"] .delete-card {
+
+        background: #151922;
+
+        border-color: #2d3340;
+
+        box-shadow:
+            0 10px 30px
+            rgba(0, 0, 0, 0.30);
+    }
+
+
+    html[data-theme="dark"] .delete-card h1 {
+
+        color: #f9fafb;
+    }
+
+
+    html[data-theme="dark"] .delete-subtitle {
+
+        color: #9ca3af;
+    }
+
+
+    html[data-theme="dark"] .clause-confirmation {
+
+        background: #1d222c;
+
+        border-color: #374151;
+
+        border-left-color: #ef4444;
+    }
+
+
+    html[data-theme="dark"] .clause-info-label {
+
+        color: #9ca3af;
+    }
+
+
+    html[data-theme="dark"] .clause-info-value {
+
+        color: #f3f4f6;
+    }
+
+
+    html[data-theme="dark"] .delete-icon {
+
+        background: rgba(239, 68, 68, 0.12);
+
+        color: #f87171;
+    }
+
+
+    html[data-theme="dark"] .delete-warning {
+
+        background: rgba(249, 115, 22, 0.10);
+
+        color: #fdba74;
+    }
+
+
+    html[data-theme="dark"] .delete-cancel {
+
+        background: #1d222c;
+
+        border-color: #374151;
+
+        color: #d1d5db;
+    }
+
+
+    html[data-theme="dark"] .delete-cancel:hover {
+
+        background: #252b36;
+    }
+
+
+    /* =====================================================
+       RESPONSIVE
+    ===================================================== */
+
+    @media (max-width: 600px) {
+
+        .delete-page {
+
+            padding: 20px 14px;
+        }
+
+
+        .delete-card {
+
+            padding: 28px 20px;
+
+            border-radius: 13px;
+        }
+
+
+        .delete-card h1 {
+
+            font-size: 22px;
+        }
+
+
+        .delete-actions {
+
+            flex-direction: column;
+
+            width: 100%;
+        }
+
+
+        .delete-actions .btn {
+
+            width: 100%;
+        }
+
+    }
+
+</style>
+```
 
 </head>
 
 <body>
 
-<div class="container">
+```
+<main class="delete-page">
 
-    <div class="form-container">
+    <section class="delete-card">
 
-        <h1>Delete Clause</h1>
 
-        <p>
+        <!-- =================================================
+             WARNING ICON
+        ================================================== -->
+
+        <div class="delete-icon">
+            ⚠
+        </div>
+
+
+        <!-- =================================================
+             HEADER
+        ================================================== -->
+
+        <h1>
+            Delete Clause
+        </h1>
+
+        <p class="delete-subtitle">
             Are you sure you want to delete this clause?
+            This action cannot be undone.
         </p>
 
-        <div class="confirmation-box">
 
-            <p>
-                <strong>Clause:</strong>
-                {{ clause.clause_number }}
-            </p>
+        <!-- =================================================
+             CLAUSE DETAILS
+        ================================================== -->
 
-            <p>
-                <strong>Title:</strong>
-                {{ clause.title }}
-            </p>
+        <div class="clause-confirmation">
+
+            <div class="clause-info-row">
+
+                <span class="clause-info-label">
+                    Clause
+                </span>
+
+                <span class="clause-info-value">
+                    {{ clause.clause_number }}
+                </span>
+
+            </div>
+
+
+            <div class="clause-info-row">
+
+                <span class="clause-info-label">
+                    Title
+                </span>
+
+                <span class="clause-info-value">
+                    {{ clause.title }}
+                </span>
+
+            </div>
 
         </div>
 
+
+        <!-- =================================================
+             WARNING
+        ================================================== -->
+
+        <div class="delete-warning">
+
+            ⚠ Deleting this clause will permanently remove it
+            from the contract.
+
+        </div>
+
+
+        <!-- =================================================
+             ACTIONS
+        ================================================== -->
 
         <form method="POST">
 
             {% csrf_token %}
 
-            <button type="submit"
-                    class="btn btn-danger">
-                Yes, Delete
-            </button>
+            <div class="delete-actions">
 
-            <a href="{% url 'contract_clause_list' clause.contract.id %}"
-                class="btn btn-secondary">
-                Cancel
-            </a>
+                <button type="submit"
+                        class="btn delete-button">
+
+                    Yes, Delete
+
+                </button>
+
+
+                <a href="{% url 'contract_clause_list' clause.contract.id %}"
+                   class="btn delete-cancel">
+
+                    Cancel
+
+                </a>
+
+            </div>
 
         </form>
 
-    </div>
 
-</div>
+    </section>
+
+</main>
+
+
+<!-- =====================================================
+     THEME SUPPORT
+====================================================== -->
+
+<script>
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+            const savedTheme =
+                localStorage.getItem(
+                    "legalContractTheme"
+                ) || "light";
+
+            document.documentElement.setAttribute(
+                "data-theme",
+                savedTheme
+            );
+
+        }
+    );
+
+</script>
+
 
 </body>
+
 </html>

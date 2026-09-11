@@ -126,16 +126,16 @@ path(
 
 # Create clause for a particular contract
 path(
-    "contracts/<int:contract_id>/clauses/add/",
+    "clauses/<int:contract_id>/create/",
     views.clause_create,
-    name="clause_create"
+    name="clause_create",
 ),
 
 # Edit clause
 path(
     "clauses/<int:clause_id>/edit/",
     views.clause_update,
-    name="clause_update"
+    name="clause_update",
 ),
 
 # Delete clause
@@ -159,7 +159,7 @@ path(
     name="clause_create_select"
 ),
 
-
+path("register/", views.register, name="register"),
 
 
 
@@ -297,4 +297,35 @@ path(
 ),
 
 
+# =========================================================
+# VERSION HISTORY
+# =========================================================
+
+path(
+    "contracts/<int:contract_id>/versions/",
+    views.version_history,
+    name="version_history"
+),
+
+path(
+    "contracts/<int:contract_id>/versions/<int:version_id>/",
+    views.version_detail,
+    name="version_detail"
+),
+
+path("audit-logs/", views.audit_log_list, name="audit_log_list"),
+
+path(
+    "versions/",
+    views.version_history,
+    name="version_history"
+),
+
+path(
+    "change-password/",
+    views.change_password,
+    name="change_password"
+),
 ]
+
+

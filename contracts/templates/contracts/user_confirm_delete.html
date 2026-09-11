@@ -1,87 +1,491 @@
 {% load static %}
 
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
 
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
 
-    <title>Delete User - Legal Contract System</title>
+<title>
+    Delete User - Legal Contract System
+</title>
 
-    <link rel="stylesheet"
-          href="{% static 'contracts/css/delete_user.css' %}">
+<link rel="stylesheet"
+      href="{% static 'contracts/css/style.css' %}">
+
+<style>
+
+    /* =========================================================
+       DELETE USER PAGE
+       ========================================================= */
+
+    .delete-user-page {
+        min-height: 100vh;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        padding: 30px 20px;
+
+        box-sizing: border-box;
+    }
+
+    .delete-user-container {
+        width: 100%;
+        max-width: 560px;
+    }
+
+    /* =========================================================
+       CARD
+       ========================================================= */
+
+    .delete-user-card {
+        background: var(
+            --card-bg,
+            #ffffff
+        );
+
+        border: 1px solid var(
+            --border-color,
+            #e5e7eb
+        );
+
+        border-radius: 18px;
+
+        padding: 38px 35px;
+
+        text-align: center;
+
+        box-shadow:
+            0 12px 35px rgba(
+                0,
+                0,
+                0,
+                0.08
+            );
+    }
+
+    /* =========================================================
+       WARNING ICON
+       ========================================================= */
+
+    .delete-user-icon {
+        width: 70px;
+        height: 70px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        margin: 0 auto 20px;
+
+        border-radius: 50%;
+
+        background: #fef2f2;
+
+        border: 1px solid #fecaca;
+
+        color: #dc2626;
+
+        font-size: 31px;
+    }
+
+    /* =========================================================
+       TITLE
+       ========================================================= */
+
+    .delete-user-card h1 {
+        margin: 0 0 15px;
+
+        color: var(
+            --text-primary,
+            #1f2937
+        );
+
+        font-size: 25px;
+
+        font-weight: 700;
+    }
+
+    /* =========================================================
+       MESSAGE
+       ========================================================= */
+
+    .delete-user-message {
+        margin: 0 auto;
+
+        max-width: 430px;
+
+        color: var(
+            --text-secondary,
+            #6b7280
+        );
+
+        font-size: 14px;
+
+        line-height: 1.7;
+    }
+
+    .delete-user-message strong {
+        color: var(
+            --text-primary,
+            #1f2937
+        );
+
+        font-weight: 700;
+    }
+
+    /* =========================================================
+       WARNING
+       ========================================================= */
+
+    .delete-user-warning {
+        margin: 18px auto 0;
+
+        padding: 11px 14px;
+
+        max-width: 400px;
+
+        border-radius: 8px;
+
+        background: #fff7ed;
+
+        border: 1px solid #fed7aa;
+
+        color: #c2410c;
+
+        font-size: 12px;
+
+        font-weight: 600;
+    }
+
+    /* =========================================================
+       ACTIONS
+       ========================================================= */
+
+    .delete-user-actions {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        gap: 12px;
+
+        margin-top: 28px;
+
+        padding-top: 24px;
+
+        border-top: 1px solid var(
+            --border-color,
+            #e5e7eb
+        );
+    }
+
+    .delete-user-actions button,
+    .delete-user-actions a {
+        min-width: 170px;
+
+        min-height: 43px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        box-sizing: border-box;
+
+        border-radius: 8px;
+
+        font-family: inherit;
+
+        font-size: 13px;
+
+        font-weight: 700;
+
+        text-decoration: none;
+    }
+
+    .delete-user-button {
+        border: none;
+
+        background: #dc2626;
+
+        color: #ffffff;
+
+        cursor: pointer;
+
+        transition:
+            background 0.2s ease,
+            transform 0.2s ease;
+    }
+
+    .delete-user-button:hover {
+        background: #b91c1c;
+
+        transform: translateY(-1px);
+    }
+
+    .delete-user-cancel {
+        background: var(
+            --card-bg,
+            #ffffff
+        );
+
+        border: 1px solid var(
+            --border-color,
+            #d1d5db
+        );
+
+        color: var(
+            --text-primary,
+            #374151
+        );
+
+        transition:
+            background 0.2s ease,
+            border-color 0.2s ease;
+    }
+
+    .delete-user-cancel:hover {
+        background: #f9fafb;
+
+        border-color: #9ca3af;
+    }
+
+    /* =========================================================
+       DARK THEME
+       ========================================================= */
+
+    html[data-theme="dark"] .delete-user-card {
+        background: #151922;
+
+        border-color: #2d3340;
+    }
+
+    html[data-theme="dark"] .delete-user-card h1,
+    html[data-theme="dark"] .delete-user-message strong {
+        color: #f3f4f6;
+    }
+
+    html[data-theme="dark"] .delete-user-message {
+        color: #aeb6c5;
+    }
+
+    html[data-theme="dark"] .delete-user-icon {
+        background: rgba(
+            220,
+            38,
+            38,
+            0.10
+        );
+
+        border-color: rgba(
+            248,
+            113,
+            113,
+            0.25
+        );
+
+        color: #f87171;
+    }
+
+    html[data-theme="dark"] .delete-user-warning {
+        background: rgba(
+            249,
+            115,
+            22,
+            0.10
+        );
+
+        border-color: rgba(
+            251,
+            146,
+            60,
+            0.25
+        );
+
+        color: #fdba74;
+    }
+
+    html[data-theme="dark"] .delete-user-actions {
+        border-top-color: #2d3340;
+    }
+
+    html[data-theme="dark"] .delete-user-cancel {
+        background: #1b202b;
+
+        border-color: #3a4250;
+
+        color: #f3f4f6;
+    }
+
+    html[data-theme="dark"] .delete-user-cancel:hover {
+        background: #242a36;
+
+        border-color: #4b5563;
+    }
+
+    /* =========================================================
+       RESPONSIVE
+       ========================================================= */
+
+    @media (max-width: 600px) {
+
+        .delete-user-page {
+            padding: 20px 14px;
+        }
+
+        .delete-user-card {
+            padding: 30px 20px;
+
+            border-radius: 14px;
+        }
+
+        .delete-user-card h1 {
+            font-size: 22px;
+        }
+
+        .delete-user-actions {
+            flex-direction: column-reverse;
+        }
+
+        .delete-user-actions button,
+        .delete-user-actions a {
+            width: 100%;
+        }
+
+    }
+
+</style>
+
 
 </head>
 
 <body>
 
-    <div class="delete-page">
-
-        <div class="delete-card">
-
-            <!-- ICON -->
-
-            <div class="delete-icon">
-                ⚠
-            </div>
+<div class="delete-user-page">
 
 
-            <!-- TITLE -->
-
-            <h1>
-                Delete User
-            </h1>
+<div class="delete-user-container">
 
 
-            <!-- MESSAGE -->
-
-            <p class="delete-message">
-
-                Are you sure you want to permanently delete
-
-                <strong>{{ user_obj.username }}</strong>?
-
-            </p>
+    <div class="delete-user-card">
 
 
-            <p class="warning-message">
+        <!-- =================================================
+             WARNING ICON
+             ================================================= -->
 
-                This action cannot be undone.
+        <div class="delete-user-icon">
 
-            </p>
+            ⚠
+
+        </div>
 
 
-            <!-- ACTIONS -->
+        <!-- =================================================
+             TITLE
+             ================================================= -->
 
-            <form method="post"
-                  class="delete-form">
+        <h1>
 
-                {% csrf_token %}
+            Delete User
+
+        </h1>
+
+
+        <!-- =================================================
+             MESSAGE
+             ================================================= -->
+
+        <p class="delete-user-message">
+
+            Are you sure you want to permanently delete
+
+            <strong>
+                {{ user_obj.username }}
+            </strong>?
+
+        </p>
+
+
+        <!-- =================================================
+             WARNING
+             ================================================= -->
+
+        <div class="delete-user-warning">
+
+            This action cannot be undone.
+
+        </div>
+
+
+        <!-- =================================================
+             ACTIONS
+             ================================================= -->
+
+        <form method="post"
+              class="delete-user-form">
+
+            {% csrf_token %}
+
+
+            <div class="delete-user-actions">
+
+
+                <a href="{% url 'user_list' %}"
+                   class="delete-user-cancel">
+
+                    Cancel
+
+                </a>
+
 
                 <button type="submit"
-                        class="delete-button">
+                        class="delete-user-button">
 
                     Delete Permanently
 
                 </button>
 
 
-                <a href="{% url 'user_list' %}"
-                   class="cancel-button">
+            </div>
 
-                    Cancel
 
-                </a>
+        </form>
 
-            </form>
-
-        </div>
 
     </div>
+
+
+</div>
+
+</div>
+
+<!-- =========================================================
+     THEME SUPPORT
+     ========================================================= -->
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const savedTheme =
+        localStorage.getItem("legalContractTheme") || "light";
+
+
+    document.documentElement.setAttribute(
+        "data-theme",
+        savedTheme
+    );
+
+});
+
+</script>
 
 </body>
 

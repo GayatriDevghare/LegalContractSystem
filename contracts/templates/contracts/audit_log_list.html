@@ -1,0 +1,807 @@
+{% load static %}
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+<title>Audit Logs - Legal Contract System</title>
+
+<link rel="stylesheet"
+      href="{% static 'contracts/css/style.css' %}">
+
+<style>
+    /* Audit Log Page */
+
+    .audit-page {
+        width: 100%;
+        max-width: 1500px;
+        margin: 0 auto;
+        padding: 28px;
+    }
+
+    .audit-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        margin-bottom: 24px;
+    }
+
+    .audit-header-content h1 {
+        margin: 0 0 6px;
+        font-size: 28px;
+        font-weight: 700;
+    }
+
+    .audit-header-content p {
+        margin: 0;
+        color: var(--text-secondary, #6b7280);
+        font-size: 14px;
+    }
+
+    .audit-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .audit-card {
+        background: var(--card-bg, #ffffff);
+        border: 1px solid var(--border-color, #e5e7eb);
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+    }
+
+    .audit-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 18px 22px;
+        border-bottom: 1px solid var(--border-color, #e5e7eb);
+    }
+
+    .audit-card-header h2 {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 700;
+    }
+
+    .audit-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 32px;
+        height: 28px;
+        padding: 0 10px;
+        border-radius: 20px;
+        background: rgba(185, 28, 28, 0.10);
+        color: var(--primary-color, #b91c1c);
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .audit-table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .audit-table {
+        width: 100%;
+        min-width: 1100px;
+        border-collapse: collapse;
+    }
+
+    .audit-table th {
+        padding: 14px 16px;
+        text-align: left;
+        background: var(--table-header-bg, #f8fafc);
+        color: var(--text-secondary, #6b7280);
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        white-space: nowrap;
+        border-bottom: 1px solid var(--border-color, #e5e7eb);
+    }
+
+    .audit-table td {
+        padding: 14px 16px;
+        vertical-align: middle;
+        color: var(--text-primary, #374151);
+        font-size: 13px;
+        border-bottom: 1px solid var(--border-color, #e5e7eb);
+    }
+
+    .audit-table tbody tr {
+        transition: background 0.2s ease;
+    }
+
+    .audit-table tbody tr:hover {
+        background: rgba(185, 28, 28, 0.025);
+    }
+
+    .audit-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* ID */
+
+    .audit-id {
+        font-weight: 700;
+        color: var(--primary-color, #b91c1c);
+        white-space: nowrap;
+    }
+
+    /* User */
+
+    .audit-user {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 160px;
+    }
+
+    .audit-log-profile-image,
+    .audit-log-profile-placeholder {
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .audit-log-profile-image {
+        display: block;
+    }
+
+    .audit-log-profile-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #e9ecef;
+        color: #374151;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .audit-user-info {
+        min-width: 0;
+    }
+
+    .audit-user-name {
+        display: block;
+        font-weight: 600;
+        color: var(--text-primary, #1f2937);
+        white-space: nowrap;
+    }
+
+    .audit-user-role {
+        display: block;
+        margin-top: 2px;
+        color: var(--text-secondary, #6b7280);
+        font-size: 11px;
+    }
+
+    /* Action badges */
+
+    .audit-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 78px;
+        padding: 6px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .audit-action-create {
+        background: #ecfdf5;
+        color: #047857;
+    }
+
+    .audit-action-update {
+        background: #eff6ff;
+        color: #1d4ed8;
+    }
+
+    .audit-action-delete {
+        background: #fef2f2;
+        color: #b91c1c;
+    }
+
+    .audit-action-approve {
+        background: #ecfdf5;
+        color: #15803d;
+    }
+
+    .audit-action-reject {
+        background: #fff7ed;
+        color: #c2410c;
+    }
+
+    .audit-action-login {
+        background: #f0fdf4;
+        color: #166534;
+    }
+
+    .audit-action-logout {
+        background: #f3f4f6;
+        color: #4b5563;
+    }
+
+    .audit-action-upload {
+        background: #faf5ff;
+        color: #7e22ce;
+    }
+
+    .audit-action-download {
+        background: #f0f9ff;
+        color: #0369a1;
+    }
+
+    .audit-action-default {
+        background: #f3f4f6;
+        color: #4b5563;
+    }
+
+    /* Entity */
+
+    .audit-entity {
+        font-weight: 600;
+    }
+
+    .audit-entity-id {
+        color: var(--text-secondary, #6b7280);
+    }
+
+    /* Details */
+
+    .audit-details {
+        max-width: 300px;
+        line-height: 1.5;
+        color: var(--text-secondary, #6b7280);
+        word-break: break-word;
+    }
+
+    .audit-details-empty {
+        color: #9ca3af;
+        font-style: italic;
+    }
+
+    /* IP */
+
+    .audit-ip {
+        font-family: Consolas, Monaco, monospace;
+        font-size: 12px;
+        color: var(--text-secondary, #6b7280);
+        white-space: nowrap;
+    }
+
+    /* Date */
+
+    .audit-date {
+        white-space: nowrap;
+    }
+
+    .audit-date-main {
+        display: block;
+        font-weight: 600;
+    }
+
+    .audit-date-time {
+        display: block;
+        margin-top: 3px;
+        color: var(--text-secondary, #6b7280);
+        font-size: 11px;
+    }
+
+    /* Empty */
+
+    .audit-empty {
+        padding: 60px 20px;
+        text-align: center;
+    }
+
+    .audit-empty-icon {
+        font-size: 42px;
+        margin-bottom: 12px;
+        opacity: 0.65;
+    }
+
+    .audit-empty h3 {
+        margin: 0 0 6px;
+        font-size: 17px;
+    }
+
+    .audit-empty p {
+        margin: 0;
+        color: var(--text-secondary, #6b7280);
+        font-size: 13px;
+    }
+
+    /* Dark theme */
+
+    html[data-theme="dark"] .audit-card {
+        background: #151922;
+        border-color: #2d3340;
+    }
+
+    html[data-theme="dark"] .audit-card-header {
+        border-color: #2d3340;
+    }
+
+    html[data-theme="dark"] .audit-table th {
+        background: #1d222c;
+        color: #9ca3af;
+        border-color: #2d3340;
+    }
+
+    html[data-theme="dark"] .audit-table td {
+        color: #d1d5db;
+        border-color: #2d3340;
+    }
+
+    html[data-theme="dark"] .audit-table tbody tr:hover {
+        background: rgba(239, 68, 68, 0.06);
+    }
+
+    html[data-theme="dark"] .audit-user-name {
+        color: #f3f4f6;
+    }
+
+    html[data-theme="dark"] .audit-log-profile-placeholder {
+        background: #374151;
+        color: #f9fafb;
+    }
+
+    html[data-theme="dark"] .audit-details,
+    html[data-theme="dark"] .audit-date-time,
+    html[data-theme="dark"] .audit-user-role,
+    html[data-theme="dark"] .audit-ip {
+        color: #9ca3af;
+    }
+
+    html[data-theme="dark"] .audit-action-default,
+    html[data-theme="dark"] .audit-action-logout {
+        background: #374151;
+        color: #d1d5db;
+    }
+
+    /* Responsive */
+
+    @media (max-width: 768px) {
+
+        .audit-page {
+            padding: 18px 14px;
+        }
+
+        .audit-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .audit-header-actions {
+            width: 100%;
+        }
+
+        .audit-header-actions .btn {
+            width: 100%;
+            text-align: center;
+        }
+
+        .audit-header-content h1 {
+            font-size: 23px;
+        }
+
+        .audit-card-header {
+            padding: 15px;
+        }
+
+        .audit-table th,
+        .audit-table td {
+            padding: 12px;
+        }
+    }
+</style>
+
+
+</head>
+
+<body>
+
+
+<!-- =====================================================
+     MAIN CONTENT
+====================================================== -->
+
+<main class="main-content">
+
+    <div class="audit-page">
+
+        <!-- PAGE HEADER -->
+
+        <header class="audit-header">
+
+            <div class="audit-header-content">
+
+                <h1>Audit Logs</h1>
+
+                {% if user.is_superuser or user.role.name|lower == "admin" %}
+                    <p>
+                        Monitor and review all user activities and system actions.
+                    </p>
+                {% else %}
+                    <p>
+                        View your recent system activities.
+                    </p>
+                {% endif %}
+
+            </div>
+
+            <div class="audit-header-actions">
+
+                <a href="{% url 'dashboard' %}"
+                   class="btn btn-secondary">
+                    ← Back to Dashboard
+                </a>
+
+            </div>
+
+        </header>
+
+
+        <!-- AUDIT LOG CARD -->
+
+        <section class="audit-card">
+
+            <div class="audit-card-header">
+
+                <h2>Activity History</h2>
+
+                <span class="audit-count">
+                    {{ logs|length }}
+                </span>
+
+            </div>
+
+
+            {% if logs %}
+
+                <div class="audit-table-wrapper">
+
+                    <table class="audit-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>ID</th>
+
+                                <th>User</th>
+
+                                <th>Action</th>
+
+                                <th>Entity</th>
+
+                                <th>Entity ID</th>
+
+                                <th>Details</th>
+
+                                <th>IP Address</th>
+
+                                <th>Date & Time</th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {% for log in logs %}
+
+                                <tr>
+
+                                    <!-- ID -->
+
+                                    <td>
+                                        <span class="audit-id">
+                                            #{{ log.id }}
+                                        </span>
+                                    </td>
+
+
+                                    <!-- USER -->
+
+                                    <td>
+
+                                        {% if log.user %}
+
+                                            <div class="audit-user">
+
+                                                {% if log.user.profile_photo %}
+
+                                                    <img
+                                                        src="{{ log.user.profile_photo.url }}"
+                                                        alt="{{ log.user.username }}"
+                                                        class="audit-log-profile-image">
+
+                                                {% else %}
+
+                                                    <div class="audit-log-profile-placeholder">
+                                                        {{ log.user.username|first|upper }}
+                                                    </div>
+
+                                                {% endif %}
+
+
+                                                <div class="audit-user-info">
+
+                                                    <span class="audit-user-name">
+                                                        {{ log.user.username }}
+                                                    </span>
+
+                                                    {% if log.user.role %}
+
+                                                        <span class="audit-user-role">
+                                                            {{ log.user.role.name }}
+                                                        </span>
+
+                                                    {% endif %}
+
+                                                </div>
+
+                                            </div>
+
+                                        {% else %}
+
+                                            <div class="audit-user">
+
+                                                <div class="audit-log-profile-placeholder">
+                                                    S
+                                                </div>
+
+                                                <div class="audit-user-info">
+
+                                                    <span class="audit-user-name">
+                                                        System
+                                                    </span>
+
+                                                    <span class="audit-user-role">
+                                                        Automated Action
+                                                    </span>
+
+                                                </div>
+
+                                            </div>
+
+                                        {% endif %}
+
+                                    </td>
+
+
+                                    <!-- ACTION -->
+
+                                    <td>
+
+                                        {% if log.action == "CREATE" %}
+
+                                            <span class="audit-action audit-action-create">
+                                                Create
+                                            </span>
+
+                                        {% elif log.action == "UPDATE" %}
+
+                                            <span class="audit-action audit-action-update">
+                                                Update
+                                            </span>
+
+                                        {% elif log.action == "DELETE" %}
+
+                                            <span class="audit-action audit-action-delete">
+                                                Delete
+                                            </span>
+
+                                        {% elif log.action == "APPROVE" %}
+
+                                            <span class="audit-action audit-action-approve">
+                                                Approve
+                                            </span>
+
+                                        {% elif log.action == "REJECT" %}
+
+                                            <span class="audit-action audit-action-reject">
+                                                Reject
+                                            </span>
+
+                                        {% elif log.action == "LOGIN" %}
+
+                                            <span class="audit-action audit-action-login">
+                                                Login
+                                            </span>
+
+                                        {% elif log.action == "LOGOUT" %}
+
+                                            <span class="audit-action audit-action-logout">
+                                                Logout
+                                            </span>
+
+                                        {% elif log.action == "UPLOAD" %}
+
+                                            <span class="audit-action audit-action-upload">
+                                                Upload
+                                            </span>
+
+                                        {% elif log.action == "DOWNLOAD" %}
+
+                                            <span class="audit-action audit-action-download">
+                                                Download
+                                            </span>
+
+                                        {% else %}
+
+                                            <span class="audit-action audit-action-default">
+                                                {{ log.action }}
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+
+                                    <!-- ENTITY -->
+
+                                    <td>
+
+                                        <span class="audit-entity">
+                                            {{ log.entity }}
+                                        </span>
+
+                                    </td>
+
+
+                                    <!-- ENTITY ID -->
+
+                                    <td>
+
+                                        {% if log.entity_id %}
+                                            <span class="audit-entity-id">
+                                                #{{ log.entity_id }}
+                                            </span>
+                                        {% else %}
+                                            <span class="audit-details-empty">
+                                                —
+                                            </span>
+                                        {% endif %}
+
+                                    </td>
+
+
+                                    <!-- DETAILS -->
+
+                                    <td>
+
+                                        {% if log.details %}
+
+                                            <div class="audit-details">
+                                                {{ log.details }}
+                                            </div>
+
+                                        {% else %}
+
+                                            <span class="audit-details-empty">
+                                                No additional details
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+
+                                    <!-- IP ADDRESS -->
+
+                                    <td>
+
+                                        {% if log.ip_address %}
+
+                                            <span class="audit-ip">
+                                                {{ log.ip_address }}
+                                            </span>
+
+                                        {% else %}
+
+                                            <span class="audit-details-empty">
+                                                —
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+
+                                    <!-- DATE -->
+
+                                    <td>
+
+                                        <div class="audit-date">
+
+                                            <span class="audit-date-main">
+                                                {{ log.timestamp|date:"d M Y" }}
+                                            </span>
+
+                                            <span class="audit-date-time">
+                                                {{ log.timestamp|date:"h:i A" }}
+                                            </span>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <div class="audit-empty">
+
+                    <div class="audit-empty-icon">
+                        📋
+                    </div>
+
+                    <h3>No Audit Logs Found</h3>
+
+                    <p>
+                        There are no recorded activities to display.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+    </div>
+
+</main>
+
+
+<!-- =====================================================
+     THEME SUPPORT
+====================================================== -->
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const savedTheme =
+            localStorage.getItem("legalContractTheme") || "light";
+
+        document.documentElement.setAttribute(
+            "data-theme",
+            savedTheme
+        );
+
+    });
+
+</script>
+
+
+</body>
+
+</html>

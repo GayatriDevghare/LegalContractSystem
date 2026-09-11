@@ -1,475 +1,1014 @@
 {% load static %}
 
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
+<meta charset="UTF-8">
 
-    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+<title>
+    My Profile - Legal Contract System
+</title>
 
-    <title>My Profile - Legal Contract System</title>
+<link rel="stylesheet"
+      href="{% static 'contracts/css/style.css' %}">
 
-    <link rel="stylesheet"
-          href="{% static 'contracts/css/style.css' %}">
+<style>
+
+/* =========================================================
+   PROFILE PAGE - CLEAN PROFESSIONAL DESIGN
+========================================================= */
+
+.profile-page {
+    width: 100%;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 10px 0 40px;
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   PROFILE HEADER CARD
+========================================================= */
+
+.profile-header-card {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+
+    padding: 28px 32px;
+    margin-bottom: 22px;
+
+    background: var(--card-bg, #ffffff);
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 16px;
+
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+}
+
+
+/* LARGE PROFILE PHOTO */
+
+.profile-large-avatar {
+    width: 100px;
+    height: 100px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+
+    border-radius: 50%;
+
+    background: #fef2f2;
+    border: 4px solid #ffffff;
+
+    box-shadow:
+        0 4px 14px rgba(0, 0, 0, 0.12);
+
+    color: #b91c1c;
+
+    font-size: 38px;
+    font-weight: 700;
+}
+
+.profile-large-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.profile-large-initial {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    height: 100%;
+}
+
+
+/* PROFILE HEADER INFORMATION */
+
+.profile-header-info {
+    min-width: 0;
+    flex: 1;
+}
+
+.profile-header-info h2 {
+    margin: 0 0 5px;
+
+    color: var(--text-primary, #1f2937);
+
+    font-size: 25px;
+    font-weight: 700;
+
+    line-height: 1.3;
+}
+
+.profile-header-info .username {
+    margin: 0 0 13px;
+
+    color: var(--text-secondary, #6b7280);
+
+    font-size: 13px;
+}
+
+
+/* ROLE BADGE */
+
+.role-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 6px 12px;
+
+    margin-right: 7px;
+
+    border-radius: 20px;
+
+    background: #fef2f2;
+    color: #b91c1c;
+
+    font-size: 11px;
+    font-weight: 700;
+}
+
+
+/* STATUS BADGE */
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 6px 12px;
+
+    border-radius: 20px;
+
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.status-badge.active {
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.status-badge.inactive {
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+
+/* =========================================================
+   GENERAL PROFILE CARDS
+========================================================= */
+
+.profile-card {
+    width: 100%;
+
+    margin-bottom: 22px;
+
+    background: var(--card-bg, #ffffff);
+
+    border: 1px solid var(--border-color, #e5e7eb);
+
+    border-radius: 16px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 4px 18px rgba(0, 0, 0, 0.05);
+
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   CARD HEADER
+========================================================= */
+
+.profile-card .card-header {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 21px 25px;
+
+    border-bottom: 1px solid var(--border-color, #e5e7eb);
+
+    background: var(
+        --background-secondary,
+        #fafafa
+    );
+}
+
+.profile-card .card-header h3 {
+    margin: 0 0 4px;
+
+    color: var(--text-primary, #1f2937);
+
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.profile-card .card-header p {
+    margin: 0;
+
+    color: var(--text-secondary, #6b7280);
+
+    font-size: 12px;
+}
+
+.card-icon {
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 9px;
+
+    background: #fef2f2;
+
+    font-size: 17px;
+}
+
+
+/* =========================================================
+   PERSONAL INFORMATION GRID
+========================================================= */
+
+.profile-info-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 16px;
+
+    padding: 25px;
+}
+
+
+/* INFORMATION ITEM */
+
+.profile-info-item {
+    min-width: 0;
+
+    padding: 17px 18px;
+
+    background:
+        var(--background-secondary, #f8fafc);
+
+    border: 1px solid
+        var(--border-color, #e5e7eb);
+
+    border-radius: 10px;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+.profile-info-item:hover {
+    border-color: #fecaca;
+
+    box-shadow:
+        0 3px 10px rgba(0, 0, 0, 0.04);
+
+    transform: translateY(-1px);
+}
+
+
+/* LABEL */
+
+.profile-info-item label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: #6b7280;
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.07em;
+}
+
+
+/* VALUE */
+
+.profile-info-value {
+    min-height: 20px;
+
+    display: flex;
+    align-items: center;
+
+    color: var(--text-primary, #374151);
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    line-height: 1.45;
+
+    overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   PROFILE ACTIONS
+========================================================= */
+
+.profile-actions {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 15px;
+
+    padding: 25px;
+}
+
+
+/* ACTION CARD */
+
+.profile-action-card {
+    width: 100%;
+    min-height: 82px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 15px;
+
+    padding: 17px;
+
+    box-sizing: border-box;
+
+    border: 1px solid
+        var(--border-color, #e5e7eb);
+
+    border-radius: 11px;
+
+    background:
+        var(--background-secondary, #f8fafc);
+
+    color: inherit;
+
+    text-align: left;
+
+    text-decoration: none;
+
+    cursor: pointer;
+
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.profile-action-card:hover {
+    background: #ffffff;
+
+    border-color: #fca5a5;
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 5px 15px rgba(0, 0, 0, 0.07);
+}
+
+
+/* ACTION ICON */
+
+.action-icon {
+    width: 43px;
+    height: 43px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 10px;
+
+    background: #fef2f2;
+
+    color: #b91c1c;
+
+    font-size: 18px;
+}
+
+
+/* ACTION TEXT */
+
+.profile-action-card h4 {
+    margin: 0 0 4px;
+
+    color: var(--text-primary, #1f2937);
+
+    font-size: 13px;
+
+    font-weight: 700;
+}
+
+.profile-action-card p {
+    margin: 0;
+
+    color: var(--text-secondary, #6b7280);
+
+    font-size: 11px;
+
+    line-height: 1.45;
+}
+
+
+/* REMOVE PHOTO */
+
+.profile-action-form {
+    margin: 0;
+
+    width: 100%;
+}
+
+.profile-action-form .profile-action-card {
+    font-family: inherit;
+}
+
+.profile-action-form .danger-action:hover {
+    border-color: #fca5a5;
+
+    background: #fff7f7;
+}
+
+.danger-action .action-icon {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+
+/* =========================================================
+   BOTTOM BUTTON
+========================================================= */
+
+.profile-bottom-actions {
+    display: flex;
+
+    justify-content: flex-start;
+
+    margin-top: 2px;
+}
+
+.profile-bottom-actions .btn {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-height: 40px;
+
+    padding: 9px 16px;
+
+    border-radius: 8px;
+
+    text-decoration: none;
+
+    font-size: 12px;
+
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   MESSAGES
+========================================================= */
+
+.messages-container {
+    width: 100%;
+    max-width: 1180px;
+
+    margin: 0 auto 18px;
+
+    box-sizing: border-box;
+}
+
+.message {
+    padding: 12px 15px;
+
+    margin-bottom: 8px;
+
+    border-radius: 8px;
+
+    font-size: 12px;
+
+    line-height: 1.5;
+}
+
+.message.success {
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    color: #047857;
+}
+
+.message.error {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #b91c1c;
+}
+
+
+/* =========================================================
+   DARK MODE
+========================================================= */
+
+html[data-theme="dark"] .profile-header-card,
+html[data-theme="dark"] .profile-card {
+    background: #151922;
+
+    border-color: #2d3340;
+}
+
+html[data-theme="dark"] .profile-card .card-header {
+    background: #1b202b;
+
+    border-bottom-color: #2d3340;
+}
+
+html[data-theme="dark"] .profile-header-info h2,
+html[data-theme="dark"] .profile-card .card-header h3,
+html[data-theme="dark"] .profile-info-value,
+html[data-theme="dark"] .profile-action-card h4 {
+    color: #f3f4f6;
+}
+
+html[data-theme="dark"] .profile-header-info .username,
+html[data-theme="dark"] .profile-card .card-header p,
+html[data-theme="dark"] .profile-info-item label,
+html[data-theme="dark"] .profile-action-card p {
+    color: #aeb6c5;
+}
+
+html[data-theme="dark"] .profile-info-item {
+    background: #1b202b;
+
+    border-color: #2d3340;
+}
+
+html[data-theme="dark"] .profile-info-item:hover {
+    border-color: #7f1d1d;
+
+    box-shadow:
+        0 3px 12px rgba(0, 0, 0, 0.15);
+}
+
+html[data-theme="dark"] .profile-action-card {
+    background: #1b202b;
+
+    border-color: #2d3340;
+}
+
+html[data-theme="dark"] .profile-action-card:hover {
+    background: #202633;
+
+    border-color: #7f1d1d;
+}
+
+html[data-theme="dark"] .profile-large-avatar {
+    background: #252b36;
+
+    border-color: #151922;
+
+    color: #fca5a5;
+}
+
+html[data-theme="dark"] .role-badge {
+    background: rgba(220, 38, 38, 0.12);
+
+    color: #fca5a5;
+}
+
+html[data-theme="dark"] .card-icon,
+html[data-theme="dark"] .action-icon {
+    background: rgba(220, 38, 38, 0.12);
+}
+
+html[data-theme="dark"] .status-badge.active {
+    background: rgba(16, 185, 129, 0.12);
+    color: #6ee7b7;
+}
+
+html[data-theme="dark"] .status-badge.inactive {
+    background: rgba(220, 38, 38, 0.12);
+    color: #fca5a5;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 900px) {
+
+    .profile-page {
+        padding: 5px 0 30px;
+    }
+
+    .profile-header-card {
+        padding: 24px;
+    }
+
+    .profile-info-grid {
+        gap: 12px;
+        padding: 20px;
+    }
+
+    .profile-actions {
+        padding: 20px;
+    }
+}
+
+
+@media (max-width: 650px) {
+
+    .profile-page {
+        padding: 0 0 25px;
+    }
+
+    .profile-header-card {
+        flex-direction: column;
+
+        text-align: center;
+
+        padding: 25px 18px;
+
+        gap: 15px;
+    }
+
+    .profile-large-avatar {
+        width: 90px;
+        height: 90px;
+
+        font-size: 34px;
+    }
+
+    .profile-header-info h2 {
+        font-size: 21px;
+    }
+
+    .profile-info-grid {
+        grid-template-columns: 1fr;
+
+        padding: 18px;
+
+        gap: 11px;
+    }
+
+    .profile-actions {
+        grid-template-columns: 1fr;
+
+        padding: 18px;
+
+        gap: 11px;
+    }
+
+    .profile-card .card-header {
+        padding: 18px;
+    }
+
+    .profile-bottom-actions {
+        width: 100%;
+    }
+
+    .profile-bottom-actions .btn {
+        width: 100%;
+    }
+}
+
+</style>
+
 
 </head>
 
+
 <body>
 
-<div class="dashboard-layout">
+<div class="app-layout">
 
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="sidebar">
 
-    <!-- ========================= -->
-    <!-- SIDEBAR -->
-    <!-- ========================= -->
+        <!-- Profile -->
+        <div class="profile-section">
 
-    <aside class="dashboard-sidebar">
+            {% if user.profile_photo %}
+                <img
+                    src="{{ user.profile_photo.url }}"
+                    alt="Profile Photo"
+                    class="profile-avatar"
+                >
+            {% else %}
+                <div class="profile-avatar profile-initial">
+                    {{ user.username|first|upper }}
+                </div>
+            {% endif %}
 
-        <div class="sidebar-logo">
-            <h2>Legal Contract System</h2>
+            <div class="profile-name">
+                {{ user.get_full_name|default:user.username }}
+            </div>
+
+            <div class="profile-role">
+                {% if user.role %}
+                    {{ user.role.name }}
+                {% else %}
+                    User
+                {% endif %}
+            </div>
+
         </div>
 
 
-        <!-- SIDEBAR PROFILE -->
+        <!-- Sidebar Menu -->
+        <div class="sidebar-menu">
 
-        <div class="sidebar-profile">
-
-            <div class="sidebar-profile-image">
-
-                {% if user.profile_photo %}
-
-                    <img src="{{ user.profile_photo.url }}"
-                         alt="Profile Photo">
-
-                {% else %}
-
-                    {{ user.username|first|upper }}
-
-                {% endif %}
-
-            </div>
+            <a href="{% url 'dashboard' %}" class="sidebar-link">
+                <span class="sidebar-icon">🏠</span>
+                <span>Dashboard</span>
+            </a>
 
 
-            <div class="sidebar-profile-name">
-                {{ user.username }}
-            </div>
+            <!-- ADMIN ONLY -->
+            {% if user.is_superuser or user.role.name|lower == "admin" %}
+
+                <a href="{% url 'user_list' %}" class="sidebar-link">
+                    <span class="sidebar-icon">👥</span>
+                    <span>User Management</span>
+                </a>
+
+                <a href="{% url 'role_list' %}" class="sidebar-link">
+                    <span class="sidebar-icon">🛡️</span>
+                    <span>Role Management</span>
+                </a>
+
+            {% endif %}
 
 
-            {% if user.role %}
+            <!-- CONTRACT MANAGEMENT -->
+            {% if user.is_superuser or user.role.name|lower == "admin" or user.role.name|lower == "contract manager" or user.role.name|lower == "user" or user.role.name|lower == "approver" %}
 
-                <div class="sidebar-profile-role">
-                    {{ user.role.name }}
+                <div class="sidebar-section-title">
+                    Contract Management
                 </div>
 
+                <a href="{% url 'contract_list' %}" class="sidebar-link">
+                    <span class="sidebar-icon">📄</span>
+                    <span>Contracts</span>
+                </a>
+
+                <a href="{% url 'document_list' %}" class="sidebar-link">
+                    <span class="sidebar-icon">📁</span>
+                    <span>Documents</span>
+                </a>
+
+                <a href="{% url 'clause_list' %}" class="sidebar-link">
+                    <span class="sidebar-icon">📑</span>
+                    <span>Clauses</span>
+                </a>
+
             {% endif %}
 
 
-            <a href="{% url 'profile' %}"
-               class="sidebar-profile-link">
+            <!-- WORKFLOW -->
+            <div class="sidebar-section-title">
+                Workflow
+            </div>
 
-                My Profile
+            <!-- Request Modification -->
+            {% if user.is_superuser or user.role.name|lower == "admin" or user.role.name|lower == "contract manager" or user.role.name|lower == "user" %}
 
+                <a href="{% url 'modification_create' %}" class="sidebar-link">
+                    <span class="sidebar-icon">✏️</span>
+                    <span>Request Modification</span>
+                </a>
+
+            {% endif %}
+
+
+            <!-- Modification Activity -->
+            {% if user.is_superuser or user.role.name|lower == "admin" or user.role.name|lower == "contract manager" or user.role.name|lower == "user" or user.role.name|lower == "approver" %}
+
+                <a href="{% url 'modification_list' %}" class="sidebar-link">
+                    <span class="sidebar-icon">🔄</span>
+                    <span>Modification Activity</span>
+                </a>
+
+            {% endif %}
+
+
+            <!-- ACCOUNT -->
+            <div class="sidebar-section-title">
+                Account
+            </div>
+
+            <a href="{% url 'profile' %}" class="sidebar-link active">
+                <span class="sidebar-icon">👤</span>
+                <span>My Profile</span>
             </a>
 
         </div>
 
 
-        <!-- ========================= -->
-        <!-- NAVIGATION -->
-        <!-- ========================= -->
+        <!-- Sidebar Footer -->
+        <div class="sidebar-footer">
 
-        <nav class="dashboard-navigation">
-
-            <div class="dashboard-nav-title">
-                Main Menu
-            </div>
-
-
-            <!-- Dashboard -->
-
-            <a href="{% url 'dashboard' %}"
-               class="dashboard-nav-link">
-
-                <span class="dashboard-nav-icon">⌂</span>
-
-                Dashboard
-
+            <a href="{% url 'web_logout' %}" class="sidebar-link logout-link">
+                <span class="sidebar-icon">🚪</span>
+                <span>Logout</span>
             </a>
-
-
-            <!-- Admin Navigation -->
-
-            {% if user.is_superuser or user.role and user.role.name|lower == "admin" %}
-
-                <a href="{% url 'user_list' %}"
-                   class="dashboard-nav-link">
-
-                    <span class="dashboard-nav-icon">👥</span>
-
-                    User Management
-
-                </a>
-
-
-                <a href="{% url 'role_list' %}"
-                   class="dashboard-nav-link">
-
-                    <span class="dashboard-nav-icon">🔐</span>
-
-                    Role Management
-
-                </a>
-
-            {% endif %}
-
-
-            <!-- Contracts -->
-
-            <a href="{% url 'contract_list' %}"
-               class="dashboard-nav-link">
-
-                <span class="dashboard-nav-icon">📄</span>
-
-                Contracts
-
-            </a>
-
-
-            <!-- Documents -->
-
-            <a href="{% url 'document_list' %}"
-               class="dashboard-nav-link">
-
-                <span class="dashboard-nav-icon">📁</span>
-
-                Documents
-
-            </a>
-
-
-            <!-- Clauses -->
-
-            <a href="{% url 'clause_list' %}"
-               class="dashboard-nav-link">
-
-                <span class="dashboard-nav-icon">📋</span>
-
-                Clauses
-
-            </a>
-
-
-            <!-- Profile -->
-
-            <a href="{% url 'profile' %}"
-               class="dashboard-nav-link active">
-
-                <span class="dashboard-nav-icon">👤</span>
-
-                My Profile
-
-            </a>
-
-        </nav>
-
-
-        <!-- ========================= -->
-        <!-- LOGOUT -->
-        <!-- ========================= -->
-
-        <div class="sidebar-bottom">
-
-            <form method="post"
-                  action="{% url 'web_logout' %}">
-
-                {% csrf_token %}
-
-                <button type="submit"
-                        class="sidebar-logout">
-
-                    <span>↪</span>
-
-                    Logout
-
-                </button>
-
-            </form>
 
         </div>
 
     </aside>
 
 
+    <!-- ================= MAIN CONTENT ================= -->
+    <main class="main-content">
 
-    <!-- ========================= -->
-    <!-- MAIN CONTENT -->
-    <!-- ========================= -->
-
-    <main class="dashboard-main">
-
-
-        <!-- ========================= -->
-        <!-- TOPBAR -->
-        <!-- ========================= -->
-
-        <div class="dashboard-topbar">
-
-            <div class="dashboard-topbar-left">
-
-                <div class="dashboard-topbar-title">
-                    My Profile
-                </div>
-
-            </div>
-
-
-            <div class="dashboard-topbar-right">
-
-                <div class="topbar-user">
-
-                    <div class="topbar-user-avatar">
-
-                        {% if user.profile_photo %}
-
-                            <img src="{{ user.profile_photo.url }}"
-                                 alt="Profile Photo">
-
-                        {% else %}
-
-                            {{ user.username|first|upper }}
-
-                        {% endif %}
-
-                    </div>
-
-
-                    <span class="topbar-user-name">
-
-                        {{ user.username }}
-
-                    </span>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-
-        <!-- ========================= -->
-        <!-- PAGE HEADER -->
-        <!-- ========================= -->
-
+        <!-- Top Header -->
         <div class="page-header">
 
             <div>
-
-                <h1 class="page-title">
-                    My Profile
-                </h1>
-
-                <p class="page-subtitle">
-                    View and manage your account information.
-                </p>
-
+                <h1>My Profile</h1>
+                <p>View and manage your personal account information.</p>
             </div>
 
+            <div class="header-actions">
 
-            <a href="{% url 'dashboard' %}"
-               class="btn btn-secondary">
+                <button
+                    type="button"
+                    class="theme-toggle"
+                    id="themeToggle"
+                >
+                    <span id="themeIcon">🌙</span>
+                    <span id="themeText">Dark Mode</span>
+                </button>
 
-                ← Back to Dashboard
+                <a
+                    href="{% url 'dashboard' %}"
+                    class="btn btn-secondary"
+                >
+                    ← Dashboard
+                </a>
 
-            </a>
+            </div>
 
         </div>
 
 
-
-        <!-- ========================= -->
-        <!-- MESSAGES -->
-        <!-- ========================= -->
-
+        <!-- Messages -->
         {% if messages %}
+            <div class="messages-container">
 
-            {% for message in messages %}
+                {% for message in messages %}
 
-                <div class="alert {{ message.tags }}">
+                    <div class="message {{ message.tags }}">
+                        {{ message }}
+                    </div>
 
-                    {{ message }}
+                {% endfor %}
 
-                </div>
-
-            {% endfor %}
-
+            </div>
         {% endif %}
 
 
+        <!-- ================= PROFILE CONTENT ================= -->
+        <div class="profile-page">
 
-        <!-- ========================= -->
-        <!-- PROFILE -->
-        <!-- ========================= -->
+            <!-- Profile Header Card -->
+            <div class="profile-card profile-header-card">
 
-        <div class="profile-container">
+                <div class="profile-large-avatar">
 
-            <div class="profile-card">
+                    {% if user.profile_photo %}
 
+                        <img
+                            src="{{ user.profile_photo.url }}"
+                            alt="Profile Photo"
+                        >
 
-                <!-- ========================= -->
-                <!-- PROFILE HEADER -->
-                <!-- ========================= -->
+                    {% else %}
 
-                <div class="profile-header">
-
-
-                    <!-- PROFILE PHOTO -->
-
-                        <div class="profile-avatar">
-
-                            {% if user.profile_photo %}
-                                <img
-                                    src="{{ user.profile_photo.url }}"
-                                    alt="Profile Photo"
-                                    class="profile-image"
-                                >
-                            {% else %}
-                                {{ user.username|first|upper }}
-                            {% endif %}
-
+                        <div class="profile-large-initial">
+                            {{ user.username|first|upper }}
                         </div>
 
-
-                    <!-- PROFILE BASIC INFO -->
-
-                    <div class="profile-info">
-
-                        <h2>
-
-                            {{ user.get_full_name|default:user.username }}
-
-                        </h2>
-
-
-                        <p>
-
-                            {{ user.email|default:"No email provided" }}
-
-                        </p>
-
-
-                        {% if user.role %}
-
-                            <span class="badge badge-primary">
-
-                                {{ user.role.name }}
-
-                            </span>
-
-                        {% endif %}
-
-                    </div>
+                    {% endif %}
 
                 </div>
 
 
+                <div class="profile-header-info">
 
-                <!-- ========================= -->
-                <!-- PROFILE DETAILS -->
-                <!-- ========================= -->
+                    <h2>
+                        {{ user.get_full_name|default:user.username }}
+                    </h2>
 
-                <div class="profile-body">
+                    <p class="username">
+                        @{{ user.username }}
+                    </p>
+
+                    <span class="role-badge">
+
+                        {% if user.role %}
+                            {{ user.role.name }}
+                        {% else %}
+                            User
+                        {% endif %}
+
+                    </span>
+
+                    {% if user.is_active %}
+
+                        <span class="status-badge active">
+                            Active
+                        </span>
+
+                    {% else %}
+
+                        <span class="status-badge inactive">
+                            Inactive
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
 
 
-                    <!-- USERNAME -->
+            <!-- ================= PERSONAL INFORMATION ================= -->
+            <div class="profile-card">
 
-                    <div class="profile-field">
+                <div class="card-header">
 
-                        <div class="profile-field-label">
-                            Username
-                        </div>
+                    <div>
+                        <h3>Personal Information</h3>
+                        <p>Your basic account information.</p>
+                    </div>
 
-                        <div class="profile-field-value">
+                    <span class="card-icon">👤</span>
 
+                </div>
+
+
+                <div class="profile-info-grid">
+
+                    <div class="profile-info-item">
+
+                        <label>Username</label>
+
+                        <div class="profile-info-value">
                             {{ user.username }}
-
                         </div>
 
                     </div>
 
 
-                    <!-- FIRST NAME -->
+                    <div class="profile-info-item">
 
-                    <div class="profile-field">
+                        <label>Email Address</label>
 
-                        <div class="profile-field-label">
-                            First Name
-                        </div>
+                        <div class="profile-info-value">
 
-                        <div class="profile-field-value">
-
-                            {{ user.first_name|default:"Not provided" }}
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- LAST NAME -->
-
-                    <div class="profile-field">
-
-                        <div class="profile-field-label">
-                            Last Name
-                        </div>
-
-                        <div class="profile-field-value">
-
-                            {{ user.last_name|default:"Not provided" }}
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- EMAIL -->
-
-                    <div class="profile-field">
-
-                        <div class="profile-field-label">
-                            Email
-                        </div>
-
-                        <div class="profile-field-value">
-
-                            {{ user.email|default:"Not provided" }}
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- ROLE -->
-
-                    <div class="profile-field">
-
-                        <div class="profile-field-label">
-                            Role
-                        </div>
-
-                        <div class="profile-field-value">
-
-                            {% if user.role %}
-
-                                {{ user.role.name }}
-
+                            {% if user.email %}
+                                {{ user.email }}
                             {% else %}
-
-                                No role assigned
-
+                                Not provided
                             {% endif %}
 
                         </div>
@@ -477,25 +1016,72 @@
                     </div>
 
 
-                    <!-- ACCOUNT STATUS -->
+                    <div class="profile-info-item">
 
-                    <div class="profile-field">
+                        <label>First Name</label>
 
-                        <div class="profile-field-label">
-                            Account Status
+                        <div class="profile-info-value">
+
+                            {% if user.first_name %}
+                                {{ user.first_name }}
+                            {% else %}
+                                Not provided
+                            {% endif %}
+
                         </div>
 
-                        <div class="profile-field-value">
+                    </div>
+
+
+                    <div class="profile-info-item">
+
+                        <label>Last Name</label>
+
+                        <div class="profile-info-value">
+
+                            {% if user.last_name %}
+                                {{ user.last_name }}
+                            {% else %}
+                                Not provided
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="profile-info-item">
+
+                        <label>Role</label>
+
+                        <div class="profile-info-value">
+
+                            {% if user.role %}
+                                {{ user.role.name }}
+                            {% else %}
+                                User
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="profile-info-item">
+
+                        <label>Account Status</label>
+
+                        <div class="profile-info-value">
 
                             {% if user.is_active %}
 
-                                <span class="badge badge-success">
+                                <span class="status-badge active">
                                     Active
                                 </span>
 
                             {% else %}
 
-                                <span class="badge badge-danger">
+                                <span class="status-badge inactive">
                                     Inactive
                                 </span>
 
@@ -506,15 +1092,11 @@
                     </div>
 
 
-                    <!-- DATE JOINED -->
+                    <div class="profile-info-item">
 
-                    <div class="profile-field">
+                        <label>Date Joined</label>
 
-                        <div class="profile-field-label">
-                            Date Joined
-                        </div>
-
-                        <div class="profile-field-value">
+                        <div class="profile-info-value">
 
                             {{ user.date_joined|date:"d M Y" }}
 
@@ -522,51 +1104,131 @@
 
                     </div>
 
+
+                    <div class="profile-info-item">
+
+                        <label>Last Login</label>
+
+                        <div class="profile-info-value">
+
+                            {% if user.last_login %}
+                                {{ user.last_login|date:"d M Y, h:i A" }}
+                            {% else %}
+                                Never
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ================= PROFILE ACTIONS ================= -->
+            <div class="profile-card">
+
+                <div class="card-header">
+
+                    <div>
+                        <h3>Profile Actions</h3>
+                        <p>Manage your account settings and profile.</p>
+                    </div>
+
+                    <span class="card-icon">⚙️</span>
+
                 </div>
 
 
-
-                <!-- ========================= -->
-                <!-- PROFILE ACTIONS -->
-                <!-- ========================= -->
-
                 <div class="profile-actions">
 
-                    <!-- EDIT PROFILE -->
+                    <!-- Edit Profile -->
+                    <a
+                        href="{% url 'profile_edit' %}"
+                        class="profile-action-card"
+                    >
 
-                    <a href="{% url 'profile_edit' %}"
-                       class="btn btn-primary">
+                        <div class="action-icon">
+                            ✏️
+                        </div>
 
-                        ✏️ Edit Profile
+                        <div>
+                            <h4>Edit Profile</h4>
+                            <p>
+                                Update your name, email and profile details.
+                            </p>
+                        </div>
 
                     </a>
 
 
-                    <!-- CHANGE PHOTO -->
+                    <!-- Change Password -->
+                    <a
+                        href="{% url 'change_password' %}"
+                        class="profile-action-card"
+                    >
 
-                    <a href="{% url 'profile_edit' %}"
-                       class="btn btn-secondary">
+                        <div class="action-icon">
+                            🔐
+                        </div>
 
-                        📷 Change Photo
+                        <div>
+                            <h4>Change Password</h4>
+                            <p>
+                                Update your account password securely.
+                            </p>
+                        </div>
 
                     </a>
 
 
-                    <!-- REMOVE PHOTO -->
+                    <!-- Change Photo -->
+                    <a
+                        href="{% url 'profile_edit' %}"
+                        class="profile-action-card"
+                    >
 
+                        <div class="action-icon">
+                            📷
+                        </div>
+
+                        <div>
+                            <h4>Change Photo</h4>
+                            <p>
+                                Update your profile picture.
+                            </p>
+                        </div>
+
+                    </a>
+
+
+                    <!-- Remove Photo -->
                     {% if user.profile_photo %}
 
-                        <form method="post"
-                              action="{% url 'profile_remove_photo' %}"
-                              style="display: inline;">
+                        <form
+                            method="POST"
+                            action="{% url 'remove_profile_photo' %}"
+                            class="profile-action-form"
+                        >
 
                             {% csrf_token %}
 
-                            <button type="submit"
-                                    class="btn btn-danger"
-                                    onclick="return confirm('Are you sure you want to remove your profile photo?');">
+                            <button
+                                type="submit"
+                                class="profile-action-card danger-action"
+                            >
 
-                                🗑️ Remove Photo
+                                <div class="action-icon">
+                                    🗑️
+                                </div>
+
+                                <div>
+                                    <h4>Remove Photo</h4>
+                                    <p>
+                                        Remove your current profile picture.
+                                    </p>
+                                </div>
 
                             </button>
 
@@ -574,18 +1236,20 @@
 
                     {% endif %}
 
-
-                    <!-- BACK TO DASHBOARD -->
-
-                    <a href="{% url 'dashboard' %}"
-                       class="btn btn-secondary">
-
-                        ← Back to Dashboard
-
-                    </a>
-
                 </div>
 
+            </div>
+
+
+            <!-- ================= BACK BUTTON ================= -->
+            <div class="profile-bottom-actions">
+
+                <a
+                    href="{% url 'dashboard' %}"
+                    class="btn btn-secondary"
+                >
+                    ← Back to Dashboard
+                </a>
 
             </div>
 
@@ -595,6 +1259,79 @@
 
 </div>
 
+
+<!-- ================= THEME SCRIPT ================= -->
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const themeToggle = document.getElementById("themeToggle");
+    const themeIcon = document.getElementById("themeIcon");
+    const themeText = document.getElementById("themeText");
+
+    let currentTheme =
+        localStorage.getItem("legalContractTheme") || "light";
+
+    document.documentElement.setAttribute(
+        "data-theme",
+        currentTheme
+    );
+
+    updateThemeButton(currentTheme);
+
+
+    if (themeToggle) {
+
+        themeToggle.addEventListener("click", function () {
+
+            const newTheme =
+                document.documentElement.getAttribute("data-theme") === "dark"
+                    ? "light"
+                    : "dark";
+
+            document.documentElement.setAttribute(
+                "data-theme",
+                newTheme
+            );
+
+            localStorage.setItem(
+                "legalContractTheme",
+                newTheme
+            );
+
+            updateThemeButton(newTheme);
+
+        });
+
+    }
+
+
+    function updateThemeButton(theme) {
+
+        if (!themeIcon || !themeText) {
+            return;
+        }
+
+        if (theme === "dark") {
+
+            themeIcon.textContent = "☀️";
+            themeText.textContent = "Light Mode";
+
+        } else {
+
+            themeIcon.textContent = "🌙";
+            themeText.textContent = "Dark Mode";
+
+        }
+
+    }
+
+});
+
+</script>
+
 </body>
+
+
 
 </html>

@@ -1,0 +1,785 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Select Contract - Legal Contract System</title>
+
+    <link rel="stylesheet"
+          href="{% static 'contracts/css/style.css' %}">
+
+    <style>
+
+        /* =========================================
+           SELECT CONTRACT PAGE
+        ========================================= */
+
+        .select-contract-page {
+            max-width: 1050px;
+            margin: 0 auto;
+            padding: 35px 25px 50px;
+        }
+
+        /* =========================================
+           PAGE HEADER
+        ========================================= */
+
+        .select-contract-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 20px;
+
+            margin-bottom: 28px;
+            padding-bottom: 22px;
+
+            border-bottom: 1px solid var(--border-color, #e5e7eb);
+        }
+
+        .select-contract-heading h1 {
+            margin: 0 0 8px;
+
+            font-size: 30px;
+            font-weight: 700;
+
+            color: var(--text-primary, #111827);
+        }
+
+        .select-contract-heading p {
+            margin: 0;
+
+            color: var(--text-secondary, #6b7280);
+
+            font-size: 15px;
+        }
+
+        /* =========================================
+           MAIN CARD
+        ========================================= */
+
+        .select-contract-card {
+            background: var(--card-bg, #ffffff);
+
+            border: 1px solid var(--border-color, #e5e7eb);
+            border-radius: 14px;
+
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.06);
+
+            overflow: hidden;
+        }
+
+        .select-contract-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 15px;
+
+            padding: 22px 25px;
+
+            border-bottom: 1px solid var(--border-color, #e5e7eb);
+        }
+
+        .select-contract-card-title {
+            display: flex;
+            align-items: center;
+
+            gap: 11px;
+        }
+
+        .select-contract-icon {
+            width: 38px;
+            height: 38px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 9px;
+
+            background: rgba(220, 38, 38, 0.10);
+
+            color: #dc2626;
+
+            font-size: 18px;
+        }
+
+        .select-contract-card-title h2 {
+            margin: 0;
+
+            font-size: 19px;
+            font-weight: 700;
+
+            color: var(--text-primary, #1f2937);
+        }
+
+        .contract-count {
+            padding: 5px 11px;
+
+            border-radius: 20px;
+
+            background: #f3f4f6;
+
+            color: #4b5563;
+
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* =========================================
+           CONTRACT LIST
+        ========================================= */
+
+        .contract-list {
+            padding: 10px 25px 25px;
+        }
+
+        .contract-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 25px;
+
+            padding: 22px 0;
+
+            border-bottom: 1px solid #eef0f3;
+        }
+
+        .contract-item:last-child {
+            border-bottom: none;
+        }
+
+        /* =========================================
+           CONTRACT INFORMATION
+        ========================================= */
+
+        .contract-info {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .contract-number {
+            display: inline-block;
+
+            margin-bottom: 8px;
+
+            padding: 5px 10px;
+
+            border-radius: 6px;
+
+            background: rgba(220, 38, 38, 0.08);
+
+            color: #b91c1c;
+
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .contract-title {
+            margin: 0 0 8px;
+
+            color: var(--text-primary, #1f2937);
+
+            font-size: 17px;
+            font-weight: 700;
+
+            line-height: 1.4;
+
+            word-break: break-word;
+        }
+
+        .contract-status-row {
+            display: flex;
+            align-items: center;
+
+            gap: 8px;
+
+            color: var(--text-secondary, #6b7280);
+
+            font-size: 13px;
+        }
+
+        /* =========================================
+           STATUS BADGES
+        ========================================= */
+
+        .contract-status-badge {
+            display: inline-flex;
+            align-items: center;
+
+            padding: 5px 10px;
+
+            border-radius: 20px;
+
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .status-draft {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-expired {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+
+        .status-terminated {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* =========================================
+           ACTIONS
+        ========================================= */
+
+        .contract-actions {
+            display: flex;
+            align-items: center;
+
+            gap: 9px;
+
+            flex-shrink: 0;
+        }
+
+        .contract-action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            min-height: 40px;
+
+            padding: 9px 15px;
+
+            border-radius: 8px;
+
+            font-size: 13px;
+            font-weight: 600;
+
+            text-decoration: none;
+
+            transition:
+                background 0.2s ease,
+                transform 0.15s ease,
+                box-shadow 0.2s ease;
+        }
+
+        .contract-action-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .add-clause-btn {
+            background: #dc2626;
+            color: #ffffff;
+
+            box-shadow: 0 3px 8px rgba(220, 38, 38, 0.15);
+        }
+
+        .add-clause-btn:hover {
+            background: #b91c1c;
+        }
+
+        .view-contract-btn {
+            background: #f3f4f6;
+            color: #374151;
+
+            border: 1px solid #d1d5db;
+        }
+
+        .view-contract-btn:hover {
+            background: #e5e7eb;
+        }
+
+        /* =========================================
+           EMPTY STATE
+        ========================================= */
+
+        .contract-empty-state {
+            padding: 65px 25px;
+
+            text-align: center;
+        }
+
+        .empty-contract-icon {
+            width: 68px;
+            height: 68px;
+
+            margin: 0 auto 18px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 50%;
+
+            background: rgba(220, 38, 38, 0.08);
+
+            color: #dc2626;
+
+            font-size: 29px;
+        }
+
+        .contract-empty-state h3 {
+            margin: 0 0 9px;
+
+            color: var(--text-primary, #1f2937);
+
+            font-size: 20px;
+        }
+
+        .contract-empty-state p {
+            max-width: 480px;
+
+            margin: 0 auto 23px;
+
+            color: var(--text-secondary, #6b7280);
+
+            font-size: 14px;
+
+            line-height: 1.6;
+        }
+
+        .empty-view-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            min-height: 42px;
+
+            padding: 9px 18px;
+
+            border-radius: 8px;
+
+            background: #dc2626;
+            color: #ffffff;
+
+            font-size: 13px;
+            font-weight: 600;
+
+            text-decoration: none;
+
+            transition:
+                background 0.2s ease,
+                transform 0.15s ease;
+        }
+
+        .empty-view-btn:hover {
+            background: #b91c1c;
+            transform: translateY(-1px);
+        }
+
+        /* =========================================
+           DARK THEME
+        ========================================= */
+
+        html[data-theme="dark"] .select-contract-header {
+            border-bottom-color: #2d3340;
+        }
+
+        html[data-theme="dark"] .select-contract-heading h1,
+        html[data-theme="dark"] .select-contract-card-title h2,
+        html[data-theme="dark"] .contract-title,
+        html[data-theme="dark"] .contract-empty-state h3 {
+            color: #f3f4f6;
+        }
+
+        html[data-theme="dark"] .select-contract-heading p,
+        html[data-theme="dark"] .contract-status-row,
+        html[data-theme="dark"] .contract-empty-state p {
+            color: #9ca3af;
+        }
+
+        html[data-theme="dark"] .select-contract-card {
+            background: #1b202b;
+
+            border-color: #2d3340;
+
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        html[data-theme="dark"] .select-contract-card-header {
+            border-bottom-color: #2d3340;
+        }
+
+        html[data-theme="dark"] .contract-count {
+            background: #252b36;
+            color: #d1d5db;
+        }
+
+        html[data-theme="dark"] .contract-item {
+            border-bottom-color: #2d3340;
+        }
+
+        html[data-theme="dark"] .contract-number {
+            background: rgba(248, 113, 113, 0.10);
+            color: #fca5a5;
+        }
+
+        html[data-theme="dark"] .status-draft {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fcd34d;
+        }
+
+        html[data-theme="dark"] .status-active {
+            background: rgba(34, 197, 94, 0.15);
+            color: #86efac;
+        }
+
+        html[data-theme="dark"] .status-expired {
+            background: #252b36;
+            color: #d1d5db;
+        }
+
+        html[data-theme="dark"] .status-terminated {
+            background: rgba(220, 38, 38, 0.15);
+            color: #fca5a5;
+        }
+
+        html[data-theme="dark"] .view-contract-btn {
+            background: #252b36;
+            color: #e5e7eb;
+            border-color: #3b4350;
+        }
+
+        html[data-theme="dark"] .view-contract-btn:hover {
+            background: #303744;
+        }
+
+        /* =========================================
+           RESPONSIVE
+        ========================================= */
+
+        @media (max-width: 800px) {
+
+            .select-contract-page {
+                padding: 25px 18px 40px;
+            }
+
+            .select-contract-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .contract-item {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .contract-actions {
+                width: 100%;
+            }
+
+            .contract-action-btn {
+                flex: 1;
+            }
+        }
+
+        @media (max-width: 600px) {
+
+            .select-contract-page {
+                padding: 20px 12px 30px;
+            }
+
+            .select-contract-heading h1 {
+                font-size: 23px;
+            }
+
+            .select-contract-card-header {
+                padding: 18px;
+            }
+
+            .contract-list {
+                padding: 5px 18px 18px;
+            }
+
+            .contract-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .contract-action-btn {
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .contract-empty-state {
+                padding: 50px 18px;
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<main class="main-content">
+
+    <div class="select-contract-page">
+
+
+        <!-- =====================================
+             PAGE HEADER
+        ====================================== -->
+
+        <div class="select-contract-header">
+
+            <div class="select-contract-heading">
+
+                <h1>
+                    Select Contract
+                </h1>
+
+                <p>
+                    Select a contract to add a new clause.
+                </p>
+
+            </div>
+
+
+            <a
+                href="{% url 'dashboard' %}"
+                class="contract-action-btn view-contract-btn">
+
+                ← Back to Dashboard
+
+            </a>
+
+        </div>
+
+
+
+        <!-- =====================================
+             MAIN CARD
+        ====================================== -->
+
+        <div class="select-contract-card">
+
+
+            <!-- CARD HEADER -->
+
+            <div class="select-contract-card-header">
+
+                <div class="select-contract-card-title">
+
+                    <div class="select-contract-icon">
+                        📄
+                    </div>
+
+                    <h2>
+                        Available Contracts
+                    </h2>
+
+                </div>
+
+
+                {% if contracts %}
+
+                    <div class="contract-count">
+
+                        {{ contracts|length }}
+                        Contract{{ contracts|length|pluralize }}
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+
+            <!-- =================================
+                 CONTRACTS
+            ================================== -->
+
+            {% if contracts %}
+
+                <div class="contract-list">
+
+
+                    {% for contract in contracts %}
+
+                        <div class="contract-item">
+
+
+                            <!-- CONTRACT INFORMATION -->
+
+                            <div class="contract-info">
+
+                                <span class="contract-number">
+                                    {{ contract.contract_number }}
+                                </span>
+
+
+                                <h3 class="contract-title">
+                                    {{ contract.title }}
+                                </h3>
+
+
+                                <div class="contract-status-row">
+
+                                    <span>
+                                        Status:
+                                    </span>
+
+
+                                    {% if contract.status == "Draft" %}
+
+                                        <span class="contract-status-badge status-draft">
+                                            Draft
+                                        </span>
+
+                                    {% elif contract.status == "Active" %}
+
+                                        <span class="contract-status-badge status-active">
+                                            Active
+                                        </span>
+
+                                    {% elif contract.status == "Expired" %}
+
+                                        <span class="contract-status-badge status-expired">
+                                            Expired
+                                        </span>
+
+                                    {% elif contract.status == "Terminated" %}
+
+                                        <span class="contract-status-badge status-terminated">
+                                            Terminated
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="contract-status-badge">
+                                            {{ contract.status }}
+                                        </span>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+
+
+                            <!-- ACTIONS -->
+
+                            <div class="contract-actions">
+
+
+                                <a
+                                    href="{% url 'clause_create' contract.id %}"
+                                    class="contract-action-btn add-clause-btn">
+
+                                    + Add Clause
+
+                                </a>
+
+
+                                <a
+                                    href="{% url 'contract_detail' contract.id %}"
+                                    class="contract-action-btn view-contract-btn">
+
+                                    View Contract
+
+                                </a>
+
+
+                            </div>
+
+
+                        </div>
+
+                    {% endfor %}
+
+
+                </div>
+
+
+            {% else %}
+
+
+                <!-- =================================
+                     EMPTY STATE
+                ================================== -->
+
+                <div class="contract-empty-state">
+
+                    <div class="empty-contract-icon">
+                        📄
+                    </div>
+
+
+                    <h3>
+                        No Contracts Available
+                    </h3>
+
+
+                    <p>
+                        You don't have any contracts available
+                        for adding clauses.
+                    </p>
+
+
+                    <a
+                        href="{% url 'contract_list' %}"
+                        class="empty-view-btn">
+
+                        View Contracts
+
+                    </a>
+
+                </div>
+
+
+            {% endif %}
+
+
+        </div>
+
+
+    </div>
+
+</main>
+
+
+<!-- =========================================
+     THEME SUPPORT
+========================================= -->
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const savedTheme =
+        localStorage.getItem("legalContractTheme") || "light";
+
+    document.documentElement.setAttribute(
+        "data-theme",
+        savedTheme
+    );
+
+});
+
+</script>
+
+
+</body>
+
+</html>

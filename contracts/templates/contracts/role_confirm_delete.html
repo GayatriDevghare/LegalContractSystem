@@ -1,88 +1,457 @@
 {% load static %}
 
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
 
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
 
-    <title>Delete Role - Legal Contract System</title>
+<title>
+    Delete Role - Legal Contract System
+</title>
 
-    <link rel="stylesheet"
-          href="{% static 'contracts/css/style.css' %}">
+<link rel="stylesheet"
+      href="{% static 'contracts/css/style.css' %}">
+
+<style>
+
+    /* =========================================================
+       DELETE ROLE PAGE
+       ========================================================= */
+
+    .delete-role-page {
+        min-height: 100vh;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        padding: 30px 20px;
+
+        box-sizing: border-box;
+    }
+
+    .delete-role-wrapper {
+        width: 100%;
+        max-width: 560px;
+    }
+
+    /* =========================================================
+       PAGE HEADER
+       ========================================================= */
+
+    .delete-role-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 20px;
+
+        margin-bottom: 20px;
+    }
+
+    .delete-role-header-content h1 {
+        margin: 0 0 5px;
+
+        color: var(
+            --text-primary,
+            #1f2937
+        );
+
+        font-size: 24px;
+        font-weight: 700;
+    }
+
+    .delete-role-header-content p {
+        margin: 0;
+
+        color: var(
+            --text-secondary,
+            #6b7280
+        );
+
+        font-size: 13px;
+    }
+
+    /* =========================================================
+       DELETE CARD
+       ========================================================= */
+
+    .delete-role-card {
+        background: var(
+            --card-bg,
+            #ffffff
+        );
+
+        border: 1px solid var(
+            --border-color,
+            #e5e7eb
+        );
+
+        border-radius: 16px;
+
+        padding: 35px;
+
+        text-align: center;
+
+        box-shadow:
+            0 10px 30px rgba(0, 0, 0, 0.07);
+    }
+
+    /* =========================================================
+       WARNING ICON
+       ========================================================= */
+
+    .delete-role-icon {
+        width: 68px;
+        height: 68px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        margin: 0 auto 20px;
+
+        border-radius: 50%;
+
+        background: #fef2f2;
+
+        border: 1px solid #fecaca;
+
+        color: #dc2626;
+
+        font-size: 30px;
+    }
+
+    /* =========================================================
+       CONTENT
+       ========================================================= */
+
+    .delete-role-content h2 {
+        margin: 0 0 10px;
+
+        color: var(
+            --text-primary,
+            #1f2937
+        );
+
+        font-size: 22px;
+        font-weight: 700;
+    }
+
+    .delete-role-content p {
+        margin: 7px 0;
+
+        color: var(
+            --text-secondary,
+            #6b7280
+        );
+
+        font-size: 13px;
+
+        line-height: 1.6;
+    }
+
+    .delete-role-name {
+        display: inline-block;
+
+        margin: 14px 0;
+
+        padding: 10px 18px;
+
+        border-radius: 8px;
+
+        background: rgba(
+            185,
+            28,
+            28,
+            0.08
+        );
+
+        color: #b91c1c;
+
+        font-size: 17px;
+        font-weight: 700;
+    }
+
+    .delete-role-danger-text {
+        color: #dc2626 !important;
+
+        font-size: 12px !important;
+
+        font-weight: 600;
+    }
+
+    /* =========================================================
+       ACTIONS
+       ========================================================= */
+
+    .delete-role-actions {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        gap: 12px;
+
+        margin-top: 28px;
+
+        padding-top: 23px;
+
+        border-top: 1px solid var(
+            --border-color,
+            #e5e7eb
+        );
+    }
+
+    .delete-role-actions .btn {
+        min-width: 145px;
+
+        min-height: 42px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* =========================================================
+       DARK THEME
+       ========================================================= */
+
+    html[data-theme="dark"] .delete-role-card {
+        background: #151922;
+
+        border-color: #2d3340;
+    }
+
+    html[data-theme="dark"] .delete-role-header-content h1,
+    html[data-theme="dark"] .delete-role-content h2 {
+        color: #f3f4f6;
+    }
+
+    html[data-theme="dark"] .delete-role-header-content p,
+    html[data-theme="dark"] .delete-role-content p {
+        color: #aeb6c5;
+    }
+
+    html[data-theme="dark"] .delete-role-icon {
+        background: rgba(
+            220,
+            38,
+            38,
+            0.10
+        );
+
+        border-color: rgba(
+            248,
+            113,
+            113,
+            0.25
+        );
+
+        color: #f87171;
+    }
+
+    html[data-theme="dark"] .delete-role-name {
+        background: rgba(
+            248,
+            113,
+            113,
+            0.10
+        );
+
+        color: #fca5a5;
+    }
+
+    html[data-theme="dark"] .delete-role-actions {
+        border-top-color: #2d3340;
+    }
+
+    /* =========================================================
+       RESPONSIVE
+       ========================================================= */
+
+    @media (max-width: 600px) {
+
+        .delete-role-page {
+            padding: 20px 14px;
+        }
+
+        .delete-role-header {
+            align-items: flex-start;
+
+            flex-direction: column;
+        }
+
+        .delete-role-header .btn {
+            width: 100%;
+        }
+
+        .delete-role-card {
+            padding: 28px 20px;
+
+            border-radius: 14px;
+        }
+
+        .delete-role-actions {
+            flex-direction: column;
+        }
+
+        .delete-role-actions .btn {
+            width: 100%;
+        }
+
+    }
+
+</style>
+```
 
 </head>
 
 <body>
 
-<div class="container">
+<div class="delete-role-page">
 
-    <div class="page-header">
+```
+<div class="delete-role-wrapper">
 
-        <div>
 
-            <h1>Delete Role</h1>
+    <!-- =====================================================
+         HEADER
+         ===================================================== -->
 
-            <p>Confirm role deletion.</p>
+    <div class="delete-role-header">
+
+
+        <div class="delete-role-header-content">
+
+            <h1>
+                Delete Role
+            </h1>
+
+            <p>
+                Confirm role deletion
+            </p>
 
         </div>
 
+
         <a href="{% url 'role_list' %}"
            class="btn btn-secondary">
+
             Back to Roles
+
         </a>
+
 
     </div>
 
 
-    <div class="card delete-card">
+    <!-- =====================================================
+         DELETE CARD
+         ===================================================== -->
 
-        <div class="delete-warning">
+    <div class="delete-role-card">
 
-            <h2>Are you sure?</h2>
+
+        <div class="delete-role-icon">
+            ⚠
+        </div>
+
+
+        <div class="delete-role-content">
+
+
+            <h2>
+                Are you sure?
+            </h2>
+
 
             <p>
-                You are about to permanently delete the role:
+                You are about to permanently delete the following role:
             </p>
 
-            <h3>
-                "{{ role.name }}"
-            </h3>
 
-            <p>
+            <div class="delete-role-name">
+                "{{ role.name }}"
+            </div>
+
+
+            <p class="delete-role-danger-text">
                 This action cannot be undone.
             </p>
 
+
         </div>
 
+
+        <!-- =================================================
+             FORM
+             ================================================= -->
 
         <form method="POST">
 
             {% csrf_token %}
 
-            <div class="form-actions">
+
+            <div class="delete-role-actions">
+
 
                 <a href="{% url 'role_list' %}"
                    class="btn btn-secondary">
+
                     Cancel
+
                 </a>
+
 
                 <button type="submit"
                         class="btn btn-danger">
+
                     Yes, Delete Role
+
                 </button>
+
 
             </div>
 
+
         </form>
+
 
     </div>
 
+
 </div>
 
+
+</div>
+
+<!-- =========================================================
+     THEME SUPPORT
+     ========================================================= -->
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const savedTheme =
+        localStorage.getItem("legalContractTheme") || "light";
+
+
+    document.documentElement.setAttribute(
+        "data-theme",
+        savedTheme
+    );
+
+});
+
+</script>
+
 </body>
+
 </html>

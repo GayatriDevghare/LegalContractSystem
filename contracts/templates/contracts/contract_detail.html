@@ -5,226 +5,882 @@
 <html lang="en">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 
-<meta charset="UTF-8">
-
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
-
-<title>Contract Details - Legal Contract System</title>
+<title>Contract Details | Legal Contract System</title>
 
 <link rel="stylesheet"
       href="{% static 'contracts/css/style.css' %}">
 
+<style>
+    /* =====================================================
+       CONTRACT DETAIL PAGE
+    ===================================================== */
+
+    .contract-detail-page {
+        max-width: 1250px;
+        margin: 0 auto;
+        padding: 35px 25px 50px;
+    }
+
+    /* Header */
+
+    .contract-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 25px;
+        flex-wrap: wrap;
+        margin-bottom: 28px;
+    }
+
+    .contract-header h1 {
+        margin: 0 0 8px;
+        font-size: 30px;
+        font-weight: 750;
+        color: var(--text-primary, #111827);
+    }
+
+    .contract-header p {
+        margin: 5px 0;
+        color: var(--text-secondary, #6b7280);
+        font-size: 14px;
+    }
+
+    .contract-header strong {
+        color: var(--text-primary, #374151);
+    }
+
+    .contract-meta {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 15px;
+    }
+
+    /* Cards */
+
+    .contract-section {
+        background: var(--card-bg, #ffffff);
+        border: 1px solid var(--border-color, #e5e7eb);
+        border-radius: 16px;
+        overflow: hidden;
+        margin-bottom: 24px;
+        box-shadow: 0 5px 18px rgba(0, 0, 0, 0.05);
+    }
+
+    .contract-section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--border-color, #e5e7eb);
+        background: var(--card-header-bg, #fafafa);
+    }
+
+    .contract-section-header h2 {
+        margin: 0;
+        font-size: 19px;
+        font-weight: 700;
+        color: var(--text-primary, #111827);
+    }
+
+    .contract-section-body {
+        padding: 24px;
+    }
+
+    /* Information Table */
+
+    .contract-info-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .contract-info-table th,
+    .contract-info-table td {
+        padding: 15px 14px;
+        border-bottom: 1px solid var(--border-color, #e5e7eb);
+        text-align: left;
+        vertical-align: top;
+        font-size: 14px;
+    }
+
+    .contract-info-table tr:last-child th,
+    .contract-info-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .contract-info-table th {
+        width: 210px;
+        color: var(--text-secondary, #6b7280);
+        font-weight: 650;
+    }
+
+    .contract-info-table td {
+        color: var(--text-primary, #1f2937);
+        font-weight: 500;
+        word-break: break-word;
+    }
+
+    /* Status */
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 6px 13px;
+        border-radius: 30px;
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1;
+        border: 1px solid transparent;
+    }
+
+    .status-active {
+        background: #dcfce7;
+        color: #166534;
+        border-color: #bbf7d0;
+    }
+
+    .status-pending {
+        background: #fef3c7;
+        color: #92400e;
+        border-color: #fde68a;
+    }
+
+    .status-inactive {
+        background: #fee2e2;
+        color: #991b1b;
+        border-color: #fecaca;
+    }
+
+    /* Version */
+
+    .version-card {
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid var(--border-color, #e5e7eb);
+        background: var(--soft-bg, #f8fafc);
+    }
+
+    .version-main {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+    }
+
+    .version-number {
+        font-size: 20px;
+        font-weight: 750;
+        color: var(--text-primary, #111827);
+    }
+
+    .version-details {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 15px;
+    }
+
+    .version-detail {
+        padding: 14px;
+        border-radius: 10px;
+        background: var(--card-bg, #ffffff);
+        border: 1px solid var(--border-color, #e5e7eb);
+    }
+
+    .version-detail-label {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        color: var(--text-secondary, #6b7280);
+    }
+
+    .version-detail-value {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-primary, #374151);
+    }
+
+    /* Tables */
+
+    .contract-table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        border: 1px solid var(--border-color, #e5e7eb);
+        border-radius: 12px;
+    }
+
+    .contract-table {
+        width: 100%;
+        min-width: 850px;
+        border-collapse: collapse;
+    }
+
+    .contract-table th {
+        padding: 13px 15px;
+        text-align: left;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .4px;
+        color: var(--text-secondary, #6b7280);
+        background: var(--soft-bg, #f8fafc);
+        border-bottom: 1px solid var(--border-color, #e5e7eb);
+    }
+
+    .contract-table td {
+        padding: 15px;
+        font-size: 13px;
+        color: var(--text-primary, #374151);
+        border-bottom: 1px solid var(--border-color, #e5e7eb);
+        vertical-align: middle;
+    }
+
+    .contract-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .contract-table tbody tr:hover {
+        background: var(--hover-bg, #f9fafb);
+    }
+
+    .document-name {
+        font-weight: 650;
+    }
+
+    /* Modification */
+
+    .modification-card {
+        border: 1px solid var(--border-color, #e5e7eb);
+        border-left: 5px solid #dc3545;
+        border-radius: 13px;
+        padding: 22px;
+        margin-bottom: 18px;
+        background: var(--card-bg, #ffffff);
+    }
+
+    .modification-card:last-child {
+        margin-bottom: 0;
+    }
+
+    .modification-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin-bottom: 15px;
+    }
+
+    .modification-title {
+        margin: 0 0 7px;
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--text-primary, #111827);
+    }
+
+    .modification-clause {
+        margin: 0;
+        font-size: 13px;
+        color: var(--text-secondary, #6b7280);
+    }
+
+    .modification-meta {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px 20px;
+        padding: 14px 0;
+        margin-bottom: 5px;
+        border-top: 1px solid var(--border-color, #e5e7eb);
+        border-bottom: 1px solid var(--border-color, #e5e7eb);
+    }
+
+    .meta-item {
+        font-size: 13px;
+        color: var(--text-secondary, #6b7280);
+    }
+
+    .meta-item strong {
+        color: var(--text-primary, #374151);
+    }
+
+    /* Content Boxes */
+
+    .content-section {
+        margin-top: 17px;
+    }
+
+    .content-label {
+        display: block;
+        margin-bottom: 7px;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text-primary, #374151);
+    }
+
+    .content-box {
+        padding: 15px 16px;
+        border-radius: 10px;
+        white-space: pre-wrap;
+        line-height: 1.7;
+        font-size: 13px;
+        color: var(--text-primary, #374151);
+    }
+
+    .original-box {
+        background: #fff3f3;
+        border-left: 4px solid #dc3545;
+    }
+
+    .modified-box {
+        background: #f1f8f4;
+        border-left: 4px solid #198754;
+    }
+
+    .comment-box {
+        background: #eef5ff;
+        border-left: 4px solid #0d6efd;
+    }
+
+    .rejection-box {
+        background: #fff3f3;
+        border-left: 4px solid #dc3545;
+    }
+
+    /* Empty */
+
+    .empty-state {
+        text-align: center;
+        padding: 38px 20px;
+        color: var(--text-secondary, #6b7280);
+    }
+
+    .empty-icon {
+        font-size: 35px;
+        margin-bottom: 10px;
+    }
+
+    .empty-state p {
+        margin: 0 0 15px;
+        font-size: 14px;
+    }
+
+    /* Buttons */
+
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+    }
+
+    .action-buttons .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 40px;
+    }
+
+    /* Bottom Actions */
+
+    .bottom-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 10px;
+        flex-wrap: wrap;
+        padding-top: 5px;
+    }
+
+    /* Dark Theme */
+
+    html[data-theme="dark"] .contract-header h1,
+    html[data-theme="dark"] .contract-header strong,
+    html[data-theme="dark"] .contract-section-header h2,
+    html[data-theme="dark"] .contract-info-table td,
+    html[data-theme="dark"] .version-number,
+    html[data-theme="dark"] .version-detail-value,
+    html[data-theme="dark"] .contract-table td,
+    html[data-theme="dark"] .modification-title,
+    html[data-theme="dark"] .meta-item strong,
+    html[data-theme="dark"] .content-label,
+    html[data-theme="dark"] .content-box {
+        color: #f3f4f6;
+    }
+
+    html[data-theme="dark"] .contract-section {
+        background: #1b202b;
+        border-color: #303746;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, .25);
+    }
+
+    html[data-theme="dark"] .contract-section-header {
+        background: #202632;
+        border-color: #303746;
+    }
+
+    html[data-theme="dark"] .contract-info-table th,
+    html[data-theme="dark"] .contract-info-table td,
+    html[data-theme="dark"] .contract-table th,
+    html[data-theme="dark"] .contract-table td,
+    html[data-theme="dark"] .modification-meta {
+        border-color: #303746;
+    }
+
+    html[data-theme="dark"] .contract-table th,
+    html[data-theme="dark"] .version-card {
+        background: #202632;
+    }
+
+    html[data-theme="dark"] .version-detail {
+        background: #1b202b;
+        border-color: #303746;
+    }
+
+    html[data-theme="dark"] .contract-table tbody tr:hover {
+        background: #252b36;
+    }
+
+    html[data-theme="dark"] .modification-card {
+        background: #1b202b;
+        border-color: #303746;
+        border-left-color: #ef4444;
+    }
+
+    html[data-theme="dark"] .original-box {
+        background: rgba(220, 53, 69, .12);
+    }
+
+    html[data-theme="dark"] .modified-box {
+        background: rgba(25, 135, 84, .12);
+    }
+
+    html[data-theme="dark"] .comment-box {
+        background: rgba(13, 110, 253, .12);
+    }
+
+    html[data-theme="dark"] .rejection-box {
+        background: rgba(220, 53, 69, .12);
+    }
+
+    html[data-theme="dark"] .status-active {
+        background: rgba(34, 197, 94, .15);
+        color: #86efac;
+        border-color: rgba(134, 239, 172, .2);
+    }
+
+    html[data-theme="dark"] .status-pending {
+        background: rgba(245, 158, 11, .15);
+        color: #fcd34d;
+        border-color: rgba(252, 211, 77, .2);
+    }
+
+    html[data-theme="dark"] .status-inactive {
+        background: rgba(239, 68, 68, .15);
+        color: #fca5a5;
+        border-color: rgba(252, 165, 165, .2);
+    }
+
+    /* Responsive */
+
+    @media (max-width: 850px) {
+        .contract-detail-page {
+            padding: 25px 18px 40px;
+        }
+
+        .version-details {
+            grid-template-columns: 1fr;
+        }
+
+        .modification-meta {
+            grid-template-columns: 1fr;
+        }
+
+        .contract-info-table th {
+            width: 160px;
+        }
+    }
+
+    @media (max-width: 600px) {
+        .contract-detail-page {
+            padding: 20px 12px 35px;
+        }
+
+        .contract-header h1 {
+            font-size: 25px;
+        }
+
+        .contract-section-header,
+        .contract-section-body {
+            padding: 17px;
+        }
+
+        .contract-info-table th,
+        .contract-info-table td {
+            display: block;
+            width: 100%;
+            padding: 9px 12px;
+        }
+
+        .contract-info-table th {
+            padding-bottom: 3px;
+            border-bottom: none;
+        }
+
+        .contract-info-table td {
+            padding-top: 3px;
+        }
+
+        .modification-card {
+            padding: 17px;
+        }
+
+        .action-buttons .btn,
+        .bottom-actions .btn {
+            width: 100%;
+        }
+
+        .action-buttons,
+        .bottom-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+    }
+</style>
+```
 
 </head>
 
 <body>
 
-<div class="container">
+<main class="contract-detail-page">
+
+```
+<!-- =====================================================
+     HEADER
+====================================================== -->
+
+<header class="contract-header">
+
+    <div>
+
+        <h1>Contract Details</h1>
+
+        <p>
+            Welcome,
+            <strong>{{ user.username }}</strong>
+        </p>
+
+        <p>
+            Role:
+            {% if user.is_superuser %}
+                <strong>Admin</strong>
+            {% elif user.role %}
+                <strong>{{ user.role.name }}</strong>
+            {% else %}
+                <strong>No Role Assigned</strong>
+            {% endif %}
+        </p>
 
-
-<!-- ================= HEADER ================= -->
-
-<h1>Contract Details</h1>
-
-<p>
-    Welcome,
-    <strong>{{ user.username }}</strong>
-</p>
-
-<p>
-    Role:
-
-    {% if user.is_superuser %}
-
-        <strong>Admin</strong>
-
-    {% elif user.role %}
-
-        <strong>{{ user.role.name }}</strong>
-
-    {% else %}
-
-        <strong>No Role Assigned</strong>
-
-    {% endif %}
-
-</p>
-
-
-<!-- ================= CONTRACT INFORMATION ================= -->
-
-<div class="card">
-
-    <h2>Contract Information</h2>
-
-    <table>
-
-        <tbody>
-
-            <tr>
-                <th>Contract ID</th>
-                <td>{{ contract.id }}</td>
-            </tr>
-
-            <tr>
-                <th>Contract Number</th>
-                <td>{{ contract.contract_number }}</td>
-            </tr>
-
-            <tr>
-                <th>Title</th>
-                <td>{{ contract.title }}</td>
-            </tr>
-
-            <tr>
-                <th>Description</th>
-
-                <td>
-
-                    {% if contract.description %}
-
-                        {{ contract.description }}
-
-                    {% else %}
-
-                        -
-
-                    {% endif %}
-
-                </td>
-
-            </tr>
-
-            <tr>
-                <th>Status</th>
-                <td>{{ contract.status }}</td>
-            </tr>
-
-            <tr>
-
-                <th>Created By</th>
-
-                <td>
-
-                    {% if contract.created_by %}
-
-                        {{ contract.created_by.username }}
-
-                    {% else %}
-
-                        -
-
-                    {% endif %}
-
-                </td>
-
-            </tr>
-
-            <tr>
-
-                <th>Start Date</th>
-
-                <td>
-
-                    {% if contract.start_date %}
-
-                        {{ contract.start_date|date:"d M Y" }}
-
-                    {% else %}
-
-                        -
-
-                    {% endif %}
-
-                </td>
-
-            </tr>
-
-            <tr>
-
-                <th>End Date</th>
-
-                <td>
-
-                    {% if contract.end_date %}
-
-                        {{ contract.end_date|date:"d M Y" }}
-
-                    {% else %}
-
-                        -
-
-                    {% endif %}
-
-                </td>
-
-            </tr>
-
-        </tbody>
-
-    </table>
-
-</div>
-
-
-<br>
-
-<!-- ================= DOCUMENTS ================= -->
-
-<div class="card">
-
-    <div class="card-header">
-        <h2>Documents</h2>
     </div>
 
-    <div class="card-body">
+</header>
 
-        {% if contract.documents.all %}
 
-            <div class="table-container">
+<!-- =====================================================
+     CONTRACT INFORMATION
+====================================================== -->
 
-                <table>
+<section class="contract-section">
 
-                    <thead>
-                        <tr>
-                            <th>Document Name</th>
-                            <th>Document Type</th>
-                            <th>Uploaded By</th>
-                            <th>Uploaded At</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
+    <div class="contract-section-header">
 
-                    <tbody>
+        <h2>Contract Information</h2>
 
-                        {% for document in contract.documents.all %}
+        <span class="status-badge
+            {% if contract.status == 'Active' %}
+                status-active
+            {% elif contract.status == 'Draft' %}
+                status-pending
+            {% elif contract.status == 'Expired' or contract.status == 'Terminated' %}
+                status-inactive
+            {% endif %}">
+            {{ contract.status }}
+        </span>
 
-                        <tr>
+    </div>
 
-                            <td>
-                                {{ document.name }}
-                            </td>
+    <div class="contract-section-body">
 
-                            <td>
-                                {{ document.document_type }}
-                            </td>
+        <table class="contract-info-table">
 
-                            <td>
-                                {% if document.uploaded_by %}
-                                    {{ document.uploaded_by.username }}
+            <tbody>
+
+                <tr>
+                    <th>Contract ID</th>
+                    <td>{{ contract.id }}</td>
+                </tr>
+
+                <tr>
+                    <th>Contract Number</th>
+                    <td>{{ contract.contract_number }}</td>
+                </tr>
+
+                <tr>
+                    <th>Title</th>
+                    <td>{{ contract.title }}</td>
+                </tr>
+
+                <tr>
+                    <th>Description</th>
+                    <td>
+                        {% if contract.description %}
+                            {{ contract.description }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                </tr>
+
+                <tr>
+                    <th>Status</th>
+                    <td>{{ contract.status }}</td>
+                </tr>
+
+                <tr>
+                    <th>Created By</th>
+                    <td>
+                        {% if contract.created_by %}
+                            {{ contract.created_by.username }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                </tr>
+
+                <tr>
+                    <th>Start Date</th>
+                    <td>
+                        {% if contract.start_date %}
+                            {{ contract.start_date|date:"d M Y" }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                </tr>
+
+                <tr>
+                    <th>End Date</th>
+                    <td>
+                        {% if contract.end_date %}
+                            {{ contract.end_date|date:"d M Y" }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                </tr>
+
+                <tr>
+                    <th>Created At</th>
+                    <td>
+                        {{ contract.created_at|date:"d M Y H:i" }}
+                    </td>
+                </tr>
+
+                <tr>
+                    <th>Last Updated</th>
+                    <td>
+                        {{ contract.updated_at|date:"d M Y H:i" }}
+                    </td>
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     CURRENT VERSION
+====================================================== -->
+
+<section class="contract-section">
+
+    <div class="contract-section-header">
+
+        <h2>Current Version</h2>
+
+    </div>
+
+    <div class="contract-section-body">
+
+        {% with latest_version=contract.versions.first %}
+
+            {% if latest_version %}
+
+                <div class="version-card">
+
+                    <div class="version-main">
+
+                        <div class="version-number">
+                            Version {{ latest_version.version_number }}
+                        </div>
+
+                        <span class="status-badge status-active">
+                            Current Version
+                        </span>
+
+                    </div>
+
+                    <div class="version-details">
+
+                        <div class="version-detail">
+
+                            <span class="version-detail-label">
+                                Created By
+                            </span>
+
+                            <span class="version-detail-value">
+
+                                {% if latest_version.created_by %}
+                                    {{ latest_version.created_by.username }}
                                 {% else %}
                                     -
                                 {% endif %}
-                            </td>
 
-                            <td>
-                                {{ document.uploaded_at|date:"d M Y H:i" }}
-                            </td>
+                            </span>
 
-                            <td>
+                        </div>
+
+                        <div class="version-detail">
+
+                            <span class="version-detail-label">
+                                Created On
+                            </span>
+
+                            <span class="version-detail-value">
+                                {{ latest_version.created_at|date:"d M Y H:i" }}
+                            </span>
+
+                        </div>
+
+                        <div class="version-detail">
+
+                            <span class="version-detail-label">
+                                Change Summary
+                            </span>
+
+                            <span class="version-detail-value">
+
+                                {% if latest_version.change_summary %}
+                                    {{ latest_version.change_summary }}
+                                {% else %}
+                                    No changes recorded
+                                {% endif %}
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            {% else %}
+
+                <div class="empty-state">
+
+                    <div class="empty-icon">📋</div>
+
+                    <p>
+                        No version has been created for this contract yet.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        {% endwith %}
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     DOCUMENTS
+====================================================== -->
+
+<section class="contract-section">
+
+    <div class="contract-section-header">
+
+        <h2>Documents</h2>
+
+    </div>
+
+    <div class="contract-section-body">
+
+        <div class="contract-table-wrapper">
+
+            <table class="contract-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Document Name</th>
+                        <th>Document Type</th>
+                        <th>Uploaded By</th>
+                        <th>Uploaded At</th>
+                        <th>Actions</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for document in contract.documents.all %}
+
+                    <tr>
+
+                        <td class="document-name">
+                            {{ document.name }}
+                        </td>
+
+                        <td>
+                            {{ document.document_type }}
+                        </td>
+
+                        <td>
+
+                            {% if document.uploaded_by %}
+                                {{ document.uploaded_by.username }}
+                            {% else %}
+                                -
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+                            {{ document.uploaded_at|date:"d M Y H:i" }}
+                        </td>
+
+                        <td>
+
+                            <div class="action-buttons">
 
                                 <a href="{% url 'document_view' document.id %}"
                                    class="btn btn-primary">
@@ -236,51 +892,335 @@
                                     Download
                                 </a>
 
-                            </td>
+                                {% if user.is_superuser or user.role and user.role.name|lower == "admin" or user.role and user.role.name|lower == "contract manager" %}
 
-                        </tr>
+                                    <a href="{% url 'document_update' document.id %}"
+                                       class="btn btn-secondary">
+                                        Edit
+                                    </a>
 
-                        {% empty %}
+                                    <a href="{% url 'document_delete' document.id %}"
+                                       class="btn btn-danger">
+                                        Delete
+                                    </a>
 
-                        <tr>
-                            <td colspan="5" style="text-align: center;">
-                                No documents uploaded for this contract.
-                            </td>
-                        </tr>
+                                {% endif %}
 
-                        {% endfor %}
+                            </div>
 
-                    </tbody>
+                        </td>
 
-                </table>
+                    </tr>
 
-            </div>
+                    {% empty %}
 
-        {% else %}
+                    <tr>
 
-            <p>No documents uploaded for this contract.</p>
+                        <td colspan="5">
+
+                            <div class="empty-state">
+
+                                <div class="empty-icon">📄</div>
+
+                                <p>
+                                    No documents uploaded for this contract.
+                                </p>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     MODIFICATION REQUESTS
+====================================================== -->
+
+<section class="contract-section">
+
+    <div class="contract-section-header">
+
+        <h2>Modification Requests</h2>
+
+        {% if user.is_superuser or user.role and user.role.name|lower == "admin" or user.role and user.role.name|lower == "contract manager" or user.role and user.role.name|lower == "user" %}
+
+            <a href="{% url 'modification_create' %}?contract={{ contract.id }}"
+               class="btn btn-primary">
+                + New Modification Request
+            </a>
 
         {% endif %}
 
     </div>
 
+
+    <div class="contract-section-body">
+
+        {% for modification in contract.modifications.all %}
+
+            <article class="modification-card">
+
+                <div class="modification-header">
+
+                    <div>
+
+                        <h3 class="modification-title">
+                            Modification Request #{{ modification.id }}
+                        </h3>
+
+                        <p class="modification-clause">
+
+                            <strong>Clause:</strong>
+
+                            {% if modification.clause %}
+                                {{ modification.clause.clause_number }}
+                                -
+                                {{ modification.clause.title }}
+                            {% else %}
+                                General Contract
+                            {% endif %}
+
+                        </p>
+
+                    </div>
+
+
+                    <div>
+
+                        {% if modification.status == "PENDING" %}
+
+                            <span class="status-badge status-pending">
+                                Pending
+                            </span>
+
+                        {% elif modification.status == "APPROVED" %}
+
+                            <span class="status-badge status-active">
+                                Approved
+                            </span>
+
+                        {% elif modification.status == "REJECTED" %}
+
+                            <span class="status-badge status-inactive">
+                                Rejected
+                            </span>
+
+                        {% else %}
+
+                            <span class="status-badge">
+                                {{ modification.status }}
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+
+                <div class="modification-meta">
+
+                    <div class="meta-item">
+
+                        <strong>Modified By:</strong>
+
+                        {% if modification.modified_by %}
+                            {{ modification.modified_by.username }}
+                        {% else %}
+                            -
+                        {% endif %}
+
+                    </div>
+
+                    <div class="meta-item">
+
+                        <strong>Requested On:</strong>
+
+                        {{ modification.modified_at|date:"d M Y H:i" }}
+
+                    </div>
+
+                </div>
+
+
+                {% if modification.reason %}
+
+                    <div class="content-section">
+
+                        <span class="content-label">
+                            Reason for Modification
+                        </span>
+
+                        <div class="content-box">
+                            {{ modification.reason }}
+                        </div>
+
+                    </div>
+
+                {% endif %}
+
+
+                <div class="content-section">
+
+                    <span class="content-label">
+                        Original Content
+                    </span>
+
+                    <div class="content-box original-box">
+                        {{ modification.old_content }}
+                    </div>
+
+                </div>
+
+
+                <div class="content-section">
+
+                    <span class="content-label">
+                        Modified Content
+                    </span>
+
+                    <div class="content-box modified-box">
+                        {{ modification.new_content }}
+                    </div>
+
+                </div>
+
+
+                {% if modification.approval_comment %}
+
+                    <div class="content-section">
+
+                        <span class="content-label">
+                            Approver Comment
+                        </span>
+
+                        <div class="content-box comment-box">
+                            {{ modification.approval_comment }}
+                        </div>
+
+                    </div>
+
+                {% endif %}
+
+
+                {% if modification.rejection_reason %}
+
+                    <div class="content-section">
+
+                        <span class="content-label">
+                            Rejection Reason
+                        </span>
+
+                        <div class="content-box rejection-box">
+                            {{ modification.rejection_reason }}
+                        </div>
+
+                    </div>
+
+                {% endif %}
+
+
+                <div class="action-buttons">
+
+                    <a href="{% url 'modification_detail' modification.id %}"
+                       class="btn btn-secondary">
+                        View Modification
+                    </a>
+
+                </div>
+
+            </article>
+
+        {% empty %}
+
+            <div class="empty-state">
+
+                <div class="empty-icon">📝</div>
+
+                <p>
+                    No modification requests for this contract.
+                </p>
+
+                {% if user.is_superuser or user.role and user.role.name|lower == "admin" or user.role and user.role.name|lower == "contract manager" or user.role and user.role.name|lower == "user" %}
+
+                    <a href="{% url 'modification_create' %}?contract={{ contract.id }}"
+                       class="btn btn-primary">
+                        + Create First Modification Request
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     BOTTOM ACTIONS
+====================================================== -->
+
+<div class="bottom-actions">
+
+
+    {% if user.is_superuser or user.role and user.role.name|lower == "admin" %}
+
+        <a href="{% url 'version_history' contract.id %}"
+           class="btn btn-primary">
+            📚 Version History
+        </a>
+
+    {% endif %}
+
+
+    {% if user.is_superuser or user.role and user.role.name|lower == "admin" or user.role and user.role.name|lower == "contract manager" %}
+
+        <a href="{% url 'contract_update' contract.id %}"
+           class="btn btn-secondary">
+            ✏️ Edit Contract
+        </a>
+
+    {% endif %}
+
+
+    <a href="{% url 'contract_list' %}"
+       class="btn btn-secondary">
+        ← Back to Contracts
+    </a>
+
 </div>
 
-<br>
+</main>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
 
-<!-- ================= BACK BUTTON ================= -->
+        const savedTheme =
+            localStorage.getItem("legalContractTheme") || "light";
 
-<a href="{% url 'contract_list' %}"
-   class="back-btn">
+        document.documentElement.setAttribute(
+            "data-theme",
+            savedTheme
+        );
 
-    ← Back to Contracts
-
-</a>
-
-
-</div>
+    });
+</script>
 
 </body>
-
 </html>

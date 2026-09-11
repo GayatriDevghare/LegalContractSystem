@@ -1,49 +1,689 @@
 {% load static %}
 
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Role Management - Legal Contract System</title>
+<meta charset="UTF-8">
 
-    <link rel="stylesheet"
-          href="{% static 'contracts/css/style.css' %}">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>
+    Role Management - Legal Contract System
+</title>
+
+<link rel="stylesheet"
+      href="{% static 'contracts/css/style.css' %}">
+
+<style>
+
+    /* =========================================================
+       ROLE MANAGEMENT PAGE
+       ========================================================= */
+
+    .role-list-page {
+        min-height: 100vh;
+
+        padding: 30px 25px;
+
+        box-sizing: border-box;
+    }
+
+    .role-list-container {
+        width: 100%;
+        max-width: 1250px;
+
+        margin: 0 auto;
+    }
+
+    /* =========================================================
+       PAGE HEADER
+       ========================================================= */
+
+    .role-list-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 20px;
+
+        margin-bottom: 24px;
+    }
+
+    .role-list-title h1 {
+        margin: 0 0 6px;
+
+        color: var(
+            --text-primary,
+            #1f2937
+        );
+
+        font-size: 26px;
+        font-weight: 700;
+    }
+
+    .role-list-title p {
+        margin: 0;
+
+        color: var(
+            --text-secondary,
+            #6b7280
+        );
+
+        font-size: 13px;
+    }
+
+    .role-list-header-actions {
+        display: flex;
+        align-items: center;
+
+        gap: 10px;
+
+        flex-shrink: 0;
+    }
+
+    .role-list-header-actions .btn {
+        min-height: 40px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* =========================================================
+       ALERTS
+       ========================================================= */
+
+    .role-list-alert {
+        margin-bottom: 18px;
+
+        padding: 12px 15px;
+
+        border-radius: 8px;
+
+        font-size: 13px;
+
+        line-height: 1.5;
+    }
+
+    .role-list-alert.success {
+        background: #ecfdf5;
+
+        border: 1px solid #a7f3d0;
+
+        color: #047857;
+    }
+
+    .role-list-alert.error {
+        background: #fef2f2;
+
+        border: 1px solid #fecaca;
+
+        color: #b91c1c;
+    }
+
+    /* =========================================================
+       MAIN CARD
+       ========================================================= */
+
+    .role-list-card {
+        background: var(
+            --card-bg,
+            #ffffff
+        );
+
+        border: 1px solid var(
+            --border-color,
+            #e5e7eb
+        );
+
+        border-radius: 16px;
+
+        box-shadow:
+            0 8px 28px rgba(0, 0, 0, 0.06);
+
+        overflow: hidden;
+    }
+
+    /* =========================================================
+       CARD HEADER
+       ========================================================= */
+
+    .role-list-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        padding: 21px 24px;
+
+        border-bottom: 1px solid var(
+            --border-color,
+            #e5e7eb
+        );
+    }
+
+    .role-list-card-heading {
+        display: flex;
+        align-items: center;
+
+        gap: 13px;
+    }
+
+    .role-list-icon {
+        width: 42px;
+        height: 42px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        flex-shrink: 0;
+
+        border-radius: 10px;
+
+        background: rgba(
+            185,
+            28,
+            28,
+            0.09
+        );
+
+        color: #b91c1c;
+
+        font-size: 20px;
+    }
+
+    .role-list-card-header h2 {
+        margin: 0 0 3px;
+
+        color: var(
+            --text-primary,
+            #1f2937
+        );
+
+        font-size: 17px;
+        font-weight: 700;
+    }
+
+    .role-list-card-header p {
+        margin: 0;
+
+        color: var(
+            --text-secondary,
+            #6b7280
+        );
+
+        font-size: 12px;
+    }
+
+    /* =========================================================
+       TABLE
+       ========================================================= */
+
+    .role-table-wrapper {
+        width: 100%;
+
+        overflow-x: auto;
+    }
+
+    .role-table {
+        width: 100%;
+
+        min-width: 760px;
+
+        border-collapse: collapse;
+    }
+
+    .role-table thead {
+        background: var(
+            --table-header-bg,
+            #f8fafc
+        );
+    }
+
+    .role-table th {
+        padding: 14px 18px;
+
+        border-bottom: 1px solid var(
+            --border-color,
+            #e5e7eb
+        );
+
+        color: var(
+            --text-secondary,
+            #6b7280
+        );
+
+        font-size: 11px;
+        font-weight: 700;
+
+        text-transform: uppercase;
+
+        letter-spacing: 0.04em;
+
+        text-align: left;
+
+        white-space: nowrap;
+    }
+
+    .role-table td {
+        padding: 16px 18px;
+
+        border-bottom: 1px solid var(
+            --border-color,
+            #eef0f3
+        );
+
+        color: var(
+            --text-primary,
+            #374151
+        );
+
+        font-size: 13px;
+
+        vertical-align: middle;
+    }
+
+    .role-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .role-table tbody tr {
+        transition:
+            background-color 0.15s ease;
+    }
+
+    .role-table tbody tr:hover {
+        background: rgba(
+            185,
+            28,
+            28,
+            0.025
+        );
+    }
+
+    /* =========================================================
+       SERIAL NUMBER
+       ========================================================= */
+
+    .role-number {
+        width: 70px;
+
+        color: var(
+            --text-secondary,
+            #6b7280
+        ) !important;
+
+        font-weight: 600;
+    }
+
+    /* =========================================================
+       ROLE NAME
+       ========================================================= */
+
+    .role-name {
+        font-weight: 700;
+
+        color: var(
+            --text-primary,
+            #1f2937
+        );
+    }
+
+    .role-description {
+        max-width: 360px;
+
+        color: var(
+            --text-secondary,
+            #6b7280
+        );
+
+        line-height: 1.5;
+    }
+
+    /* =========================================================
+       USER COUNT
+       ========================================================= */
+
+    .role-user-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        min-width: 34px;
+        min-height: 28px;
+
+        padding: 3px 10px;
+
+        border-radius: 15px;
+
+        background: rgba(
+            185,
+            28,
+            28,
+            0.08
+        );
+
+        color: #b91c1c;
+
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    /* =========================================================
+       ACTIONS
+       ========================================================= */
+
+    .role-action-buttons {
+        display: flex;
+        align-items: center;
+
+        gap: 8px;
+    }
+
+    .role-action-buttons .btn {
+        min-height: 34px;
+
+        padding: 7px 13px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        font-size: 12px;
+    }
+
+    /* =========================================================
+       EMPTY STATE
+       ========================================================= */
+
+    .role-empty-state {
+        padding: 65px 25px;
+
+        text-align: center;
+    }
+
+    .role-empty-icon {
+        width: 58px;
+        height: 58px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        margin: 0 auto 16px;
+
+        border-radius: 14px;
+
+        background: rgba(
+            185,
+            28,
+            28,
+            0.08
+        );
+
+        color: #b91c1c;
+
+        font-size: 25px;
+    }
+
+    .role-empty-state h3 {
+        margin: 0 0 7px;
+
+        color: var(
+            --text-primary,
+            #1f2937
+        );
+
+        font-size: 18px;
+    }
+
+    .role-empty-state p {
+        margin: 0 0 20px;
+
+        color: var(
+            --text-secondary,
+            #6b7280
+        );
+
+        font-size: 13px;
+    }
+
+    /* =========================================================
+       DARK THEME
+       ========================================================= */
+
+    html[data-theme="dark"] .role-list-title h1,
+    html[data-theme="dark"] .role-list-card-header h2,
+    html[data-theme="dark"] .role-name,
+    html[data-theme="dark"] .role-table td {
+        color: #f3f4f6;
+    }
+
+    html[data-theme="dark"] .role-list-title p,
+    html[data-theme="dark"] .role-list-card-header p,
+    html[data-theme="dark"] .role-table th,
+    html[data-theme="dark"] .role-description,
+    html[data-theme="dark"] .role-number,
+    html[data-theme="dark"] .role-empty-state p {
+        color: #aeb6c5 !important;
+    }
+
+    html[data-theme="dark"] .role-list-card {
+        background: #151922;
+
+        border-color: #2d3340;
+    }
+
+    html[data-theme="dark"] .role-list-card-header {
+        border-bottom-color: #2d3340;
+    }
+
+    html[data-theme="dark"] .role-table thead {
+        background: #1b202b;
+    }
+
+    html[data-theme="dark"] .role-table th {
+        border-bottom-color: #2d3340;
+    }
+
+    html[data-theme="dark"] .role-table td {
+        border-bottom-color: #2d3340;
+    }
+
+    html[data-theme="dark"] .role-table tbody tr:hover {
+        background: rgba(
+            255,
+            255,
+            255,
+            0.025
+        );
+    }
+
+    html[data-theme="dark"] .role-list-alert.success {
+        background: rgba(
+            16,
+            185,
+            129,
+            0.10
+        );
+
+        border-color: rgba(
+            16,
+            185,
+            129,
+            0.25
+        );
+
+        color: #6ee7b7;
+    }
+
+    html[data-theme="dark"] .role-list-alert.error {
+        background: rgba(
+            220,
+            38,
+            38,
+            0.10
+        );
+
+        border-color: rgba(
+            248,
+            113,
+            113,
+            0.25
+        );
+
+        color: #fca5a5;
+    }
+
+    html[data-theme="dark"] .role-user-count {
+        background: rgba(
+            248,
+            113,
+            113,
+            0.10
+        );
+
+        color: #fca5a5;
+    }
+
+    /* =========================================================
+       RESPONSIVE
+       ========================================================= */
+
+    @media (max-width: 800px) {
+
+        .role-list-page {
+            padding: 25px 16px;
+        }
+
+        .role-list-header {
+            align-items: flex-start;
+
+            flex-direction: column;
+        }
+
+        .role-list-header-actions {
+            width: 100%;
+        }
+
+        .role-list-header-actions .btn {
+            flex: 1;
+        }
+
+    }
+
+    @media (max-width: 500px) {
+
+        .role-list-page {
+            padding: 18px 12px;
+        }
+
+        .role-list-title h1 {
+            font-size: 22px;
+        }
+
+        .role-list-header-actions {
+            flex-direction: column;
+        }
+
+        .role-list-header-actions .btn {
+            width: 100%;
+        }
+
+        .role-list-card-header {
+            padding: 18px;
+        }
+
+        .role-action-buttons {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .role-action-buttons .btn {
+            width: 100%;
+        }
+
+    }
+
+</style>
+```
+
 </head>
 
 <body>
 
-<div class="container">
+<div class="role-list-page">
 
-    <div class="page-header">
+```
+<div class="role-list-container">
 
-        <div>
-            <h1>Role Management</h1>
-            <p>Manage roles and access levels in the system.</p>
+
+    <!-- =====================================================
+         PAGE HEADER
+         ===================================================== -->
+
+    <div class="role-list-header">
+
+
+        <div class="role-list-title">
+
+            <h1>
+                Role Management
+            </h1>
+
+            <p>
+                Manage roles and access levels in the system.
+            </p>
+
         </div>
 
-        <div class="header-actions">
 
-            <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+        <div class="role-list-header-actions">
+
+
+            <a href="{% url 'dashboard' %}"
+               class="btn btn-secondary">
+
                 Dashboard
+
             </a>
 
-            <a href="{% url 'role_create' %}" class="btn btn-primary">
+
+            <a href="{% url 'role_create' %}"
+               class="btn btn-primary">
+
                 + Add Role
+
             </a>
+
 
         </div>
+
 
     </div>
 
+
+    <!-- =====================================================
+         MESSAGES
+         ===================================================== -->
 
     {% if messages %}
 
         {% for message in messages %}
 
-            <div class="alert {{ message.tags }}">
+            <div class="role-list-alert
+                {% if message.tags == 'success' %}
+                    success
+                {% elif message.tags == 'error' %}
+                    error
+                {% endif %}">
+
                 {{ message }}
+
             </div>
 
         {% endfor %}
@@ -51,108 +691,259 @@
     {% endif %}
 
 
-    <div class="card">
+    <!-- =====================================================
+         ROLE CARD
+         ===================================================== -->
 
-        <div class="card-header">
+    <div class="role-list-card">
 
-            <div>
-                <h2>Roles</h2>
-                <p>{{ roles|length }} role{{ roles|length|pluralize }} available</p>
+
+        <div class="role-list-card-header">
+
+
+            <div class="role-list-card-heading">
+
+
+                <div class="role-list-icon">
+                    ⚙
+                </div>
+
+
+                <div>
+
+                    <h2>
+                        Roles
+                    </h2>
+
+                    <p>
+
+                        {{ roles|length }}
+                        role{{ roles|length|pluralize }}
+                        available
+
+                    </p>
+
+                </div>
+
+
             </div>
+
 
         </div>
 
 
         {% if roles %}
 
-            <div class="table-responsive">
 
-                <table class="data-table">
+            <!-- =================================================
+                 ROLE TABLE
+                 ================================================= -->
+
+            <div class="role-table-wrapper">
+
+
+                <table class="role-table">
+
 
                     <thead>
+
                         <tr>
-                            <th>Sr No.</th>
-                            <th>Role Name</th>
-                            <th>Description</th>
-                            <th>Users</th>
-                            <th>Actions</th>
+
+                            <th>
+                                Sr No.
+                            </th>
+
+                            <th>
+                                Role Name
+                            </th>
+
+                            <th>
+                                Description
+                            </th>
+
+                            <th>
+                                Users
+                            </th>
+
+                            <th>
+                                Actions
+                            </th>
+
                         </tr>
+
                     </thead>
+
 
                     <tbody>
 
+
                         {% for role in roles %}
+
 
                             <tr>
 
-                                <td>
+
+                                <td class="role-number">
+
                                     {{ forloop.counter }}
+
                                 </td>
 
+
                                 <td>
-                                    <strong>
+
+                                    <span class="role-name">
+
                                         {{ role.name }}
-                                    </strong>
+
+                                    </span>
+
                                 </td>
 
-                                <td>
-                                    {{ role.description }}
-                                </td>
-
-                                <td>
-                                    {{ role.users.count }}
-                                </td>
 
                                 <td>
 
-                                    <div class="action-buttons">
+                                    <div class="role-description">
 
-                                        <a href="{% url 'role_update' role.id %}"
-                                            class="btn btn-edit">
-                                            Edit
-                                        </a>
+                                        {% if role.description %}
 
-                                        <a href="{% url 'role_delete' role.id %}"
-                                            class="btn btn-danger">
-                                            Delete
-                                        </a>
+                                            {{ role.description }}
+
+                                        {% else %}
+
+                                            No description provided.
+
+                                        {% endif %}
 
                                     </div>
 
                                 </td>
 
+
+                                <td>
+
+                                    <span class="role-user-count">
+
+                                        {{ role.users.count }}
+
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+
+
+                                    <div class="role-action-buttons">
+
+
+                                        <a
+                                            href="{% url 'role_update' role.id %}"
+                                            class="btn btn-edit">
+
+                                            Edit
+
+                                        </a>
+
+
+                                        <a
+                                            href="{% url 'role_delete' role.id %}"
+                                            class="btn btn-danger">
+
+                                            Delete
+
+                                        </a>
+
+
+                                    </div>
+
+
+                                </td>
+
+
                             </tr>
+
 
                         {% endfor %}
 
+
                     </tbody>
+
 
                 </table>
 
+
             </div>
+
 
         {% else %}
 
-            <div class="empty-state">
 
-                <h3>No Roles Found</h3>
+            <!-- =================================================
+                 EMPTY STATE
+                 ================================================= -->
+
+            <div class="role-empty-state">
+
+
+                <div class="role-empty-icon">
+                    ⚙
+                </div>
+
+
+                <h3>
+                    No Roles Found
+                </h3>
+
 
                 <p>
                     No roles have been created yet.
                 </p>
 
-                <a href="{% url 'role_create' %}"
-                   class="btn btn-primary">
+
+                <a
+                    href="{% url 'role_create' %}"
+                    class="btn btn-primary">
+
                     Create First Role
+
                 </a>
+
 
             </div>
 
+
         {% endif %}
+
 
     </div>
 
+
 </div>
 
+</div>
+
+<!-- =========================================================
+     THEME SUPPORT
+     ========================================================= -->
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const savedTheme =
+        localStorage.getItem("legalContractTheme") || "light";
+
+
+    document.documentElement.setAttribute(
+        "data-theme",
+        savedTheme
+    );
+
+});
+
+</script>
+
 </body>
+
 </html>
